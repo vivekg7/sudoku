@@ -1,0 +1,178 @@
+# Implementation Plan
+
+> Checkboxes track progress. `[x]` = done, `[ ]` = pending.
+> This file is the source of truth for where we left off.
+
+---
+
+## Phase 1: Project Setup
+
+- [ ] Initialise monorepo structure (`packages/`, `apps/`)
+- [ ] Create `sudoku_core` Dart package with `pubspec.yaml`
+- [ ] Create `cli` Dart app with dependency on `sudoku_core`
+- [ ] Create `flutter_app` Flutter project with dependency on `sudoku_core`
+- [ ] Verify all three build: `dart test` on core, `dart compile exe` on CLI, `flutter run` on app
+
+---
+
+## Phase 2: Core Models
+
+- [ ] `Cell` — value, candidates (pencil marks), given vs user-filled, position (row, col, box)
+- [ ] `Board` — 9x9 grid of cells, access by row/col/box, clone/snapshot
+- [ ] `Move` — represents a user or solver action (set value, toggle candidate, etc.)
+- [ ] `MoveHistory` — undo/redo stack of moves
+- [ ] `Puzzle` — board + solution + difficulty + metadata
+- [ ] Unit tests for all models
+
+---
+
+## Phase 3: Solver — Basic Strategies
+
+Build the step-by-step solver. Each strategy returns a `SolveStep` describing what it found and where.
+
+- [ ] Define `SolveStep` model (strategy used, cells affected, candidates eliminated, value placed)
+- [ ] Define `Strategy` interface / base class
+- [ ] Naked Singles
+- [ ] Hidden Singles
+- [ ] Naked Pairs
+- [ ] Hidden Pairs
+- [ ] Naked Triples
+- [ ] Hidden Triples
+- [ ] Naked Quads
+- [ ] Hidden Quads
+- [ ] Pointing Pairs / Pointing Triples (box–line reduction)
+- [ ] Box/Line Reduction (claiming)
+- [ ] Unit tests for each strategy (known puzzle states → expected step)
+
+---
+
+## Phase 4: Solver — Intermediate Strategies
+
+- [ ] X-Wing
+- [ ] Swordfish
+- [ ] Jellyfish
+- [ ] XY-Wing
+- [ ] XYZ-Wing
+- [ ] Unique Rectangles (Type 1, 2, 3, 4)
+- [ ] Unit tests for each
+
+---
+
+## Phase 5: Solver — Advanced Strategies
+
+- [ ] Simple Colouring
+- [ ] X-Chains
+- [ ] XY-Chains
+- [ ] Alternating Inference Chains (AIC)
+- [ ] Forcing Chains
+- [ ] Almost Locked Sets (ALS)
+- [ ] Sue de Coq
+- [ ] Backtracking (fallback only — used for validation, not hints)
+- [ ] Unit tests for each
+
+---
+
+## Phase 6: Step-by-Step Solver Engine
+
+- [ ] `Solver` class that iterates strategies in order of difficulty
+- [ ] Returns an ordered list of `SolveStep`s from start to finish
+- [ ] Classify puzzle difficulty based on hardest strategy required
+- [ ] Define 5–6 difficulty levels with strategy thresholds
+- [ ] Full integration tests: give a puzzle, verify complete solve path
+
+---
+
+## Phase 7: Puzzle Generator
+
+- [ ] Generate a complete valid board (random fill with backtracking)
+- [ ] Remove clues symmetrically while ensuring unique solution
+- [ ] Difficulty targeting: generate → solve → check if difficulty matches → retry or adjust
+- [ ] Bulk generation support (generate N puzzles, optionally parallelised with isolates)
+- [ ] Tests: generated puzzles have unique solutions, match requested difficulty
+
+---
+
+## Phase 8: Hint System
+
+- [ ] Given current board state, determine the next `SolveStep`
+- [ ] **Layer 1 (nudge)**: extract region + digit from `SolveStep` — e.g., "Look for 3 in box 4"
+- [ ] **Layer 2 (strategy)**: extract strategy name + region — e.g., "Hidden pair in box 5"
+- [ ] **Layer 3 (answer)**: full placement — e.g., "Write 3 in R4C5"
+- [ ] `Hint` model with layers, linked to the underlying `SolveStep`
+- [ ] Tests: verify each layer exposes progressively more information
+
+---
+
+## Phase 9: Stats & Persistence
+
+- [ ] `GameStats` model — solve time, difficulty, hints taken (per layer, per strategy), completion status
+- [ ] `StatsStore` — accumulate stats across games, compute aggregates (streaks, averages, per-strategy breakdown)
+- [ ] `PuzzleStore` — save/load in-progress puzzles, bookmarks
+- [ ] Serialisation (JSON) for all stored data
+- [ ] Export/import all data as a single file (for cross-device portability)
+- [ ] Tests for serialisation round-trips and stat aggregation
+
+---
+
+## Phase 10: CLI App
+
+- [ ] New game: select difficulty, play interactively in terminal
+- [ ] Board rendering (ASCII grid with candidates)
+- [ ] Input: select cell, enter value, toggle candidate
+- [ ] Undo/redo
+- [ ] Hint command (progressive layers)
+- [ ] Timer display
+- [ ] Auto-solve / show solution
+- [ ] Stats display
+- [ ] Save/load game
+
+---
+
+## Phase 11: Flutter App — Core Gameplay
+
+- [ ] Board widget (9x9 grid, highlight selected cell + related cells)
+- [ ] Number input (tap/keyboard)
+- [ ] Pencil mark mode
+- [ ] Undo/redo buttons
+- [ ] Rule violation highlighting
+- [ ] New game screen (difficulty selection)
+- [ ] Timer widget with pause
+
+---
+
+## Phase 12: Flutter App — Hints & Teaching
+
+- [ ] Hint button (intentionally tucked away, not prominent)
+- [ ] Progressive hint reveal UI (tap once → nudge, tap again → strategy, again → answer)
+- [ ] Visual highlighting of cells/regions referenced by the hint
+- [ ] Hint usage tracking wired into stats
+
+---
+
+## Phase 13: Flutter App — Stats & Data
+
+- [ ] Stats screen (solve times, streaks, difficulty progression, hint breakdown by layer/strategy)
+- [ ] Saved games list (resume in-progress, replay bookmarked)
+- [ ] Export/import data (file picker, share sheet)
+
+---
+
+## Phase 14: PDF Export & QR Codes
+
+- [ ] PDF generation library integration
+- [ ] Puzzle grid rendering to PDF
+- [ ] Bulk generation UI (select count + difficulty)
+- [ ] Hints section at end of PDF
+- [ ] QR code generation per puzzle (encodes puzzle data, app opens it for interactive play)
+- [ ] QR scanning / deep link handling in Flutter app
+
+---
+
+## Phase 15: Polish & Release Prep
+
+- [ ] Error handling and edge cases
+- [ ] Performance profiling (bulk generation, large stat stores)
+- [ ] Platform-specific testing (Android, iOS, macOS, Windows, Linux)
+- [ ] App icons and splash screen
+- [ ] CLI `--help` and documentation
+- [ ] Update README with install/usage instructions
