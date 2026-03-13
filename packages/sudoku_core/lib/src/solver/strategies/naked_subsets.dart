@@ -3,6 +3,7 @@ import '../../models/cell.dart';
 import '../solve_step.dart';
 import '../strategy.dart';
 import '../strategy_type.dart';
+import '../strategy_utils.dart';
 
 /// Naked Pair/Triple/Quad: N cells in a house that together contain exactly
 /// N candidates → those candidates can be eliminated from other cells in
@@ -50,7 +51,7 @@ class NakedSubset extends Strategy {
         house.where((c) => c.isEmpty && c.candidates.isNotEmpty).toList();
 
     // Find all combinations of `size` cells from emptyCells.
-    final combos = _combinations(emptyCells, size);
+    final combos = combinations(emptyCells, size);
 
     for (final combo in combos) {
       final union = <int>{};
@@ -84,21 +85,4 @@ class NakedSubset extends Strategy {
     }
     return null;
   }
-}
-
-List<List<T>> _combinations<T>(List<T> items, int k) {
-  final results = <List<T>>[];
-  void recurse(int start, List<T> current) {
-    if (current.length == k) {
-      results.add(List.of(current));
-      return;
-    }
-    for (var i = start; i < items.length; i++) {
-      current.add(items[i]);
-      recurse(i + 1, current);
-      current.removeLast();
-    }
-  }
-  recurse(0, []);
-  return results;
 }

@@ -2,6 +2,7 @@ import '../../models/board.dart';
 import '../solve_step.dart';
 import '../strategy.dart';
 import '../strategy_type.dart';
+import '../strategy_utils.dart';
 
 /// X-Wing, Swordfish, Jellyfish — generalised "fish" pattern.
 ///
@@ -58,7 +59,7 @@ class Fish extends Strategy {
 
       // Try all combinations of `size` lines.
       final lineIndices = linePositions.keys.toList();
-      for (final combo in _combinations(lineIndices, size)) {
+      for (final combo in combinations(lineIndices, size)) {
         final coverPositions = <int>{};
         for (final lineIdx in combo) {
           coverPositions.addAll(linePositions[lineIdx]!);
@@ -94,9 +95,9 @@ class Fish extends Strategy {
         final baseName = rowBased ? 'rows' : 'columns';
         final coverName = rowBased ? 'columns' : 'rows';
         final baseList = combo.map((i) => i + 1).toList()..sort();
-        final coverList = coverPositions.toList()
-          ..sort()
-          ..map((i) => i + 1).toList();
+        final coverList = (coverPositions.toList()..sort())
+            .map((i) => i + 1)
+            .toList();
 
         return SolveStep(
           strategy: _type,
@@ -104,27 +105,10 @@ class Fish extends Strategy {
           involvedCells: involvedCells,
           description:
               '${_type.label}: $v in $baseName $baseList, '
-              '$coverName ${coverList.map((i) => i + 1).toList()}',
+              '$coverName $coverList',
         );
       }
     }
     return null;
   }
-}
-
-List<List<T>> _combinations<T>(List<T> items, int k) {
-  final results = <List<T>>[];
-  void recurse(int start, List<T> current) {
-    if (current.length == k) {
-      results.add(List.of(current));
-      return;
-    }
-    for (var i = start; i < items.length; i++) {
-      current.add(items[i]);
-      recurse(i + 1, current);
-      current.removeLast();
-    }
-  }
-  recurse(0, []);
-  return results;
 }

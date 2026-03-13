@@ -3,6 +3,7 @@ import '../../models/cell.dart';
 import '../solve_step.dart';
 import '../strategy.dart';
 import '../strategy_type.dart';
+import '../strategy_utils.dart';
 
 /// Alternating Inference Chain (AIC): A chain of alternating strong
 /// and weak links between candidates. If the chain starts and ends
@@ -111,8 +112,8 @@ class AIC extends Strategy {
                   !cell.candidates.contains(start.value)) {
                 continue;
               }
-              if (_isPeer(r, c, start.row, start.col) &&
-                  _isPeer(r, c, current.row, current.col)) {
+              if (isPeer(r, c, start.row, start.col) &&
+                  isPeer(r, c, current.row, current.col)) {
                 eliminations.add(Elimination(r, c, start.value));
               }
             }
@@ -164,12 +165,6 @@ class AIC extends Strategy {
     }
   }
 
-  bool _isPeer(int r1, int c1, int r2, int c2) {
-    if (r1 == r2 && c1 == c2) return false;
-    if (r1 == r2) return true;
-    if (c1 == c2) return true;
-    return (r1 ~/ 3 == r2 ~/ 3) && (c1 ~/ 3 == c2 ~/ 3);
-  }
 }
 
 class _Node {

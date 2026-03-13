@@ -3,6 +3,7 @@ import '../../models/cell.dart';
 import '../solve_step.dart';
 import '../strategy.dart';
 import '../strategy_type.dart';
+import '../strategy_utils.dart';
 
 /// Simple Colouring (Singles Chains): For a candidate that appears in
 /// exactly two cells in some houses, build a chain of alternating
@@ -22,63 +23,71 @@ class SimpleColouring extends Strategy {
 
       if (graph.isEmpty) continue;
 
-      // BFS to colour the graph.
-      final colour = <_CellPos, int>{};
+      // BFS to colour each connected component independently.
+      final coloured = <_CellPos, int>{};
       for (final start in graph.keys) {
-        if (colour.containsKey(start)) continue;
+        if (coloured.containsKey(start)) continue;
 
+        // Track this component's cells.
+        final component = <_CellPos>[];
         final queue = <_CellPos>[start];
-        colour[start] = 0;
+        coloured[start] = 0;
+        component.add(start);
+
+        var hasClash = false;
+        var clashColour = 0;
 
         while (queue.isNotEmpty) {
           final current = queue.removeAt(0);
-          final nextColour = 1 - colour[current]!;
+          final nextColour = 1 - coloured[current]!;
 
           for (final neighbour in graph[current] ?? <_CellPos>{}) {
-            if (colour.containsKey(neighbour)) {
-              // If same colour → contradiction (Rule 2).
-              if (colour[neighbour] == colour[current]) {
-                // All cells of this colour can have v eliminated.
-                final badColour = colour[current]!;
-                final eliminations = <Elimination>[];
-                final involved = <({int row, int col})>[];
-
-                for (final entry in colour.entries) {
-                  involved.add((row: entry.key.row, col: entry.key.col));
-                  if (entry.value == badColour) {
-                    eliminations.add(
-                        Elimination(entry.key.row, entry.key.col, v));
-                  }
-                }
-
-                if (eliminations.isNotEmpty) {
-                  return SolveStep(
-                    strategy: StrategyType.simpleColouring,
-                    eliminations: eliminations,
-                    involvedCells: involved,
-                    description:
-                        'Simple Colouring (colour clash): eliminate $v '
-                        'from same-colour cells',
-                  );
-                }
+            if (coloured.containsKey(neighbour)) {
+              // Rule 2: same colour in same component → contradiction.
+              if (coloured[neighbour] == coloured[current]) {
+                hasClash = true;
+                clashColour = coloured[current]!;
               }
               continue;
             }
-            colour[neighbour] = nextColour;
+            coloured[neighbour] = nextColour;
+            component.add(neighbour);
             queue.add(neighbour);
           }
         }
 
+        // Rule 2: Colour clash — all cells of the bad colour are false.
+        if (hasClash) {
+          final eliminations = <Elimination>[];
+          final involved = <({int row, int col})>[];
+
+          for (final p in component) {
+            involved.add((row: p.row, col: p.col));
+            if (coloured[p] == clashColour) {
+              eliminations.add(Elimination(p.row, p.col, v));
+            }
+          }
+
+          if (eliminations.isNotEmpty) {
+            return SolveStep(
+              strategy: StrategyType.simpleColouring,
+              eliminations: eliminations,
+              involvedCells: involved,
+              description:
+                  'Simple Colouring (colour clash): eliminate $v '
+                  'from same-colour cells',
+            );
+          }
+        }
+
         // Rule 4: Any uncoloured cell that sees cells of both colours
-        // can have v eliminated.
-        final colour0 = colour.entries
-            .where((e) => e.value == 0)
-            .map((e) => e.key)
-            .toList();
-        final colour1 = colour.entries
-            .where((e) => e.value == 1)
-            .map((e) => e.key)
-            .toList();
+        // within THIS component can have v eliminated.
+        final colour0 =
+            component.where((p) => coloured[p] == 0).toList();
+        final colour1 =
+            component.where((p) => coloured[p] == 1).toList();
+
+        if (colour0.isEmpty || colour1.isEmpty) continue;
 
         final eliminations = <Elimination>[];
         for (var r = 0; r < 9; r++) {
@@ -86,10 +95,10 @@ class SimpleColouring extends Strategy {
             final cell = board.getCell(r, c);
             if (cell.isFilled || !cell.candidates.contains(v)) continue;
             final pos = _CellPos(r, c);
-            if (colour.containsKey(pos)) continue;
+            if (coloured.containsKey(pos)) continue;
 
-            final seesC0 = colour0.any((p) => _isPeer(r, c, p.row, p.col));
-            final seesC1 = colour1.any((p) => _isPeer(r, c, p.row, p.col));
+            final seesC0 = colour0.any((p) => isPeer(r, c, p.row, p.col));
+            final seesC1 = colour1.any((p) => isPeer(r, c, p.row, p.col));
 
             if (seesC0 && seesC1) {
               eliminations.add(Elimination(r, c, v));
@@ -98,9 +107,8 @@ class SimpleColouring extends Strategy {
         }
 
         if (eliminations.isNotEmpty) {
-          final involved = colour.keys
-              .map((p) => (row: p.row, col: p.col))
-              .toList();
+          final involved =
+              component.map((p) => (row: p.row, col: p.col)).toList();
           return SolveStep(
             strategy: StrategyType.simpleColouring,
             eliminations: eliminations,
@@ -126,12 +134,6 @@ class SimpleColouring extends Strategy {
     (graph[b] ??= {}).add(a);
   }
 
-  bool _isPeer(int r1, int c1, int r2, int c2) {
-    if (r1 == r2 && c1 == c2) return false;
-    if (r1 == r2) return true;
-    if (c1 == c2) return true;
-    return (r1 ~/ 3 == r2 ~/ 3) && (c1 ~/ 3 == c2 ~/ 3);
-  }
 }
 
 class _CellPos {

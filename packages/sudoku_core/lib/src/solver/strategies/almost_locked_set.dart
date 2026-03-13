@@ -3,6 +3,7 @@ import '../../models/cell.dart';
 import '../solve_step.dart';
 import '../strategy.dart';
 import '../strategy_type.dart';
+import '../strategy_utils.dart';
 
 /// Almost Locked Set (ALS-XZ): Two ALS groups where:
 /// - ALS A has N cells with N+1 candidates.
@@ -41,7 +42,7 @@ class AlmostLockedSet extends Strategy {
           // X is restricted if every cell in A with X sees every cell in B with X.
           final isRestricted = aCellsWithX.every((ac) =>
               bCellsWithX.every((bc) =>
-                  _isPeer(ac.row, ac.col, bc.row, bc.col)));
+                  isPeer(ac.row, ac.col, bc.row, bc.col)));
 
           if (!isRestricted) continue;
 
@@ -66,9 +67,9 @@ class AlmostLockedSet extends Strategy {
                 if (b.cells.any((bc) => bc.row == r && bc.col == c)) continue;
 
                 final seesAllA = aCellsWithZ.every(
-                    (ac) => _isPeer(r, c, ac.row, ac.col));
+                    (ac) => isPeer(r, c, ac.row, ac.col));
                 final seesAllB = bCellsWithZ.every(
-                    (bc) => _isPeer(r, c, bc.row, bc.col));
+                    (bc) => isPeer(r, c, bc.row, bc.col));
 
                 if (seesAllA && seesAllB) {
                   eliminations.add(Elimination(r, c, z));
@@ -115,7 +116,7 @@ class AlmostLockedSet extends Strategy {
 
     // An ALS is N cells with N+1 candidates. Try sizes 1..4.
     for (var size = 1; size <= 4 && size <= emptyCells.length; size++) {
-      for (final combo in _combinations(emptyCells, size)) {
+      for (final combo in combinations(emptyCells, size)) {
         final union = <int>{};
         for (final cell in combo) {
           union.addAll(cell.candidates);
@@ -127,12 +128,6 @@ class AlmostLockedSet extends Strategy {
     }
   }
 
-  bool _isPeer(int r1, int c1, int r2, int c2) {
-    if (r1 == r2 && c1 == c2) return false;
-    if (r1 == r2) return true;
-    if (c1 == c2) return true;
-    return (r1 ~/ 3 == r2 ~/ 3) && (c1 ~/ 3 == c2 ~/ 3);
-  }
 }
 
 class _ALS {
@@ -140,21 +135,4 @@ class _ALS {
   final Set<int> candidates;
 
   _ALS(this.cells, this.candidates);
-}
-
-List<List<T>> _combinations<T>(List<T> items, int k) {
-  final results = <List<T>>[];
-  void recurse(int start, List<T> current) {
-    if (current.length == k) {
-      results.add(List.of(current));
-      return;
-    }
-    for (var i = start; i < items.length; i++) {
-      current.add(items[i]);
-      recurse(i + 1, current);
-      current.removeLast();
-    }
-  }
-  recurse(0, []);
-  return results;
 }

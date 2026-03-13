@@ -3,6 +3,7 @@ import '../../models/cell.dart';
 import '../solve_step.dart';
 import '../strategy.dart';
 import '../strategy_type.dart';
+import '../strategy_utils.dart';
 
 /// Hidden Pair/Triple/Quad: N candidates in a house that only appear in
 /// exactly N cells → all other candidates can be eliminated from those cells.
@@ -63,7 +64,7 @@ class HiddenSubset extends Strategy {
     if (candidateValues.length < size) return null;
 
     // Try all combinations of `size` values.
-    final combos = _combinations(candidateValues, size);
+    final combos = combinations(candidateValues, size);
 
     for (final valueCombo in combos) {
       // Union of cells that contain any of these values.
@@ -98,21 +99,4 @@ class HiddenSubset extends Strategy {
     }
     return null;
   }
-}
-
-List<List<T>> _combinations<T>(List<T> items, int k) {
-  final results = <List<T>>[];
-  void recurse(int start, List<T> current) {
-    if (current.length == k) {
-      results.add(List.of(current));
-      return;
-    }
-    for (var i = start; i < items.length; i++) {
-      current.add(items[i]);
-      recurse(i + 1, current);
-      current.removeLast();
-    }
-  }
-  recurse(0, []);
-  return results;
 }
