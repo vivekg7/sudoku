@@ -129,3 +129,9 @@ Strategies are listed in approximate order of difficulty, from easiest to hardes
 | Strategy         | Description                                                                                                                                                   |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Backtracking** | A brute-force depth-first search — try a candidate, recurse, and backtrack on contradiction. Used only for validation and puzzle generation, never for hints. |
+
+---
+
+## What This App Will Never Suggest
+
+**Bifurcation (Trial & Error)** — Pick a candidate, assume it's correct, keep solving, and backtrack if you hit a contradiction. Some players do this on paper when stuck between two options. It "works", but it replaces logic with guessing. Every situation where bifurcation seems necessary can be resolved by a chain or colouring strategy instead. This app exists to teach those strategies — not to shortcut past them.
