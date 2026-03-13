@@ -17,12 +17,12 @@
 
 ## Phase 2: Core Models
 
-- [ ] `Cell` — value, candidates (pencil marks), given vs user-filled, position (row, col, box)
-- [ ] `Board` — 9x9 grid of cells, access by row/col/box, clone/snapshot
-- [ ] `Move` — represents a user or solver action (set value, toggle candidate, etc.)
-- [ ] `MoveHistory` — undo/redo stack of moves
-- [ ] `Puzzle` — board + solution + difficulty + metadata
-- [ ] Unit tests for all models
+- [x] `Cell` — value, candidates (pencil marks), given vs user-filled, position (row, col, box)
+- [x] `Board` — 9x9 grid of cells, access by row/col/box, clone/snapshot
+- [x] `Move` — represents a user or solver action (set value, toggle candidate, etc.)
+- [x] `MoveHistory` — undo/redo stack of moves
+- [x] `Puzzle` — board + solution + difficulty + metadata
+- [x] Unit tests for all models
 
 ---
 
