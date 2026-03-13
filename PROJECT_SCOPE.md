@@ -103,13 +103,37 @@ These are permanent, intentional exclusions.
 
 ## Tech Stack
 
-| Platform           | Technology                           | Status                                           |
-| ------------------ | ------------------------------------ | ------------------------------------------------ |
-| Mobile & Desktop   | Flutter (Dart)                       | Decided                                          |
-| CLI                | TBD (Dart or other)                  | Decided to build, tech TBD                       |
-| Web                | Flutter web or lightweight framework | Deferred — depends on Flutter web output quality |
-| Puzzle PDF export  | TBD                                  | Feature confirmed, library TBD                   |
-| QR code generation | TBD                                  | Feature confirmed, library TBD                   |
+**Language: Dart (everywhere)**
+
+All sudoku logic lives in a shared `sudoku_core` Dart package. Every target — Flutter, CLI, and web — depends on this single package. One language, one test suite, one set of dependencies.
+
+| Platform         | Technology                           | Status                                           |
+| ---------------- | ------------------------------------ | ------------------------------------------------ |
+| Core logic       | Pure Dart package (`sudoku_core`)    | Decided                                          |
+| Mobile & Desktop | Flutter (depends on `sudoku_core`)   | Decided                                          |
+| CLI              | Dart CLI (`dart compile exe`)        | Decided                                          |
+| Web              | Flutter web or lightweight framework | Deferred — depends on Flutter web output quality |
+| PDF export       | TBD                                  | Feature confirmed, library TBD                   |
+| QR code          | TBD                                  | Feature confirmed, library TBD                   |
+
+### Project Structure
+
+```
+sudoku/
+├── packages/
+│   └── sudoku_core/            # Pure Dart — all logic lives here
+│       ├── lib/src/
+│       │   ├── models/         # Board, Cell, Candidate, etc.
+│       │   ├── generator/      # Puzzle generation
+│       │   ├── solver/         # All solving strategies
+│       │   ├── hint/           # Multi-layer hint engine
+│       │   └── stats/          # Stats tracking logic
+│       └── test/
+├── apps/
+│   ├── flutter_app/            # Flutter UI (depends on sudoku_core)
+│   └── cli/                    # Dart CLI app (depends on sudoku_core)
+└── PROJECT_SCOPE.md
+```
 
 ---
 
