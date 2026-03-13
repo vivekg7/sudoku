@@ -60,15 +60,15 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 5: Solver — Advanced Strategies
 
-- [ ] Simple Colouring
-- [ ] X-Chains
-- [ ] XY-Chains
-- [ ] Alternating Inference Chains (AIC)
-- [ ] Forcing Chains
-- [ ] Almost Locked Sets (ALS)
-- [ ] Sue de Coq
-- [ ] Backtracking (fallback only — used for validation, not hints)
-- [ ] Unit tests for each
+- [x] Simple Colouring
+- [x] X-Chains
+- [x] XY-Chains
+- [x] Alternating Inference Chains (AIC)
+- [x] Forcing Chains
+- [x] Almost Locked Sets (ALS)
+- [x] Sue de Coq
+- [x] Backtracking (fallback only — used for validation, not hints)
+- [x] Unit tests for each
 
 ---
 

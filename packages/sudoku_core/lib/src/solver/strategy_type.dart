@@ -19,7 +19,15 @@ enum StrategyType {
   uniqueRectangleType1('Unique Rectangle Type 1'),
   uniqueRectangleType2('Unique Rectangle Type 2'),
   uniqueRectangleType3('Unique Rectangle Type 3'),
-  uniqueRectangleType4('Unique Rectangle Type 4');
+  uniqueRectangleType4('Unique Rectangle Type 4'),
+  simpleColouring('Simple Colouring'),
+  xChain('X-Chain'),
+  xyChain('XY-Chain'),
+  alternatingInferenceChain('Alternating Inference Chain'),
+  forcingChain('Forcing Chain'),
+  almostLockedSet('Almost Locked Set'),
+  sueDeCoq('Sue de Coq'),
+  backtracking('Backtracking');
 
   final String label;
   const StrategyType(this.label);
