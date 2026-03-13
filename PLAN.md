@@ -7,11 +7,11 @@
 
 ## Phase 1: Project Setup
 
-- [ ] Initialise monorepo structure (`packages/`, `apps/`)
-- [ ] Create `sudoku_core` Dart package with `pubspec.yaml`
-- [ ] Create `cli` Dart app with dependency on `sudoku_core`
-- [ ] Create `flutter_app` Flutter project with dependency on `sudoku_core`
-- [ ] Verify all three build: `dart test` on core, `dart compile exe` on CLI, `flutter run` on app
+- [x] Initialise monorepo structure (`packages/`, `apps/`)
+- [x] Create `sudoku_core` Dart package with `pubspec.yaml`
+- [x] Create `cli` Dart app with dependency on `sudoku_core`
+- [x] Create `flutter_app` Flutter project with dependency on `sudoku_core`
+- [x] Verify all three build: `dart test` on core, `dart compile exe` on CLI, `flutter build` on app
 
 ---
 

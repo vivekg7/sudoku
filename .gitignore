@@ -1,0 +1,24 @@
+# Dart/Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+pubspec.lock
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# Local
+local/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
