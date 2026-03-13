@@ -48,13 +48,13 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 4: Solver — Intermediate Strategies
 
-- [ ] X-Wing
-- [ ] Swordfish
-- [ ] Jellyfish
-- [ ] XY-Wing
-- [ ] XYZ-Wing
-- [ ] Unique Rectangles (Type 1, 2, 3, 4)
-- [ ] Unit tests for each
+- [x] X-Wing
+- [x] Swordfish
+- [x] Jellyfish
+- [x] XY-Wing
+- [x] XYZ-Wing
+- [x] Unique Rectangles (Type 1, 2, 3, 4)
+- [x] Unit tests for each
 
 ---
 
