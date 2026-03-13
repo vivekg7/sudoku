@@ -30,19 +30,19 @@
 
 Build the step-by-step solver. Each strategy returns a `SolveStep` describing what it found and where.
 
-- [ ] Define `SolveStep` model (strategy used, cells affected, candidates eliminated, value placed)
-- [ ] Define `Strategy` interface / base class
-- [ ] Naked Singles
-- [ ] Hidden Singles
-- [ ] Naked Pairs
-- [ ] Hidden Pairs
-- [ ] Naked Triples
-- [ ] Hidden Triples
-- [ ] Naked Quads
-- [ ] Hidden Quads
-- [ ] Pointing Pairs / Pointing Triples (box–line reduction)
-- [ ] Box/Line Reduction (claiming)
-- [ ] Unit tests for each strategy (known puzzle states → expected step)
+- [x] Define `SolveStep` model (strategy used, cells affected, candidates eliminated, value placed)
+- [x] Define `Strategy` interface / base class
+- [x] Naked Singles
+- [x] Hidden Singles
+- [x] Naked Pairs
+- [x] Hidden Pairs
+- [x] Naked Triples
+- [x] Hidden Triples
+- [x] Naked Quads
+- [x] Hidden Quads
+- [x] Pointing Pairs / Pointing Triples (box–line reduction)
+- [x] Box/Line Reduction (claiming)
+- [x] Unit tests for each strategy (known puzzle states → expected step)
 
 ---
 
