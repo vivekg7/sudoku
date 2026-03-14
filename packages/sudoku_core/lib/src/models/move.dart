@@ -1,3 +1,5 @@
+import 'candidate_set.dart';
+
 /// The type of action a move represents.
 enum MoveType {
   setValue,
@@ -20,20 +22,21 @@ class Move {
   final int newValue;
 
   /// Candidates before the move (for undo).
-  final Set<int> previousCandidates;
+  final CandidateSet previousCandidates;
 
   /// Candidates after the move.
-  final Set<int> newCandidates;
+  final CandidateSet newCandidates;
 
-  const Move({
+  Move({
     required this.row,
     required this.col,
     required this.type,
     this.previousValue = 0,
     this.newValue = 0,
-    this.previousCandidates = const {},
-    this.newCandidates = const {},
-  });
+    CandidateSet? previousCandidates,
+    CandidateSet? newCandidates,
+  })  : previousCandidates = previousCandidates ?? CandidateSet(),
+        newCandidates = newCandidates ?? CandidateSet();
 
   @override
   String toString() =>

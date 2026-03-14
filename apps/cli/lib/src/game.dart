@@ -156,8 +156,8 @@ class Game {
       type: MoveType.setValue,
       previousValue: cell.value,
       newValue: value,
-      previousCandidates: Set.of(cell.candidates),
-      newCandidates: {},
+      previousCandidates: cell.candidates.copy(),
+      newCandidates: CandidateSet(),
     ));
 
     cell.setValue(value);
@@ -203,7 +203,7 @@ class Game {
       type: MoveType.clearValue,
       previousValue: cell.value,
       newValue: 0,
-      previousCandidates: Set.of(cell.candidates),
+      previousCandidates: cell.candidates.copy(),
     ));
 
     cell.clearValue();
@@ -243,9 +243,9 @@ class Game {
       return;
     }
 
-    final prevCandidates = Set.of(cell.candidates);
+    final prevCandidates = cell.candidates.copy();
     cell.toggleCandidate(value);
-    final newCandidates = Set.of(cell.candidates);
+    final newCandidates = cell.candidates.copy();
 
     puzzle.history.push(Move(
       row: row,

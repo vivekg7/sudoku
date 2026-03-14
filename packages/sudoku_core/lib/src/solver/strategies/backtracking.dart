@@ -72,7 +72,7 @@ class Backtracking extends Strategy {
     if (bestRow == null) return true; // all cells filled
 
     final cell = board.getCell(bestRow, bestCol!);
-    final savedCandidates = Set.of(cell.candidates);
+    final savedCandidates = cell.candidates.copy();
 
     for (final v in savedCandidates) {
       cell.setValue(v);
@@ -136,7 +136,7 @@ class Backtracking extends Strategy {
     }
 
     final cell = board.getCell(bestRow, bestCol!);
-    final savedCandidates = Set.of(cell.candidates);
+    final savedCandidates = cell.candidates.copy();
 
     for (final v in savedCandidates) {
       if (getCount() >= limit) return;

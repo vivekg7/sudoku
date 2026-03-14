@@ -101,7 +101,7 @@ class CellWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCandidates(Set<int> candidates) {
+  Widget _buildCandidates(CandidateSet candidates) {
     if (candidates.isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -126,7 +126,7 @@ class CellWidget extends StatelessWidget {
     );
   }
 
-  Widget _candidateDigit(int digit, Set<int> candidates) {
+  Widget _candidateDigit(int digit, CandidateSet candidates) {
     if (!candidates.contains(digit)) return const SizedBox.shrink();
     return FittedBox(
       fit: BoxFit.scaleDown,

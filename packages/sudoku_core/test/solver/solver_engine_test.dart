@@ -116,7 +116,7 @@ void main() {
         for (final p in step.placements) {
           final cell = replay.getCell(p.row, p.col);
           cell.setValue(p.value);
-          cell.setCandidates({});
+          cell.setCandidates(CandidateSet.of([]));
           for (final peer in replay.peers(p.row, p.col)) {
             peer.removeCandidate(p.value);
           }

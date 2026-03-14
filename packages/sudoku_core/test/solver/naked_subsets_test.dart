@@ -19,10 +19,10 @@ void main() {
       board.getCell(0, 7).setValue(6);
 
       // Manually set candidates.
-      board.getCell(0, 1).setCandidates({3, 7});
-      board.getCell(0, 2).setCandidates({3, 7});
-      board.getCell(0, 4).setCandidates({3, 7, 8});
-      board.getCell(0, 8).setCandidates({3, 9});
+      board.getCell(0, 1).setCandidates(CandidateSet.of([3, 7]));
+      board.getCell(0, 2).setCandidates(CandidateSet.of([3, 7]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([3, 7, 8]));
+      board.getCell(0, 8).setCandidates(CandidateSet.of([3, 9]));
 
       final step = strategy.apply(board);
       expect(step, isNotNull);
@@ -42,7 +42,7 @@ void main() {
       final board = Board.empty();
       // All empty cells with full candidates — no pair.
       for (var c = 0; c < 9; c++) {
-        board.getCell(0, c).setCandidates({1, 2, 3, 4, 5, 6, 7, 8, 9});
+        board.getCell(0, c).setCandidates(CandidateSet.of([1, 2, 3, 4, 5, 6, 7, 8, 9]));
       }
 
       final step = strategy.apply(board);
@@ -64,11 +64,11 @@ void main() {
       board.getCell(0, 4).setValue(6);
 
       // Cells 5, 6, 7 form a naked triple {3, 7, 9}.
-      board.getCell(0, 5).setCandidates({3, 7});
-      board.getCell(0, 6).setCandidates({3, 9});
-      board.getCell(0, 7).setCandidates({7, 9});
+      board.getCell(0, 5).setCandidates(CandidateSet.of([3, 7]));
+      board.getCell(0, 6).setCandidates(CandidateSet.of([3, 9]));
+      board.getCell(0, 7).setCandidates(CandidateSet.of([7, 9]));
       // Cell 8 has overlap — should get eliminations.
-      board.getCell(0, 8).setCandidates({3, 7, 8});
+      board.getCell(0, 8).setCandidates(CandidateSet.of([3, 7, 8]));
 
       final step = strategy.apply(board);
       expect(step, isNotNull);
@@ -88,15 +88,15 @@ void main() {
       board.getCell(0, 0).setValue(5);
 
       // Cells 1–4 form a naked quad {1, 2, 3, 4}.
-      board.getCell(0, 1).setCandidates({1, 2});
-      board.getCell(0, 2).setCandidates({2, 3});
-      board.getCell(0, 3).setCandidates({3, 4});
-      board.getCell(0, 4).setCandidates({1, 4});
+      board.getCell(0, 1).setCandidates(CandidateSet.of([1, 2]));
+      board.getCell(0, 2).setCandidates(CandidateSet.of([2, 3]));
+      board.getCell(0, 3).setCandidates(CandidateSet.of([3, 4]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([1, 4]));
       // Cells 5–8 have overlap.
-      board.getCell(0, 5).setCandidates({1, 6, 7});
-      board.getCell(0, 6).setCandidates({2, 8});
-      board.getCell(0, 7).setCandidates({3, 9});
-      board.getCell(0, 8).setCandidates({4, 6});
+      board.getCell(0, 5).setCandidates(CandidateSet.of([1, 6, 7]));
+      board.getCell(0, 6).setCandidates(CandidateSet.of([2, 8]));
+      board.getCell(0, 7).setCandidates(CandidateSet.of([3, 9]));
+      board.getCell(0, 8).setCandidates(CandidateSet.of([4, 6]));
 
       final step = strategy.apply(board);
       expect(step, isNotNull);

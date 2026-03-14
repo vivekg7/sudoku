@@ -14,10 +14,10 @@ void main() {
       // Z = 7.
       // Common peer of both pincers: R4C5 (3,4) — shares row with pincer2
       // and column with pincer1.
-      board.getCell(0, 0).setCandidates({3, 5});
-      board.getCell(0, 4).setCandidates({3, 7});
-      board.getCell(3, 0).setCandidates({5, 7});
-      board.getCell(3, 4).setCandidates({7, 8, 9}); // should eliminate 7
+      board.getCell(0, 0).setCandidates(CandidateSet.of([3, 5]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([3, 7]));
+      board.getCell(3, 0).setCandidates(CandidateSet.of([5, 7]));
+      board.getCell(3, 4).setCandidates(CandidateSet.of([7, 8, 9])); // should eliminate 7
 
       final step = strategy.apply(board);
       expect(step, isNotNull);
@@ -32,8 +32,8 @@ void main() {
 
     test('returns null when no XY-Wing exists', () {
       final board = Board.empty();
-      board.getCell(0, 0).setCandidates({3, 5});
-      board.getCell(0, 4).setCandidates({3, 7});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([3, 5]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([3, 7]));
       // No matching second pincer.
 
       final step = strategy.apply(board);

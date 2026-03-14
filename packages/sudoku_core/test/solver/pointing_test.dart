@@ -11,23 +11,23 @@ void main() {
       final board = Board.empty();
 
       // Box 0: only R1C0 and R1C1 have candidate 5.
-      board.getCell(0, 0).setCandidates({5, 6});
-      board.getCell(0, 1).setCandidates({5, 7});
-      board.getCell(0, 2).setCandidates({6, 7}); // no 5
-      board.getCell(1, 0).setCandidates({6, 8}); // no 5
-      board.getCell(1, 1).setCandidates({7, 8}); // no 5
-      board.getCell(1, 2).setCandidates({6, 9}); // no 5
-      board.getCell(2, 0).setCandidates({8, 9}); // no 5
-      board.getCell(2, 1).setCandidates({6, 9}); // no 5
-      board.getCell(2, 2).setCandidates({7, 9}); // no 5
+      board.getCell(0, 0).setCandidates(CandidateSet.of([5, 6]));
+      board.getCell(0, 1).setCandidates(CandidateSet.of([5, 7]));
+      board.getCell(0, 2).setCandidates(CandidateSet.of([6, 7])); // no 5
+      board.getCell(1, 0).setCandidates(CandidateSet.of([6, 8])); // no 5
+      board.getCell(1, 1).setCandidates(CandidateSet.of([7, 8])); // no 5
+      board.getCell(1, 2).setCandidates(CandidateSet.of([6, 9])); // no 5
+      board.getCell(2, 0).setCandidates(CandidateSet.of([8, 9])); // no 5
+      board.getCell(2, 1).setCandidates(CandidateSet.of([6, 9])); // no 5
+      board.getCell(2, 2).setCandidates(CandidateSet.of([7, 9])); // no 5
 
       // Rest of row 0 outside box 0 — some have 5.
-      board.getCell(0, 3).setCandidates({5, 8});
-      board.getCell(0, 4).setCandidates({3, 9});
-      board.getCell(0, 5).setCandidates({5, 9});
-      board.getCell(0, 6).setCandidates({2, 3});
-      board.getCell(0, 7).setCandidates({2, 8});
-      board.getCell(0, 8).setCandidates({3, 8});
+      board.getCell(0, 3).setCandidates(CandidateSet.of([5, 8]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([3, 9]));
+      board.getCell(0, 5).setCandidates(CandidateSet.of([5, 9]));
+      board.getCell(0, 6).setCandidates(CandidateSet.of([2, 3]));
+      board.getCell(0, 7).setCandidates(CandidateSet.of([2, 8]));
+      board.getCell(0, 8).setCandidates(CandidateSet.of([3, 8]));
 
       final step = strategy.apply(board);
       expect(step, isNotNull);
@@ -49,23 +49,23 @@ void main() {
       final board = Board.empty();
 
       // Box 0: candidate 3 only in column 0 (R1C0, R2C0).
-      board.getCell(0, 0).setCandidates({3, 4});
-      board.getCell(1, 0).setCandidates({3, 7});
-      board.getCell(2, 0).setCandidates({4, 7}); // no 3
-      board.getCell(0, 1).setCandidates({4, 8}); // no 3
-      board.getCell(0, 2).setCandidates({7, 8}); // no 3
-      board.getCell(1, 1).setCandidates({4, 9}); // no 3
-      board.getCell(1, 2).setCandidates({7, 9}); // no 3
-      board.getCell(2, 1).setCandidates({8, 9}); // no 3
-      board.getCell(2, 2).setCandidates({4, 9}); // no 3
+      board.getCell(0, 0).setCandidates(CandidateSet.of([3, 4]));
+      board.getCell(1, 0).setCandidates(CandidateSet.of([3, 7]));
+      board.getCell(2, 0).setCandidates(CandidateSet.of([4, 7])); // no 3
+      board.getCell(0, 1).setCandidates(CandidateSet.of([4, 8])); // no 3
+      board.getCell(0, 2).setCandidates(CandidateSet.of([7, 8])); // no 3
+      board.getCell(1, 1).setCandidates(CandidateSet.of([4, 9])); // no 3
+      board.getCell(1, 2).setCandidates(CandidateSet.of([7, 9])); // no 3
+      board.getCell(2, 1).setCandidates(CandidateSet.of([8, 9])); // no 3
+      board.getCell(2, 2).setCandidates(CandidateSet.of([4, 9])); // no 3
 
       // Rest of column 0 outside box 0.
-      board.getCell(3, 0).setCandidates({3, 5});
-      board.getCell(4, 0).setCandidates({5, 6});
-      board.getCell(5, 0).setCandidates({3, 6});
-      board.getCell(6, 0).setCandidates({5, 8});
-      board.getCell(7, 0).setCandidates({6, 8});
-      board.getCell(8, 0).setCandidates({5, 9});
+      board.getCell(3, 0).setCandidates(CandidateSet.of([3, 5]));
+      board.getCell(4, 0).setCandidates(CandidateSet.of([5, 6]));
+      board.getCell(5, 0).setCandidates(CandidateSet.of([3, 6]));
+      board.getCell(6, 0).setCandidates(CandidateSet.of([5, 8]));
+      board.getCell(7, 0).setCandidates(CandidateSet.of([6, 8]));
+      board.getCell(8, 0).setCandidates(CandidateSet.of([5, 9]));
 
       final step = strategy.apply(board);
       expect(step, isNotNull);
@@ -80,9 +80,9 @@ void main() {
     test('returns null when no pointing pattern exists', () {
       final board = Board.empty();
       // Candidate 5 spread across multiple rows in box 0 — no pointing.
-      board.getCell(0, 0).setCandidates({5, 6});
-      board.getCell(1, 1).setCandidates({5, 7});
-      board.getCell(2, 2).setCandidates({5, 8});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([5, 6]));
+      board.getCell(1, 1).setCandidates(CandidateSet.of([5, 7]));
+      board.getCell(2, 2).setCandidates(CandidateSet.of([5, 8]));
 
       final step = strategy.apply(board);
       expect(step, isNull);

@@ -1,4 +1,5 @@
 import '../models/board.dart';
+import '../models/candidate_set.dart';
 import '../models/difficulty.dart';
 import 'candidate_helper.dart';
 import 'solve_result.dart';
@@ -139,7 +140,7 @@ class Solver {
     for (final placement in step.placements) {
       final cell = board.getCell(placement.row, placement.col);
       cell.setValue(placement.value);
-      cell.setCandidates({});
+      cell.setCandidates(CandidateSet());
       // Remove this value from all peers' candidates.
       for (final peer in board.peers(placement.row, placement.col)) {
         peer.removeCandidate(placement.value);

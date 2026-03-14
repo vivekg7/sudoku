@@ -13,10 +13,10 @@ void main() {
       // Pincer 2 at R2C1 (1,0) with {5, 7} — shares column and box with pivot.
       // Z = 7 (common to pivot and both pincers).
       // A cell seeing all three: R2C2 (1,1) — same box.
-      board.getCell(0, 0).setCandidates({3, 5, 7});
-      board.getCell(0, 1).setCandidates({3, 7});
-      board.getCell(1, 0).setCandidates({5, 7});
-      board.getCell(1, 1).setCandidates({7, 8, 9}); // should eliminate 7
+      board.getCell(0, 0).setCandidates(CandidateSet.of([3, 5, 7]));
+      board.getCell(0, 1).setCandidates(CandidateSet.of([3, 7]));
+      board.getCell(1, 0).setCandidates(CandidateSet.of([5, 7]));
+      board.getCell(1, 1).setCandidates(CandidateSet.of([7, 8, 9])); // should eliminate 7
 
       final step = strategy.apply(board);
       expect(step, isNotNull);
@@ -31,8 +31,8 @@ void main() {
 
     test('returns null when no XYZ-Wing exists', () {
       final board = Board.empty();
-      board.getCell(0, 0).setCandidates({3, 5, 7});
-      board.getCell(0, 1).setCandidates({3, 8}); // not a valid pincer
+      board.getCell(0, 0).setCandidates(CandidateSet.of([3, 5, 7]));
+      board.getCell(0, 1).setCandidates(CandidateSet.of([3, 8])); // not a valid pincer
 
       final step = strategy.apply(board);
       expect(step, isNull);

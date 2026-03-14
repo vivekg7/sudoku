@@ -20,10 +20,10 @@ void main() {
       // AIC endpoints: (6,0)[5] and (6,4)[5] — same candidate.
       // (6,8) has candidate 5, sees both via row 6 → eliminate 5.
 
-      board.getCell(0, 0).setCandidates({5, 1});
-      board.getCell(6, 0).setCandidates({5, 2}); // bi-value
-      board.getCell(6, 4).setCandidates({2, 5}); // bi-value
-      board.getCell(6, 8).setCandidates({5, 9}); // target
+      board.getCell(0, 0).setCandidates(CandidateSet.of([5, 1]));
+      board.getCell(6, 0).setCandidates(CandidateSet.of([5, 2])); // bi-value
+      board.getCell(6, 4).setCandidates(CandidateSet.of([2, 5])); // bi-value
+      board.getCell(6, 8).setCandidates(CandidateSet.of([5, 9])); // target
 
       // Extra cells with 5 in row 6 to prevent conjugate pair for 5 in row 6.
       // Actually (6,0), (6,4), (6,8) already have 5 → 3 cells → no conjugate pair. ✓

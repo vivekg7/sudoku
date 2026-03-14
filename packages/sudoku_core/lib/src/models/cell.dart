@@ -1,3 +1,5 @@
+import 'candidate_set.dart';
+
 /// Represents a single cell in a 9x9 Sudoku grid.
 class Cell {
   final int row;
@@ -14,17 +16,17 @@ class Cell {
   final bool isGiven;
 
   /// Candidate pencil marks — possible values the player is considering.
-  final Set<int> _candidates;
-  Set<int> get candidates => Set.unmodifiable(_candidates);
+  final CandidateSet _candidates;
+  CandidateSet get candidates => _candidates;
 
   Cell({
     required this.row,
     required this.col,
     int value = 0,
     this.isGiven = false,
-    Set<int>? candidates,
+    CandidateSet? candidates,
   })  : _value = value,
-        _candidates = candidates != null ? Set.of(candidates) : {};
+        _candidates = candidates?.copy() ?? CandidateSet();
 
   /// Sets the cell value. Clears candidates when a value is set.
   /// Throws if the cell is a given.
@@ -57,10 +59,8 @@ class Cell {
     _candidates.contains(v) ? _candidates.remove(v) : _candidates.add(v);
   }
 
-  void setCandidates(Set<int> values) {
-    _candidates
-      ..clear()
-      ..addAll(values);
+  void setCandidates(CandidateSet values) {
+    _candidates.setAll(values);
   }
 
   bool get isEmpty => _value == 0;
@@ -71,12 +71,11 @@ class Cell {
         col: col,
         value: _value,
         isGiven: isGiven,
-        candidates: Set.of(_candidates),
+        candidates: _candidates,
       );
 
   @override
-  String toString() =>
-      isEmpty ? '.' : '$_value';
+  String toString() => isEmpty ? '.' : '$_value';
 
   @override
   bool operator ==(Object other) =>

@@ -63,7 +63,7 @@ void main() {
     test('setCandidates replaces all', () {
       final cell = Cell(row: 0, col: 0);
       cell.addCandidate(1);
-      cell.setCandidates({3, 5, 7});
+      cell.setCandidates(CandidateSet.of([3, 5, 7]));
       expect(cell.candidates, {3, 5, 7});
     });
 

@@ -10,20 +10,20 @@ void main() {
 
       // Build a conjugate chain for value 3.
       // Row 0: 3 at cols 0 and 8 only (conjugate pair).
-      board.getCell(0, 0).setCandidates({3, 5});
-      board.getCell(0, 8).setCandidates({3, 7});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([3, 5]));
+      board.getCell(0, 8).setCandidates(CandidateSet.of([3, 7]));
 
       // Col 0: 3 at rows 0 and 6 only (conjugate pair).
       // Row 0 col 0 already set. Row 6 col 0:
-      board.getCell(6, 0).setCandidates({3, 9});
+      board.getCell(6, 0).setCandidates(CandidateSet.of([3, 9]));
 
       // Col 8: 3 at rows 0 and 6 only (conjugate pair).
-      board.getCell(6, 8).setCandidates({3, 4});
+      board.getCell(6, 8).setCandidates(CandidateSet.of([3, 4]));
 
       // Colouring: (0,0)=C0, (0,8)=C1, (6,0)=C1, (6,8)=C0
       // Cell (3,0) has candidate 3 — sees (0,0) in col 0 (C0)
       //   and sees (6,0) in col 0 (C1) → sees both colours → eliminate 3.
-      board.getCell(3, 0).setCandidates({3, 6});
+      board.getCell(3, 0).setCandidates(CandidateSet.of([3, 6]));
 
       final step = strategy.apply(board);
       expect(step, isNotNull);
@@ -40,14 +40,14 @@ void main() {
 
       // Build a chain where two cells of the same colour are peers.
       // Row 0: 5 at cols 0 and 3 (conjugate pair).
-      board.getCell(0, 0).setCandidates({5, 1});
-      board.getCell(0, 3).setCandidates({5, 2});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([5, 1]));
+      board.getCell(0, 3).setCandidates(CandidateSet.of([5, 2]));
 
       // Col 3: 5 at rows 0 and 3 (conjugate pair).
-      board.getCell(3, 3).setCandidates({5, 4});
+      board.getCell(3, 3).setCandidates(CandidateSet.of([5, 4]));
 
       // Row 3: 5 at cols 3 and 0 (conjugate pair).
-      board.getCell(3, 0).setCandidates({5, 6});
+      board.getCell(3, 0).setCandidates(CandidateSet.of([5, 6]));
 
       // Chain: (0,0)=C0 → (0,3)=C1 → (3,3)=C0 → (3,0)=C1
       // But (0,0) and (3,0) are in same column = peers.
@@ -60,16 +60,16 @@ void main() {
       // Need a 3-link cycle for a clash.
 
       // Row 0: 7 at cols 0,4 (conjugate pair).
-      board.getCell(0, 0).setCandidates({5, 7, 1});
-      board.getCell(0, 4).setCandidates({7, 2});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([5, 7, 1]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([7, 2]));
 
       // Col 4: 7 at rows 0,3 (conjugate pair).
-      board.getCell(3, 4).setCandidates({7, 8});
+      board.getCell(3, 4).setCandidates(CandidateSet.of([7, 8]));
 
       // Box 3 (rows 3-5, cols 0-2): 7 at (3,0) and (3,4)?
       // (3,4) is in box 4. Need a link from (3,4) back to (0,0) that creates odd cycle.
       // Row 3: 7 at cols 0 and 4 (conjugate pair).
-      board.getCell(3, 0).setCandidates({5, 7, 6});
+      board.getCell(3, 0).setCandidates(CandidateSet.of([5, 7, 6]));
 
       // Chain for 7: (0,0)=C0 → (0,4)=C1 → (3,4)=C0 → (3,0)=C1
       // (0,0) and (3,0) are in col 0 — conjugate pair if only 2 cells have 7.
@@ -82,14 +82,14 @@ void main() {
 
       // 3 cells with candidate 9, forming a triangle of conjugate pairs.
       // Row 1: 9 at cols 2 and 5 only.
-      board2.getCell(1, 2).setCandidates({9, 1});
-      board2.getCell(1, 5).setCandidates({9, 2});
+      board2.getCell(1, 2).setCandidates(CandidateSet.of([9, 1]));
+      board2.getCell(1, 5).setCandidates(CandidateSet.of([9, 2]));
 
       // Col 5: 9 at rows 1 and 7 only.
-      board2.getCell(7, 5).setCandidates({9, 3});
+      board2.getCell(7, 5).setCandidates(CandidateSet.of([9, 3]));
 
       // Row 7: 9 at cols 2 and 5 only.
-      board2.getCell(7, 2).setCandidates({9, 4});
+      board2.getCell(7, 2).setCandidates(CandidateSet.of([9, 4]));
 
       // This is a 4-node cycle (even), still no clash.
       // A true odd cycle requires 3 conjugate pairs forming a triangle:
@@ -101,9 +101,9 @@ void main() {
     test('returns null when no conjugate pairs exist', () {
       final board = Board.empty();
       // No value with exactly 2 positions in any house.
-      board.getCell(0, 0).setCandidates({1, 2, 3});
-      board.getCell(0, 1).setCandidates({1, 2, 4});
-      board.getCell(0, 2).setCandidates({1, 5, 6});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([1, 2, 3]));
+      board.getCell(0, 1).setCandidates(CandidateSet.of([1, 2, 4]));
+      board.getCell(0, 2).setCandidates(CandidateSet.of([1, 5, 6]));
 
       final step = strategy.apply(board);
       expect(step, isNull);

@@ -11,23 +11,23 @@ void main() {
       final board = Board.empty();
 
       // Row 0: candidate 5 only in cols 0,1 (both in box 0).
-      board.getCell(0, 0).setCandidates({5, 6});
-      board.getCell(0, 1).setCandidates({5, 7});
-      board.getCell(0, 2).setCandidates({6, 7}); // no 5
-      board.getCell(0, 3).setCandidates({2, 3});
-      board.getCell(0, 4).setCandidates({3, 8});
-      board.getCell(0, 5).setCandidates({2, 8});
-      board.getCell(0, 6).setCandidates({2, 9});
-      board.getCell(0, 7).setCandidates({3, 9});
-      board.getCell(0, 8).setCandidates({8, 9});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([5, 6]));
+      board.getCell(0, 1).setCandidates(CandidateSet.of([5, 7]));
+      board.getCell(0, 2).setCandidates(CandidateSet.of([6, 7])); // no 5
+      board.getCell(0, 3).setCandidates(CandidateSet.of([2, 3]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([3, 8]));
+      board.getCell(0, 5).setCandidates(CandidateSet.of([2, 8]));
+      board.getCell(0, 6).setCandidates(CandidateSet.of([2, 9]));
+      board.getCell(0, 7).setCandidates(CandidateSet.of([3, 9]));
+      board.getCell(0, 8).setCandidates(CandidateSet.of([8, 9]));
 
       // Other cells in box 0 have candidate 5 → should be eliminated.
-      board.getCell(1, 0).setCandidates({5, 8});
-      board.getCell(1, 1).setCandidates({4, 8});
-      board.getCell(1, 2).setCandidates({4, 9});
-      board.getCell(2, 0).setCandidates({5, 9});
-      board.getCell(2, 1).setCandidates({4, 6});
-      board.getCell(2, 2).setCandidates({6, 9});
+      board.getCell(1, 0).setCandidates(CandidateSet.of([5, 8]));
+      board.getCell(1, 1).setCandidates(CandidateSet.of([4, 8]));
+      board.getCell(1, 2).setCandidates(CandidateSet.of([4, 9]));
+      board.getCell(2, 0).setCandidates(CandidateSet.of([5, 9]));
+      board.getCell(2, 1).setCandidates(CandidateSet.of([4, 6]));
+      board.getCell(2, 2).setCandidates(CandidateSet.of([6, 9]));
 
       final step = strategy.apply(board);
       expect(step, isNotNull);
@@ -53,46 +53,46 @@ void main() {
       final board = Board.empty();
 
       // Column 0 candidates.
-      board.getCell(0, 0).setCandidates({3, 6});
-      board.getCell(1, 0).setCandidates({3, 7});
-      board.getCell(2, 0).setCandidates({6, 7}); // no 3
-      board.getCell(3, 0).setCandidates({4, 5});
-      board.getCell(4, 0).setCandidates({5, 8});
-      board.getCell(5, 0).setCandidates({4, 8});
-      board.getCell(6, 0).setCandidates({5, 9});
-      board.getCell(7, 0).setCandidates({8, 9});
-      board.getCell(8, 0).setCandidates({4, 9});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([3, 6]));
+      board.getCell(1, 0).setCandidates(CandidateSet.of([3, 7]));
+      board.getCell(2, 0).setCandidates(CandidateSet.of([6, 7])); // no 3
+      board.getCell(3, 0).setCandidates(CandidateSet.of([4, 5]));
+      board.getCell(4, 0).setCandidates(CandidateSet.of([5, 8]));
+      board.getCell(5, 0).setCandidates(CandidateSet.of([4, 8]));
+      board.getCell(6, 0).setCandidates(CandidateSet.of([5, 9]));
+      board.getCell(7, 0).setCandidates(CandidateSet.of([8, 9]));
+      board.getCell(8, 0).setCandidates(CandidateSet.of([4, 9]));
 
       // Fill ALL empty cells in rows 0,1,2 with candidates.
       // Spread every value across multiple boxes in each row to prevent
       // any row-based box/line reduction.
       // Row 0: 3 in cols 0 (box 0) and 4 (box 1) — not confined to one box.
-      board.getCell(0, 1).setCandidates({4, 5});
-      board.getCell(0, 2).setCandidates({4, 5});
-      board.getCell(0, 3).setCandidates({6, 9});
-      board.getCell(0, 4).setCandidates({3, 6}); // 3 in box 1 — breaks row confinement
-      board.getCell(0, 5).setCandidates({5, 9});
-      board.getCell(0, 6).setCandidates({4, 9});
-      board.getCell(0, 7).setCandidates({5, 6});
-      board.getCell(0, 8).setCandidates({4, 9});
+      board.getCell(0, 1).setCandidates(CandidateSet.of([4, 5]));
+      board.getCell(0, 2).setCandidates(CandidateSet.of([4, 5]));
+      board.getCell(0, 3).setCandidates(CandidateSet.of([6, 9]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([3, 6])); // 3 in box 1 — breaks row confinement
+      board.getCell(0, 5).setCandidates(CandidateSet.of([5, 9]));
+      board.getCell(0, 6).setCandidates(CandidateSet.of([4, 9]));
+      board.getCell(0, 7).setCandidates(CandidateSet.of([5, 6]));
+      board.getCell(0, 8).setCandidates(CandidateSet.of([4, 9]));
       // Row 1: 3 in cols 0 (box 0) and 5 (box 1).
-      board.getCell(1, 1).setCandidates({3, 8}); // 3 here → will be eliminated
-      board.getCell(1, 2).setCandidates({4, 8});
-      board.getCell(1, 3).setCandidates({5, 9});
-      board.getCell(1, 4).setCandidates({6, 9});
-      board.getCell(1, 5).setCandidates({3, 5}); // 3 in box 1 — breaks row confinement
-      board.getCell(1, 6).setCandidates({4, 6});
-      board.getCell(1, 7).setCandidates({5, 8});
-      board.getCell(1, 8).setCandidates({6, 9});
+      board.getCell(1, 1).setCandidates(CandidateSet.of([3, 8])); // 3 here → will be eliminated
+      board.getCell(1, 2).setCandidates(CandidateSet.of([4, 8]));
+      board.getCell(1, 3).setCandidates(CandidateSet.of([5, 9]));
+      board.getCell(1, 4).setCandidates(CandidateSet.of([6, 9]));
+      board.getCell(1, 5).setCandidates(CandidateSet.of([3, 5])); // 3 in box 1 — breaks row confinement
+      board.getCell(1, 6).setCandidates(CandidateSet.of([4, 6]));
+      board.getCell(1, 7).setCandidates(CandidateSet.of([5, 8]));
+      board.getCell(1, 8).setCandidates(CandidateSet.of([6, 9]));
       // Row 2: no 3 anywhere in col 0, so it's fine.
-      board.getCell(2, 1).setCandidates({3, 5}); // 3 here → will be eliminated
-      board.getCell(2, 2).setCandidates({4, 8});
-      board.getCell(2, 3).setCandidates({3, 9}); // 3 in box 1 — breaks row confinement
-      board.getCell(2, 4).setCandidates({5, 6});
-      board.getCell(2, 5).setCandidates({4, 9});
-      board.getCell(2, 6).setCandidates({5, 8});
-      board.getCell(2, 7).setCandidates({6, 9});
-      board.getCell(2, 8).setCandidates({4, 7});
+      board.getCell(2, 1).setCandidates(CandidateSet.of([3, 5])); // 3 here → will be eliminated
+      board.getCell(2, 2).setCandidates(CandidateSet.of([4, 8]));
+      board.getCell(2, 3).setCandidates(CandidateSet.of([3, 9])); // 3 in box 1 — breaks row confinement
+      board.getCell(2, 4).setCandidates(CandidateSet.of([5, 6]));
+      board.getCell(2, 5).setCandidates(CandidateSet.of([4, 9]));
+      board.getCell(2, 6).setCandidates(CandidateSet.of([5, 8]));
+      board.getCell(2, 7).setCandidates(CandidateSet.of([6, 9]));
+      board.getCell(2, 8).setCandidates(CandidateSet.of([4, 7]));
 
       final step = strategy.apply(board);
       expect(step, isNotNull);
@@ -112,9 +112,9 @@ void main() {
     test('returns null when no box/line reduction exists', () {
       final board = Board.empty();
       // Candidate spread across multiple boxes in row — no reduction.
-      board.getCell(0, 0).setCandidates({5, 6});
-      board.getCell(0, 4).setCandidates({5, 7});
-      board.getCell(0, 8).setCandidates({5, 8});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([5, 6]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([5, 7]));
+      board.getCell(0, 8).setCandidates(CandidateSet.of([5, 8]));
 
       final step = strategy.apply(board);
       expect(step, isNull);

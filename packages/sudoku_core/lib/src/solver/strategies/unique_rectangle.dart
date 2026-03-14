@@ -1,4 +1,5 @@
 import '../../models/board.dart';
+import '../../models/candidate_set.dart';
 import '../../models/cell.dart';
 import '../solve_step.dart';
 import '../strategy.dart';
@@ -235,7 +236,7 @@ class UniqueRectangle extends Strategy {
     List<({int row, int col})> involved,
   ) {
     // Collect extra candidates from both roof cells.
-    final extras = <int>{};
+    final extras = CandidateSet();
     for (final v in roof1.candidates) {
       if (v != x && v != y) extras.add(v);
     }
@@ -285,7 +286,7 @@ class UniqueRectangle extends Strategy {
     String houseName,
     Cell roof1,
     Cell roof2,
-    Set<int> extras,
+    CandidateSet extras,
     int x,
     int y,
     List<({int row, int col})> involved,

@@ -104,7 +104,7 @@ class PuzzleGenerator {
     if (bestRow == null) return true; // All filled.
 
     final cell = board.getCell(bestRow, bestCol!);
-    final savedCandidates = Set.of(cell.candidates);
+    final savedCandidates = cell.candidates.copy();
     final candidates = savedCandidates.toList()..shuffle(_random);
 
     for (final v in candidates) {

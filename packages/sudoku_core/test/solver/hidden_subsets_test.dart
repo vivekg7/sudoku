@@ -14,12 +14,12 @@ void main() {
       board.getCell(0, 1).setValue(4);
       board.getCell(0, 2).setValue(5);
 
-      board.getCell(0, 3).setCandidates({1, 2, 6});
-      board.getCell(0, 4).setCandidates({1, 2, 7});
-      board.getCell(0, 5).setCandidates({6, 7, 8});
-      board.getCell(0, 6).setCandidates({6, 8, 9});
-      board.getCell(0, 7).setCandidates({7, 8, 9});
-      board.getCell(0, 8).setCandidates({6, 9});
+      board.getCell(0, 3).setCandidates(CandidateSet.of([1, 2, 6]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([1, 2, 7]));
+      board.getCell(0, 5).setCandidates(CandidateSet.of([6, 7, 8]));
+      board.getCell(0, 6).setCandidates(CandidateSet.of([6, 8, 9]));
+      board.getCell(0, 7).setCandidates(CandidateSet.of([7, 8, 9]));
+      board.getCell(0, 8).setCandidates(CandidateSet.of([6, 9]));
 
       final step = strategy.apply(board);
       expect(step, isNotNull);
@@ -35,7 +35,7 @@ void main() {
     test('returns null when no hidden pair exists', () {
       final board = Board.empty();
       for (var c = 0; c < 9; c++) {
-        board.getCell(0, c).setCandidates({1, 2, 3, 4, 5, 6, 7, 8, 9});
+        board.getCell(0, c).setCandidates(CandidateSet.of([1, 2, 3, 4, 5, 6, 7, 8, 9]));
       }
 
       final step = strategy.apply(board);
@@ -52,14 +52,14 @@ void main() {
       board.getCell(0, 0).setValue(9);
 
       // Values 1, 2, 3 only appear in cells 1, 2, 3.
-      board.getCell(0, 1).setCandidates({1, 2, 5, 6});
-      board.getCell(0, 2).setCandidates({2, 3, 7});
-      board.getCell(0, 3).setCandidates({1, 3, 8});
-      board.getCell(0, 4).setCandidates({4, 5, 6});
-      board.getCell(0, 5).setCandidates({5, 7, 8});
-      board.getCell(0, 6).setCandidates({4, 6});
-      board.getCell(0, 7).setCandidates({4, 7, 8});
-      board.getCell(0, 8).setCandidates({5, 6, 8});
+      board.getCell(0, 1).setCandidates(CandidateSet.of([1, 2, 5, 6]));
+      board.getCell(0, 2).setCandidates(CandidateSet.of([2, 3, 7]));
+      board.getCell(0, 3).setCandidates(CandidateSet.of([1, 3, 8]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([4, 5, 6]));
+      board.getCell(0, 5).setCandidates(CandidateSet.of([5, 7, 8]));
+      board.getCell(0, 6).setCandidates(CandidateSet.of([4, 6]));
+      board.getCell(0, 7).setCandidates(CandidateSet.of([4, 7, 8]));
+      board.getCell(0, 8).setCandidates(CandidateSet.of([5, 6, 8]));
 
       final step = strategy.apply(board);
       expect(step, isNotNull);
@@ -81,15 +81,15 @@ void main() {
 
       // Values 1,2,3,4 only appear in cells 0,1,2,3 but those cells
       // also have other candidates.
-      board.getCell(0, 0).setCandidates({1, 2, 5});
-      board.getCell(0, 1).setCandidates({2, 3, 6});
-      board.getCell(0, 2).setCandidates({3, 4, 7});
-      board.getCell(0, 3).setCandidates({1, 4, 8});
-      board.getCell(0, 4).setCandidates({5, 6, 7});
-      board.getCell(0, 5).setCandidates({6, 7, 8});
-      board.getCell(0, 6).setCandidates({5, 8, 9});
-      board.getCell(0, 7).setCandidates({7, 8, 9});
-      board.getCell(0, 8).setCandidates({5, 6, 9});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([1, 2, 5]));
+      board.getCell(0, 1).setCandidates(CandidateSet.of([2, 3, 6]));
+      board.getCell(0, 2).setCandidates(CandidateSet.of([3, 4, 7]));
+      board.getCell(0, 3).setCandidates(CandidateSet.of([1, 4, 8]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([5, 6, 7]));
+      board.getCell(0, 5).setCandidates(CandidateSet.of([6, 7, 8]));
+      board.getCell(0, 6).setCandidates(CandidateSet.of([5, 8, 9]));
+      board.getCell(0, 7).setCandidates(CandidateSet.of([7, 8, 9]));
+      board.getCell(0, 8).setCandidates(CandidateSet.of([5, 6, 9]));
 
       final step = strategy.apply(board);
       expect(step, isNotNull);

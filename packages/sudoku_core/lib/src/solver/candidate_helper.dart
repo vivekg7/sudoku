@@ -1,4 +1,5 @@
 import '../models/board.dart';
+import '../models/candidate_set.dart';
 
 /// Fills in candidates for all empty cells based on current board state.
 /// A candidate is valid if no peer has that value.
@@ -8,16 +9,16 @@ void computeCandidates(Board board) {
       final cell = board.getCell(r, c);
       if (cell.isFilled) continue;
 
-      final usedValues = <int>{};
+      // Build a bitmask of values used by peers.
+      var usedBits = 0;
       for (final peer in board.peers(r, c)) {
-        if (peer.isFilled) usedValues.add(peer.value);
+        if (peer.isFilled) usedBits |= 1 << peer.value;
       }
 
-      final candidates = <int>{};
-      for (var v = 1; v <= 9; v++) {
-        if (!usedValues.contains(v)) candidates.add(v);
-      }
-      cell.setCandidates(candidates);
+      // Candidates = all digits 1–9 not in usedBits.
+      // Bits 1–9 all set = 0x3FE.
+      final candidateBits = 0x3FE & ~usedBits;
+      cell.setCandidates(CandidateSet(candidateBits));
     }
   }
 }

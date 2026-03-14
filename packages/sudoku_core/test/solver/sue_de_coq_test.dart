@@ -13,25 +13,25 @@ void main() {
       board.getCell(0, 2).setValue(9);
 
       // Intersection cells: (0,0) and (0,1) with 4 total candidates.
-      board.getCell(0, 0).setCandidates({1, 2, 3});
-      board.getCell(0, 1).setCandidates({1, 2, 4});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([1, 2, 3]));
+      board.getCell(0, 1).setCandidates(CandidateSet.of([1, 2, 4]));
       // Union: {1,2,3,4} — 4 candidates for 2 cells (N=2, N+2=4). ✓
 
       // Rest of row 0 (outside box 0): cols 3-8.
-      board.getCell(0, 3).setCandidates({3, 5});
-      board.getCell(0, 4).setCandidates({6, 7});
-      board.getCell(0, 5).setCandidates({5, 8});
+      board.getCell(0, 3).setCandidates(CandidateSet.of([3, 5]));
+      board.getCell(0, 4).setCandidates(CandidateSet.of([6, 7]));
+      board.getCell(0, 5).setCandidates(CandidateSet.of([5, 8]));
       board.getCell(0, 6).setValue(6);
       board.getCell(0, 7).setValue(7);
       board.getCell(0, 8).setValue(8);
 
       // Rest of box 0 (outside row 0): rows 1-2, cols 0-2.
-      board.getCell(1, 0).setCandidates({4, 5});
-      board.getCell(1, 1).setCandidates({6, 7});
-      board.getCell(1, 2).setCandidates({5, 8});
-      board.getCell(2, 0).setCandidates({7, 8});
-      board.getCell(2, 1).setCandidates({5, 6});
-      board.getCell(2, 2).setCandidates({8, 7});
+      board.getCell(1, 0).setCandidates(CandidateSet.of([4, 5]));
+      board.getCell(1, 1).setCandidates(CandidateSet.of([6, 7]));
+      board.getCell(1, 2).setCandidates(CandidateSet.of([5, 8]));
+      board.getCell(2, 0).setCandidates(CandidateSet.of([7, 8]));
+      board.getCell(2, 1).setCandidates(CandidateSet.of([5, 6]));
+      board.getCell(2, 2).setCandidates(CandidateSet.of([8, 7]));
 
       // restLineCands = {3,5,6,7,8}, restBoxCands = {4,5,6,7,8}
       // lineOnly = {1,2,3,4} ∩ {3,5,6,7,8} \ {4,5,6,7,8} = {3} \ {4,5,6,7,8} = {3}
@@ -52,8 +52,8 @@ void main() {
 
     test('returns null when no pattern exists', () {
       final board = Board.empty();
-      board.getCell(0, 0).setCandidates({1, 2, 3, 4, 5});
-      board.getCell(0, 1).setCandidates({1, 2, 3, 4, 5});
+      board.getCell(0, 0).setCandidates(CandidateSet.of([1, 2, 3, 4, 5]));
+      board.getCell(0, 1).setCandidates(CandidateSet.of([1, 2, 3, 4, 5]));
 
       final step = strategy.apply(board);
       expect(step, isNull);

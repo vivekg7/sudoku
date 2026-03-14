@@ -204,9 +204,9 @@ class GameState extends ChangeNotifier {
 
     if (_isPencilMode) {
       if (cell.isFilled) return;
-      final prevCandidates = Set.of(cell.candidates);
+      final prevCandidates = cell.candidates.copy();
       cell.toggleCandidate(value);
-      final newCandidates = Set.of(cell.candidates);
+      final newCandidates = cell.candidates.copy();
 
       _puzzle!.history.push(Move(
         row: _selectedRow!,
@@ -241,8 +241,8 @@ class GameState extends ChangeNotifier {
       type: MoveType.setValue,
       previousValue: cell.value,
       newValue: value,
-      previousCandidates: Set.of(cell.candidates),
-      newCandidates: {},
+      previousCandidates: cell.candidates.copy(),
+      newCandidates: CandidateSet(),
     ));
     cell.setValue(value);
 
@@ -265,7 +265,7 @@ class GameState extends ChangeNotifier {
       type: MoveType.clearValue,
       previousValue: cell.value,
       newValue: 0,
-      previousCandidates: Set.of(cell.candidates),
+      previousCandidates: cell.candidates.copy(),
     ));
     cell.clearValue();
     _clearHint();
