@@ -105,12 +105,12 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 9: Stats & Persistence
 
-- [ ] `GameStats` model — solve time, difficulty, hints taken (per layer, per strategy), completion status
-- [ ] `StatsStore` — accumulate stats across games, compute aggregates (streaks, averages, per-strategy breakdown)
-- [ ] `PuzzleStore` — save/load in-progress puzzles, bookmarks
-- [ ] Serialisation (JSON) for all stored data
-- [ ] Export/import all data as a single file (for cross-device portability)
-- [ ] Tests for serialisation round-trips and stat aggregation
+- [x] `GameStats` model — solve time, difficulty, hints taken (per layer, per strategy), completion status
+- [x] `StatsStore` — accumulate stats across games, compute aggregates (streaks, averages, per-strategy breakdown)
+- [x] `PuzzleStore` — save/load in-progress puzzles, bookmarks
+- [x] Serialisation (JSON) for all stored data
+- [x] Export/import all data as a single file (for cross-device portability)
+- [x] Tests for serialisation round-trips and stat aggregation
 
 ---
 
