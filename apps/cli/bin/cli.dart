@@ -6,10 +6,13 @@ import 'package:args/args.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
 import 'package:cli/src/game.dart';
+import 'package:cli/src/tui_game.dart';
 
-void main(List<String> arguments) {
+Future<void> main(List<String> arguments) async {
   final parser = ArgParser()
     ..addFlag('help', abbr: 'h', negatable: false, help: 'Show usage')
+    ..addFlag('classic',
+        negatable: false, help: 'Use classic line-based input mode')
     ..addOption('difficulty',
         abbr: 'd',
         allowed: ['beginner', 'easy', 'medium', 'hard', 'expert', 'master'],
@@ -61,22 +64,42 @@ void main(List<String> arguments) {
     puzzle = _generatePuzzle(difficulty);
   }
 
-  final game = Game(puzzle);
-  game.run();
+  final useClassic = args.flag('classic') || !stdout.hasTerminal;
 
-  // Offer to save on exit if not solved.
-  if (!puzzle.isSolved) {
-    stdout.write('Save game? (y/n): ');
-    final answer = stdin.readLineSync()?.trim().toLowerCase();
-    if (answer == 'y') {
-      _saveGame(puzzle, saveFile);
-      print('Game saved to $saveFile.');
+  if (useClassic) {
+    // Classic line-based mode
+    final game = Game(puzzle);
+    game.run();
+
+    if (!puzzle.isSolved) {
+      stdout.write('Save game? (y/n): ');
+      final answer = stdin.readLineSync()?.trim().toLowerCase();
+      if (answer == 'y') {
+        _saveGame(puzzle, saveFile);
+        print('Game saved to $saveFile.');
+      }
     }
-  }
 
-  // Record stats.
-  final stats = game.toGameStats();
-  _recordStats(stats, saveFile);
+    final stats = game.toGameStats();
+    _recordStats(stats, saveFile);
+  } else {
+    // TUI mode
+    final game = TuiGame(puzzle);
+    await game.run();
+
+    // After TUI exits, terminal is restored — use line-based I/O for save prompt
+    if (!puzzle.isSolved) {
+      stdout.write('Save game? (y/n): ');
+      final answer = stdin.readLineSync()?.trim().toLowerCase();
+      if (answer == 'y') {
+        _saveGame(puzzle, saveFile);
+        print('Game saved to $saveFile.');
+      }
+    }
+
+    final stats = game.toGameStats();
+    _recordStats(stats, saveFile);
+  }
 }
 
 Puzzle _generatePuzzle(Difficulty difficulty) {
