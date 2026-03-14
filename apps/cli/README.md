@@ -55,9 +55,29 @@ end
 
 Generate the sha256 with `shasum -a 256 sudoku-macos-arm64.tar.gz`.
 
-## Commands
+## TUI Mode (default)
 
-All commands are case-insensitive. Abbreviations are shown in parentheses.
+The default mode uses raw keyboard input — no Enter key needed. The board renders with ANSI colors: given cells and user-filled cells have distinct backgrounds, the selected cell is highlighted, and selecting a filled cell bolds all matching digits on the board.
+
+### Key Bindings
+
+| Key                    | Action                                         |
+| ---------------------- | ---------------------------------------------- |
+| Arrow keys / WASD      | Move cursor                                    |
+| 1-9                    | Place value (or toggle candidate in note mode) |
+| 0 / Backspace / Delete | Clear cell                                     |
+| `n`                    | Toggle note mode                               |
+| `c`                    | Toggle candidate display                       |
+| `h`                    | Hint (progressive: nudge → strategy → answer)  |
+| `u`                    | Undo                                           |
+| `r`                    | Redo                                           |
+| `p` / Space            | Pause/resume                                   |
+| `x`                    | Reveal solution (with confirmation)            |
+| `q`                    | Quit (with confirmation)                       |
+
+## Classic Mode (`--classic`)
+
+Line-based input mode, activated with `--classic` or automatically when output is not a TTY (e.g. piped). All commands are case-insensitive. Abbreviations are shown in parentheses.
 
 | Command               | Example     | What it does                           |
 | --------------------- | ----------- | -------------------------------------- |
@@ -84,6 +104,7 @@ All commands are case-insensitive. Abbreviations are shown in parentheses.
 
 | Flag                   | Short | What it does                                                  |
 | ---------------------- | ----- | ------------------------------------------------------------- |
+| `--classic`            |       | Use classic line-based input mode                             |
 | `--difficulty <level>` | `-d`  | Set difficulty (beginner, easy, medium, hard, expert, master) |
 | `--import <string>`    |       | Import puzzle from 81-char string (0 = empty)                 |
 | `--load <file>`        | `-l`  | Load a saved game from JSON file                              |
