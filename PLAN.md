@@ -116,15 +116,15 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 10: CLI App
 
-- [ ] New game: select difficulty, play interactively in terminal
-- [ ] Board rendering (ASCII grid with candidates)
-- [ ] Input: select cell, enter value, toggle candidate
-- [ ] Undo/redo
-- [ ] Hint command (progressive layers)
-- [ ] Timer display
-- [ ] Auto-solve / show solution
-- [ ] Stats display
-- [ ] Save/load game
+- [x] New game: select difficulty, play interactively in terminal
+- [x] Board rendering (ASCII grid with candidates)
+- [x] Input: select cell, enter value, toggle candidate
+- [x] Undo/redo
+- [x] Hint command (progressive layers)
+- [x] Timer display
+- [x] Auto-solve / show solution
+- [x] Stats display
+- [x] Save/load game
 
 ---
 

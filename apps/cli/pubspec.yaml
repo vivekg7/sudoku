@@ -1,7 +1,7 @@
 name: cli
 description: Sudoku CLI — play sudoku in the terminal.
 version: 0.0.1
-# repository: https://github.com/my_org/my_repo
+publish_to: none
 
 environment:
   sdk: ^3.11.1
