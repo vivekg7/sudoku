@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 
 import 'screens/home_screen.dart';
+import 'services/storage_service.dart';
 
-void main() {
-  runApp(const SudokuApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final storage = StorageService();
+  await storage.init();
+  runApp(SudokuApp(storage: storage));
 }
 
 class SudokuApp extends StatelessWidget {
-  const SudokuApp({super.key});
+  final StorageService storage;
+
+  const SudokuApp({super.key, required this.storage});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +26,7 @@ class SudokuApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      home: HomeScreen(storage: storage),
     );
   }
 }

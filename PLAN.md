@@ -151,9 +151,9 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 13: Flutter App — Stats & Data
 
-- [ ] Stats screen (solve times, streaks, difficulty progression, hint breakdown by layer/strategy)
-- [ ] Saved games list (resume in-progress, replay bookmarked)
-- [ ] Export/import data (file picker, share sheet)
+- [x] Stats screen (solve times, streaks, difficulty progression, hint breakdown by layer/strategy)
+- [x] Saved games list (resume in-progress, replay bookmarked)
+- [x] Export/import data (file picker, share sheet)
 
 ---
 

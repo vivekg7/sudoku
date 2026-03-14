@@ -88,6 +88,27 @@ class GameState extends ChangeNotifier {
     return PuzzleGenerator(random: Random()).generate(difficulty);
   }
 
+  /// Resume from a saved puzzle (no generation needed).
+  void resumePuzzle(Puzzle puzzle) {
+    _timer?.cancel();
+    _puzzle = puzzle;
+    _selectedRow = null;
+    _selectedCol = null;
+    _activeNumber = null;
+    _isPencilMode = false;
+    _isPaused = false;
+    _isSolvedNotified = false;
+    _elapsedSeconds = 0;
+    _stopwatch.reset();
+    _currentHint = null;
+    _hintLayer = 0;
+    _hintCounts.clear();
+    _hintStrategyCounts.clear();
+    _stopwatch.start();
+    _startTimer();
+    notifyListeners();
+  }
+
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {

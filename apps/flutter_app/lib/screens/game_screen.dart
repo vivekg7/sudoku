@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
+import '../services/storage_service.dart';
 import '../state/game_state.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/hint_panel.dart';
@@ -9,8 +10,15 @@ import '../widgets/number_pad.dart';
 
 class GameScreen extends StatefulWidget {
   final Difficulty difficulty;
+  final StorageService storage;
+  final PuzzleEntry? resumeEntry;
 
-  const GameScreen({super.key, required this.difficulty});
+  const GameScreen({
+    super.key,
+    required this.difficulty,
+    required this.storage,
+    this.resumeEntry,
+  });
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -19,13 +27,20 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   late final GameState _gameState;
   final FocusNode _focusNode = FocusNode();
+  String? _puzzleEntryId;
 
   @override
   void initState() {
     super.initState();
     _gameState = GameState();
     _gameState.addListener(_restoreKeyboardFocus);
-    _gameState.newGame(widget.difficulty);
+
+    if (widget.resumeEntry != null) {
+      _puzzleEntryId = widget.resumeEntry!.id;
+      _gameState.resumePuzzle(widget.resumeEntry!.puzzle);
+    } else {
+      _gameState.newGame(widget.difficulty);
+    }
   }
 
   @override
@@ -36,44 +51,71 @@ class _GameScreenState extends State<GameScreen> {
     super.dispose();
   }
 
-  /// After any game state change (cell tap, number press, etc.), restore
-  /// focus to the keyboard listener so arrow keys and shortcuts keep working.
   void _restoreKeyboardFocus() {
     if (mounted && _gameState.isPlaying && !_gameState.isPaused) {
       _focusNode.requestFocus();
     }
   }
 
+  /// Save the current puzzle for later resumption.
+  Future<void> _saveCurrentPuzzle() async {
+    final puzzle = _gameState.puzzle;
+    if (puzzle == null || puzzle.isSolved) return;
+
+    _puzzleEntryId ??=
+        DateTime.now().millisecondsSinceEpoch.toString();
+    await widget.storage.savePuzzle(PuzzleEntry(
+      id: _puzzleEntryId!,
+      puzzle: puzzle,
+    ));
+  }
+
+  /// Record game stats on completion.
+  Future<void> _recordStats() async {
+    if (_gameState.puzzle == null) return;
+    await widget.storage.recordGame(_gameState.toGameStats());
+    // Remove from saved games if it was saved.
+    if (_puzzleEntryId != null) {
+      await widget.storage.removePuzzle(_puzzleEntryId!);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: _gameState,
-      builder: (context, _) {
-        _checkSolved();
-
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              _gameState.puzzle != null
-                  ? 'Sudoku — ${_gameState.puzzle!.difficulty.label}'
-                  : 'Sudoku',
-            ),
-            centerTitle: true,
-            actions: [
-              if (_gameState.puzzle != null) ...[
-                _timerDisplay(),
-                _pauseButton(),
-                const SizedBox(width: 8),
-              ],
-            ],
-          ),
-          body: _gameState.puzzle == null
-              ? const Center(child: CircularProgressIndicator())
-              : _gameState.isPaused
-                  ? _pausedView()
-                  : _gameView(),
-        );
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _saveCurrentPuzzle();
       },
+      child: ListenableBuilder(
+        listenable: _gameState,
+        builder: (context, _) {
+          _checkSolved();
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                _gameState.puzzle != null
+                    ? 'Sudoku — ${_gameState.puzzle!.difficulty.label}'
+                    : 'Sudoku',
+              ),
+              centerTitle: true,
+              actions: [
+                if (_gameState.puzzle != null) ...[
+                  _timerDisplay(),
+                  _pauseButton(),
+                  const SizedBox(width: 8),
+                ],
+              ],
+            ),
+            body: _gameState.puzzle == null
+                ? const Center(child: CircularProgressIndicator())
+                : _gameState.isPaused
+                    ? _pausedView()
+                    : _gameView(),
+          );
+        },
+      ),
     );
   }
 
@@ -105,7 +147,8 @@ class _GameScreenState extends State<GameScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.pause_circle_outline, size: 64, color: Color(0xFF757575)),
+          const Icon(Icons.pause_circle_outline,
+              size: 64, color: Color(0xFF757575)),
           const SizedBox(height: 16),
           const Text(
             'Paused',
@@ -161,7 +204,6 @@ class _GameScreenState extends State<GameScreen> {
 
     final key = event.logicalKey;
 
-    // Arrow keys for navigation.
     if (key == LogicalKeyboardKey.arrowUp) {
       _gameState.moveSelection(-1, 0);
     } else if (key == LogicalKeyboardKey.arrowDown) {
@@ -170,26 +212,18 @@ class _GameScreenState extends State<GameScreen> {
       _gameState.moveSelection(0, -1);
     } else if (key == LogicalKeyboardKey.arrowRight) {
       _gameState.moveSelection(0, 1);
-    }
-    // Number keys.
-    else if (key.keyId >= LogicalKeyboardKey.digit1.keyId &&
+    } else if (key.keyId >= LogicalKeyboardKey.digit1.keyId &&
         key.keyId <= LogicalKeyboardKey.digit9.keyId) {
       _gameState.enterValue(key.keyId - LogicalKeyboardKey.digit0.keyId);
     } else if (key.keyId >= LogicalKeyboardKey.numpad1.keyId &&
         key.keyId <= LogicalKeyboardKey.numpad9.keyId) {
       _gameState.enterValue(key.keyId - LogicalKeyboardKey.numpad0.keyId);
-    }
-    // Delete / Backspace to clear.
-    else if (key == LogicalKeyboardKey.delete ||
+    } else if (key == LogicalKeyboardKey.delete ||
         key == LogicalKeyboardKey.backspace) {
       _gameState.clearCell();
-    }
-    // P for pencil mode.
-    else if (key == LogicalKeyboardKey.keyP) {
+    } else if (key == LogicalKeyboardKey.keyP) {
       _gameState.togglePencilMode();
-    }
-    // Z for undo, Y for redo.
-    else if (key == LogicalKeyboardKey.keyZ) {
+    } else if (key == LogicalKeyboardKey.keyZ) {
       if (HardwareKeyboard.instance.isControlPressed ||
           HardwareKeyboard.instance.isMetaPressed) {
         if (HardwareKeyboard.instance.isShiftPressed) {
@@ -203,13 +237,9 @@ class _GameScreenState extends State<GameScreen> {
           HardwareKeyboard.instance.isMetaPressed) {
         _gameState.redo();
       }
-    }
-    // H for hint.
-    else if (key == LogicalKeyboardKey.keyH) {
+    } else if (key == LogicalKeyboardKey.keyH) {
       _gameState.requestHint();
-    }
-    // Space to pause/resume.
-    else if (key == LogicalKeyboardKey.space) {
+    } else if (key == LogicalKeyboardKey.space) {
       _gameState.togglePause();
     }
   }
@@ -218,6 +248,7 @@ class _GameScreenState extends State<GameScreen> {
     if (_gameState.isSolved && !_gameState.isSolvedNotified) {
       _gameState.markSolvedNotified();
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        _recordStats();
         _showSolvedDialog();
       });
     }
@@ -231,7 +262,8 @@ class _GameScreenState extends State<GameScreen> {
         title: const Text('Puzzle Solved!'),
         content: Text(
           'Difficulty: ${_gameState.puzzle!.difficulty.label}\n'
-          'Time: ${_gameState.formattedTime}',
+          'Time: ${_gameState.formattedTime}\n'
+          'Hints used: ${_gameState.totalHints}',
         ),
         actions: [
           TextButton(
@@ -244,6 +276,7 @@ class _GameScreenState extends State<GameScreen> {
           FilledButton(
             onPressed: () {
               Navigator.of(ctx).pop();
+              _puzzleEntryId = null;
               _gameState.newGame(widget.difficulty);
             },
             child: const Text('New Game'),
