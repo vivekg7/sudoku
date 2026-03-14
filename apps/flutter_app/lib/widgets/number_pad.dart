@@ -54,6 +54,12 @@ class NumberPad extends StatelessWidget {
                 onPressed: gameState.clearCell,
               ),
               _pencilButton(context),
+              _actionButton(
+                context,
+                icon: Icons.lightbulb_outline,
+                label: 'Hint',
+                onPressed: gameState.requestHint,
+              ),
             ],
           ),
         ),

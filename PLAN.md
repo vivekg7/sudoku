@@ -142,10 +142,10 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 12: Flutter App — Hints & Teaching
 
-- [ ] Hint button (intentionally tucked away, not prominent)
-- [ ] Progressive hint reveal UI (tap once → nudge, tap again → strategy, again → answer)
-- [ ] Visual highlighting of cells/regions referenced by the hint
-- [ ] Hint usage tracking wired into stats
+- [x] Hint button (intentionally tucked away, not prominent)
+- [x] Progressive hint reveal UI (tap once → nudge, tap again → strategy, again → answer)
+- [x] Visual highlighting of cells/regions referenced by the hint
+- [x] Hint usage tracking wired into stats
 
 ---
 

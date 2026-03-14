@@ -16,6 +16,13 @@ class GameState extends ChangeNotifier {
   bool _isPaused = false;
   bool _isSolvedNotified = false;
 
+  // Hint state.
+  final HintGenerator _hintGen = HintGenerator();
+  Hint? _currentHint;
+  int _hintLayer = 0; // 0 = none, 1 = nudge, 2 = strategy, 3 = answer
+  final Map<HintLevel, int> _hintCounts = {};
+  final Map<StrategyType, int> _hintStrategyCounts = {};
+
   Puzzle? get puzzle => _puzzle;
   int? get selectedRow => _selectedRow;
   int? get selectedCol => _selectedCol;
@@ -25,6 +32,21 @@ class GameState extends ChangeNotifier {
   bool get isPaused => _isPaused;
   bool get isPlaying => _puzzle != null && !_puzzle!.isSolved;
   bool get isSolved => _puzzle?.isSolved ?? false;
+
+  // Hint getters.
+  Hint? get currentHint => _currentHint;
+  int get hintLayer => _hintLayer;
+  String? get hintText {
+    if (_currentHint == null || _hintLayer == 0) return null;
+    return _currentHint!.textForLevel(HintLevel.values[_hintLayer - 1]);
+  }
+
+  HintLevel? get currentHintLevel =>
+      _hintLayer > 0 ? HintLevel.values[_hintLayer - 1] : null;
+  Map<HintLevel, int> get hintCounts => Map.unmodifiable(_hintCounts);
+  Map<StrategyType, int> get hintStrategyCounts =>
+      Map.unmodifiable(_hintStrategyCounts);
+  int get totalHints => _hintCounts.values.fold(0, (s, c) => s + c);
 
   /// Whether the solved state has been shown to the user.
   bool get isSolvedNotified => _isSolvedNotified;
@@ -41,6 +63,10 @@ class GameState extends ChangeNotifier {
     _isSolvedNotified = false;
     _elapsedSeconds = 0;
     _stopwatch.reset();
+    _currentHint = null;
+    _hintLayer = 0;
+    _hintCounts.clear();
+    _hintStrategyCounts.clear();
     notifyListeners();
 
     final puzzle = await compute(_generatePuzzle, difficulty);
@@ -162,6 +188,7 @@ class GameState extends ChangeNotifier {
         previousCandidates: prevCandidates,
         newCandidates: newCandidates,
       ));
+      _clearHint();
     } else {
       // If same value, treat as clear.
       if (cell.value == value) {
@@ -177,6 +204,7 @@ class GameState extends ChangeNotifier {
   /// Place a value at (row, col) with undo history. Used by both
   /// cell-first and number-first input modes.
   void _placeValue(int row, int col, int value) {
+    _clearHint();
     final cell = _puzzle!.board.getCell(row, col);
     _puzzle!.history.push(Move(
       row: row,
@@ -211,6 +239,7 @@ class GameState extends ChangeNotifier {
       previousCandidates: Set.of(cell.candidates),
     ));
     cell.clearValue();
+    _clearHint();
     notifyListeners();
   }
 
@@ -226,6 +255,7 @@ class GameState extends ChangeNotifier {
       cell.clearValue();
     }
     cell.setCandidates(move.previousCandidates);
+    _clearHint();
 
     _selectedRow = move.row;
     _selectedCol = move.col;
@@ -244,6 +274,7 @@ class GameState extends ChangeNotifier {
       cell.clearValue();
     }
     cell.setCandidates(move.newCandidates);
+    _clearHint();
 
     _selectedRow = move.row;
     _selectedCol = move.col;
@@ -253,6 +284,55 @@ class GameState extends ChangeNotifier {
       _timer?.cancel();
     }
     notifyListeners();
+  }
+
+  // -- Hints --
+
+  void requestHint() {
+    if (_puzzle == null || _isPaused || _puzzle!.isSolved) return;
+
+    // If we've shown all 3 layers, generate a new hint on next press.
+    if (_currentHint == null || _hintLayer >= 3) {
+      _currentHint = _hintGen.generate(_puzzle!.board);
+      _hintLayer = 0;
+
+      if (_currentHint == null) return; // no hint available
+    }
+
+    _hintLayer++;
+    final level = HintLevel.values[_hintLayer - 1];
+    _hintCounts[level] = (_hintCounts[level] ?? 0) + 1;
+    final strategy = _currentHint!.step.strategy;
+    _hintStrategyCounts[strategy] =
+        (_hintStrategyCounts[strategy] ?? 0) + 1;
+    notifyListeners();
+  }
+
+  void dismissHint() {
+    if (_currentHint == null) return;
+    _clearHint();
+    notifyListeners();
+  }
+
+  void _clearHint() {
+    _currentHint = null;
+    _hintLayer = 0;
+  }
+
+  /// Cells involved in the current hint pattern (for board highlighting).
+  Set<(int, int)> get hintInvolvedCells {
+    if (_currentHint == null || _hintLayer < 2) return {};
+    return _currentHint!.step.involvedCells
+        .map((c) => (c.row, c.col))
+        .toSet();
+  }
+
+  /// Cells where a value should be placed (answer-level highlight).
+  Set<(int, int)> get hintPlacementCells {
+    if (_currentHint == null || _hintLayer < 3) return {};
+    return _currentHint!.step.placements
+        .map((p) => (p.row, p.col))
+        .toSet();
   }
 
   // -- Computed state --
@@ -333,6 +413,18 @@ class GameState extends ChangeNotifier {
     final secs = _elapsedSeconds % 60;
     return '${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
+
+  /// Build a [GameStats] snapshot from the current session.
+  GameStats toGameStats() => GameStats(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        difficulty: _puzzle!.difficulty,
+        solveTimeSeconds: _elapsedSeconds,
+        completed: _puzzle!.isSolved,
+        hintsByLevel: Map.of(_hintCounts),
+        hintsByStrategy: Map.of(_hintStrategyCounts),
+        playedAt: DateTime.now(),
+        puzzleId: _puzzle!.initialBoard.toFlatString(),
+      );
 
   @override
   void dispose() {

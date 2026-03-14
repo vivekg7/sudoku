@@ -22,8 +22,17 @@ class CellWidget extends StatelessWidget {
     final isRelated = gameState.isRelatedToSelected(row, col);
     final sameValue = gameState.hasSameValueAsSelected(row, col);
     final isConflict = gameState.conflicts.contains((row, col));
+    final isHintPlacement = gameState.hintPlacementCells.contains((row, col));
+    final isHintInvolved = gameState.hintInvolvedCells.contains((row, col));
 
-    final bgColor = _backgroundColor(isSelected, isRelated, sameValue, isConflict);
+    final bgColor = _backgroundColor(
+      isSelected: isSelected,
+      isRelated: isRelated,
+      sameValue: sameValue,
+      isConflict: isConflict,
+      isHintPlacement: isHintPlacement,
+      isHintInvolved: isHintInvolved,
+    );
     final border = _cellBorder();
 
     return GestureDetector(
@@ -40,8 +49,16 @@ class CellWidget extends StatelessWidget {
     );
   }
 
-  Color _backgroundColor(
-      bool isSelected, bool isRelated, bool sameValue, bool isConflict) {
+  Color _backgroundColor({
+    required bool isSelected,
+    required bool isRelated,
+    required bool sameValue,
+    required bool isConflict,
+    required bool isHintPlacement,
+    required bool isHintInvolved,
+  }) {
+    if (isHintPlacement) return const Color(0xFFC8E6C9); // green[100]
+    if (isHintInvolved) return const Color(0xFFFFE0B2); // orange[100]
     if (isConflict && isSelected) return const Color(0xFFFFCDD2);
     if (isSelected) return const Color(0xFFBBDEFB);
     if (isConflict) return const Color(0xFFFFEBEE);

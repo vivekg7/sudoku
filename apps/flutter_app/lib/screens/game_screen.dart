@@ -4,6 +4,7 @@ import 'package:sudoku_core/sudoku_core.dart';
 
 import '../state/game_state.dart';
 import '../widgets/board_widget.dart';
+import '../widgets/hint_panel.dart';
 import '../widgets/number_pad.dart';
 
 class GameScreen extends StatefulWidget {
@@ -144,6 +145,7 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
             ),
+            HintPanel(gameState: _gameState),
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: NumberPad(gameState: _gameState),
@@ -201,6 +203,10 @@ class _GameScreenState extends State<GameScreen> {
           HardwareKeyboard.instance.isMetaPressed) {
         _gameState.redo();
       }
+    }
+    // H for hint.
+    else if (key == LogicalKeyboardKey.keyH) {
+      _gameState.requestHint();
     }
     // Space to pause/resume.
     else if (key == LogicalKeyboardKey.space) {
