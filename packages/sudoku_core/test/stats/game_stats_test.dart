@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('GameStats', () {
-    GameStats _sample() => GameStats(
+    GameStats sample() => GameStats(
           id: 'game-1',
           difficulty: Difficulty.medium,
           solveTimeSeconds: 300,
@@ -15,11 +15,11 @@ void main() {
         );
 
     test('totalHints sums across levels', () {
-      expect(_sample().totalHints, 3);
+      expect(sample().totalHints, 3);
     });
 
     test('usedHints is true when hints taken', () {
-      expect(_sample().usedHints, isTrue);
+      expect(sample().usedHints, isTrue);
     });
 
     test('usedHints is false when no hints', () {
@@ -34,7 +34,7 @@ void main() {
     });
 
     test('JSON round-trip preserves all fields', () {
-      final original = _sample();
+      final original = sample();
       final json = original.toJson();
       final restored = GameStats.fromJson(json);
 

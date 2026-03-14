@@ -1,5 +1,4 @@
 import '../solver/solve_step.dart';
-import '../solver/strategy_type.dart';
 
 /// The level of detail a hint reveals.
 enum HintLevel {

@@ -2,7 +2,6 @@ import '../models/board.dart';
 import '../solver/candidate_helper.dart';
 import '../solver/solve_step.dart';
 import '../solver/solver_engine.dart';
-import '../solver/strategy_type.dart';
 import 'hint.dart';
 
 /// Generates multi-layer hints for the current board state.
