@@ -17,6 +17,7 @@ class PdfExportScreen extends StatefulWidget {
 class _PdfExportScreenState extends State<PdfExportScreen> {
   Difficulty _difficulty = Difficulty.medium;
   int _count = 6;
+  bool _includeRoughGrid = false;
   Uint8List? _pdfBytes;
   bool _generating = false;
 
@@ -108,6 +109,18 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Rough work grid: ',
+                    style: TextStyle(fontSize: 16)),
+                Switch(
+                  value: _includeRoughGrid,
+                  onChanged: (v) => setState(() => _includeRoughGrid = v),
+                ),
+              ],
+            ),
             const SizedBox(height: 32),
             if (_generating)
               const Column(
@@ -147,7 +160,11 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
   Future<void> _generate() async {
     setState(() => _generating = true);
     try {
-      final bytes = await PdfService().generatePdf(_count, _difficulty);
+      final bytes = await PdfService().generatePdf(
+        _count,
+        _difficulty,
+        includeRoughGrid: _includeRoughGrid,
+      );
       setState(() {
         _pdfBytes = bytes;
         _generating = false;

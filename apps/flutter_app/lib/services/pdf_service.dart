@@ -24,12 +24,16 @@ class PdfPuzzle {
 class PdfService {
   /// Generate puzzles and build a PDF.
   /// Returns the PDF bytes.
-  Future<Uint8List> generatePdf(int count, Difficulty difficulty) async {
+  Future<Uint8List> generatePdf(
+    int count,
+    Difficulty difficulty, {
+    bool includeRoughGrid = false,
+  }) async {
     final puzzles = await compute(
       _generatePuzzlesWithHints,
       _GenParams(count, difficulty),
     );
-    return _buildPdf(puzzles);
+    return _buildPdf(puzzles, includeRoughGrid: includeRoughGrid);
   }
 
   static List<PdfPuzzle> _generatePuzzlesWithHints(_GenParams params) {
@@ -56,7 +60,10 @@ class PdfService {
     return puzzles;
   }
 
-  Future<Uint8List> _buildPdf(List<PdfPuzzle> puzzles) async {
+  Future<Uint8List> _buildPdf(
+    List<PdfPuzzle> puzzles, {
+    bool includeRoughGrid = false,
+  }) async {
     final doc = pw.Document(
       title: 'Sudoku Puzzles',
       author: 'Sudoku App',
@@ -68,7 +75,8 @@ class PdfService {
         pw.Page(
           pageFormat: PdfPageFormat.a4,
           margin: const pw.EdgeInsets.all(40),
-          build: (context) => _buildPuzzlePage(p),
+          build: (context) =>
+              _buildPuzzlePage(p, includeRoughGrid: includeRoughGrid),
         ),
       );
     }
@@ -94,7 +102,10 @@ class PdfService {
     return await doc.save();
   }
 
-  pw.Widget _buildPuzzlePage(PdfPuzzle puzzle) {
+  pw.Widget _buildPuzzlePage(
+    PdfPuzzle puzzle, {
+    bool includeRoughGrid = false,
+  }) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
@@ -104,6 +115,18 @@ class PdfService {
         ),
         pw.SizedBox(height: 20),
         pw.Center(child: _buildGrid(puzzle.puzzle.initialBoard)),
+        if (includeRoughGrid) ...[
+          pw.SizedBox(height: 12),
+          pw.Text(
+            'Rough work',
+            style: const pw.TextStyle(
+              fontSize: 9,
+              color: PdfColors.grey500,
+            ),
+          ),
+          pw.SizedBox(height: 4),
+          pw.Center(child: _buildEmptyGrid(width: 440, height: 220)),
+        ],
         pw.Spacer(),
         pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.end,
@@ -130,11 +153,9 @@ class PdfService {
     );
   }
 
-  pw.Widget _buildGrid(Board board) {
-    const gridSize = 360.0;
-    const cellSize = gridSize / 9;
+  pw.Widget _buildGrid(Board board, [double gridSize = 360.0]) {
+    final cellSize = gridSize / 9;
 
-    // Outer table: 3x3 boxes with thick borders.
     return pw.Container(
       width: gridSize,
       height: gridSize,
@@ -147,6 +168,43 @@ class PdfService {
               children: [
                 for (var boxCol = 0; boxCol < 3; boxCol++)
                   _buildBox(board, boxRow, boxCol, cellSize),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// An empty 9x9 grid for rough work (rectangular).
+  pw.Widget _buildEmptyGrid({double width = 360, double height = 360}) {
+    final cellW = width / 9;
+    final cellH = height / 9;
+
+    return pw.Container(
+      width: width,
+      height: height,
+      child: pw.Table(
+        border: pw.TableBorder.all(width: 2.0),
+        defaultColumnWidth: const pw.FlexColumnWidth(),
+        children: [
+          for (var boxRow = 0; boxRow < 3; boxRow++)
+            pw.TableRow(
+              children: [
+                for (var boxCol = 0; boxCol < 3; boxCol++)
+                  pw.Table(
+                    border: pw.TableBorder.all(
+                        width: 0.5, color: PdfColors.grey400),
+                    defaultColumnWidth: const pw.FlexColumnWidth(),
+                    children: [
+                      for (var r = 0; r < 3; r++)
+                        pw.TableRow(
+                          children: [
+                            for (var c = 0; c < 3; c++)
+                              pw.Container(width: cellW, height: cellH),
+                          ],
+                        ),
+                    ],
+                  ),
               ],
             ),
         ],
