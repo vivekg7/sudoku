@@ -121,20 +121,32 @@ void main() {
       );
     });
 
-    test('generated puzzle has reasonable number of givens', () {
+    test('beginner puzzle has 40-50 givens', () {
       final puzzle = generator.generate(Difficulty.beginner);
       expect(puzzle, isNotNull);
 
-      var givenCount = 0;
-      for (var r = 0; r < 9; r++) {
-        for (var c = 0; c < 9; c++) {
-          if (puzzle!.initialBoard.getCell(r, c).isFilled) givenCount++;
-        }
-      }
-
-      // A valid puzzle typically has 17–36 givens.
-      expect(givenCount, greaterThanOrEqualTo(17));
+      final givenCount = _countGivens(puzzle!);
+      expect(givenCount, greaterThanOrEqualTo(40));
       expect(givenCount, lessThanOrEqualTo(50));
     });
+
+    test('easy puzzle has fewer givens than beginner', () {
+      final beginner = generator.generate(Difficulty.beginner);
+      final easy = generator.generate(Difficulty.easy);
+      expect(beginner, isNotNull);
+      expect(easy, isNotNull);
+
+      expect(_countGivens(easy!), lessThanOrEqualTo(40));
+    });
   });
+}
+
+int _countGivens(Puzzle puzzle) {
+  var count = 0;
+  for (var r = 0; r < 9; r++) {
+    for (var c = 0; c < 9; c++) {
+      if (puzzle.initialBoard.getCell(r, c).isFilled) count++;
+    }
+  }
+  return count;
 }

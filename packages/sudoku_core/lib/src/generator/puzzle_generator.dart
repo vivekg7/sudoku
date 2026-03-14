@@ -4,7 +4,6 @@ import '../models/board.dart';
 import '../models/difficulty.dart';
 import '../models/puzzle.dart';
 import '../solver/candidate_helper.dart';
-import '../solver/solve_result.dart';
 import '../solver/solver_engine.dart';
 import '../solver/strategies/backtracking.dart';
 
@@ -12,8 +11,8 @@ import '../solver/strategies/backtracking.dart';
 ///
 /// The generator works in three stages:
 /// 1. Generate a complete valid board using random fill + backtracking.
-/// 2. Remove clues symmetrically while maintaining a unique solution.
-/// 3. Solve step-by-step and check if difficulty matches the target.
+/// 2. Remove clues symmetrically, checking difficulty after each removal.
+/// 3. Stop when the target difficulty is reached, or backtrack if overshot.
 class PuzzleGenerator {
   final Random _random;
   final Solver _solver;
@@ -108,11 +107,9 @@ class PuzzleGenerator {
       board.getCell(bestRow, bestCol).setCandidates({});
 
       // Remove from peers' candidates.
-      final removedFrom = <({int row, int col, int value})>[];
       for (final peer in board.peers(bestRow, bestCol)) {
         if (peer.candidates.contains(v)) {
           peer.removeCandidate(v);
-          removedFrom.add((row: peer.row, col: peer.col, value: v));
         }
       }
 
@@ -126,11 +123,24 @@ class PuzzleGenerator {
     return false;
   }
 
+  /// Target given counts per difficulty. Fewer givens = harder for humans.
+  static const Map<Difficulty, ({int min, int max})> _givenTargets = {
+    Difficulty.beginner: (min: 40, max: 50),
+    Difficulty.easy: (min: 34, max: 40),
+    Difficulty.medium: (min: 29, max: 35),
+    Difficulty.hard: (min: 25, max: 31),
+    Difficulty.expert: (min: 22, max: 28),
+    Difficulty.master: (min: 17, max: 25),
+  };
+
   /// Removes clues from a full board symmetrically, targeting a difficulty.
   ///
-  /// Returns a [Puzzle] if the resulting board matches [target], else `null`.
+  /// Removes clues one symmetric pair at a time, checking difficulty and
+  /// given count after each removal. Stops when the target is reached,
+  /// and backtracks if a removal overshoots.
   Puzzle? _removeCluesToDifficulty(Board solution, Difficulty target) {
     final board = solution.clone();
+    final givenRange = _givenTargets[target]!;
 
     // Build list of cell positions in pairs (180° rotational symmetry).
     final pairs = <List<({int row, int col})>>[];
@@ -150,7 +160,6 @@ class PuzzleGenerator {
           visited.add(mirrorIdx);
           pairs.add([(row: r, col: c), (row: mr, col: mc)]);
         } else {
-          // Centre cell — its own mirror.
           pairs.add([(row: r, col: c)]);
         }
       }
@@ -158,8 +167,16 @@ class PuzzleGenerator {
 
     pairs.shuffle(_random);
 
-    // Greedily remove pairs while maintaining unique solution.
+    // Track the best board that matched the target difficulty.
+    Board? bestBoard;
+
     for (final pair in pairs) {
+      // Count current givens.
+      final currentGivens = _countFilled(board);
+
+      // Stop if we'd go below the minimum givens for this difficulty.
+      if (currentGivens - pair.length < givenRange.min) continue;
+
       // Save values.
       final saved = [
         for (final pos in pair) board.getCell(pos.row, pos.col).value,
@@ -180,17 +197,47 @@ class PuzzleGenerator {
         for (var i = 0; i < pair.length; i++) {
           board.getCell(pair[i].row, pair[i].col).setValue(saved[i]);
         }
+        continue;
+      }
+
+      // Check if current state matches target difficulty.
+      final result = _solver.solve(board);
+      if (!result.isSolved) {
+        // Shouldn't happen with unique solution, but restore just in case.
+        for (var i = 0; i < pair.length; i++) {
+          board.getCell(pair[i].row, pair[i].col).setValue(saved[i]);
+        }
+        continue;
+      }
+
+      if (result.difficulty == target) {
+        bestBoard = board.clone();
+      } else if (result.difficulty.index > target.index) {
+        // Overshot — this removal made it too hard. Restore.
+        for (var i = 0; i < pair.length; i++) {
+          board.getCell(pair[i].row, pair[i].col).setValue(saved[i]);
+        }
+      }
+      // If difficulty is below target, keep removing.
+    }
+
+    // If we never hit the target during removal, check the final state.
+    if (bestBoard == null) {
+      final finalResult = _solver.solve(board);
+      if (finalResult.isSolved && finalResult.difficulty == target) {
+        bestBoard = board;
       }
     }
 
-    // Now solve step-by-step and check difficulty.
-    final result = _solver.solve(board);
-    if (!result.isSolved) return null;
+    if (bestBoard == null) return null;
 
-    if (result.difficulty != target) return null;
+    // Verify given count is in range.
+    final finalGivens = _countFilled(bestBoard);
+    if (finalGivens < givenRange.min || finalGivens > givenRange.max) {
+      return null;
+    }
 
-    // Build the puzzle with givens marked.
-    final initialBoard = _boardWithGivens(board);
+    final initialBoard = _boardWithGivens(bestBoard);
     final playerBoard = initialBoard.clone();
 
     return Puzzle(
@@ -199,6 +246,16 @@ class PuzzleGenerator {
       board: playerBoard,
       difficulty: target,
     );
+  }
+
+  int _countFilled(Board board) {
+    var count = 0;
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        if (board.getCell(r, c).isFilled) count++;
+      }
+    }
+    return count;
   }
 
   /// Creates a new board from [source] with filled cells marked as givens.
