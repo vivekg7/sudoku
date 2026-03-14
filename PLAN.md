@@ -130,13 +130,13 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 11: Flutter App — Core Gameplay
 
-- [ ] Board widget (9x9 grid, highlight selected cell + related cells)
-- [ ] Number input (tap/keyboard)
-- [ ] Pencil mark mode
-- [ ] Undo/redo buttons
-- [ ] Rule violation highlighting
-- [ ] New game screen (difficulty selection)
-- [ ] Timer widget with pause
+- [x] Board widget (9x9 grid, highlight selected cell + related cells)
+- [x] Number input (tap/keyboard)
+- [x] Pencil mark mode
+- [x] Undo/redo buttons
+- [x] Rule violation highlighting
+- [x] New game screen (difficulty selection)
+- [x] Timer widget with pause
 
 ---
 
