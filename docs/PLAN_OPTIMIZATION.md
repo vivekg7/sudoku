@@ -76,9 +76,49 @@ Replace `List<List<T>> combinations()` with an `Iterable<List<T>>` that yields o
 
 ---
 
+## Phase 2 — Data Representation
+
+### O7. Bitmask candidate representation
+
+**Impact:** Very High · **Effort:** Medium-High
+
+Replace `Set<int> _candidates` in `Cell` with a single `int` bitmask where bit `i` represents candidate `i` (bits 1–9). Values 1–9 map to `1 << 1` through `1 << 9`.
+
+Currently, `.candidates` is accessed 117 times across 19 files, and the getter creates a `Set.unmodifiable` wrapper on every call. Every strategy's inner loop, every backtracking step, and every candidate computation pays this cost.
+
+**Operation comparison:**
+
+| Operation | `Set<int>` (current) | `int` bitmask |
+|-----------|---------------------|---------------|
+| `contains(v)` | hash lookup + unmodifiable wrapper | `bits & (1 << v) != 0` |
+| `add(v)` | hash insert | `bits \|= 1 << v` |
+| `remove(v)` | hash delete | `bits &= ~(1 << v)` |
+| `length` | O(n) or cached | bit count (~3 ops) |
+| `isEmpty` | internal check | `bits == 0` |
+| `intersection` | O(n) + heap alloc | `a & b` |
+| `union` | O(n) + heap alloc | `a \| b` |
+| `clone` | `Set.of(...)` heap alloc | copy the int (free) |
+| `iteration` | iterator object | shift loop, no alloc |
+
+**Wins:**
+- `Board.clone()` goes from 81 `Set.of()` heap allocations to 81 int copies (zero GC).
+- Every strategy inner loop becomes pure integer arithmetic.
+- `Set` operations like intersection/union (used heavily by ALS, subsets, unique rectangles) become single bitwise ops.
+- Estimated 2–5× faster for the solver overall.
+
+**Touches:** `Cell`, `Board.clone()`, `candidate_helper.dart`, all 19 strategy files, hint engine, tests. The change is mechanical — the API shape stays the same, only the underlying type changes from `Set<int>` to `int`. A `CandidateSet` wrapper type (or extension methods) can keep call sites readable.
+
+**Risk areas:**
+- Player-facing pencil marks in Flutter UI — the UI reads `cell.candidates` to render notes. Must ensure the bitmask API is compatible or the UI adapter converts.
+- Serialisation — saved puzzles / JSON export may store candidates as lists. Deserialisation must handle both formats for backwards compatibility.
+- `Set.unmodifiable` consumers — any code that passes candidates to a `Set<int>` parameter needs updating.
+- `cell.candidates.first` / `.toList()` / `.contains()` patterns scattered across strategies — each needs migration to bitmask equivalents.
+
+---
+
 ## Status
 
-All optimisations implemented.
+O1–O6 implemented.
 
 | #   | Optimisation                     | Commit          |
 | --- | -------------------------------- | --------------- |
