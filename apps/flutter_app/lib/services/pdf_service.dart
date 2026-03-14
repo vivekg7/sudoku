@@ -9,14 +9,16 @@ import 'package:sudoku_core/sudoku_core.dart';
 class PdfPuzzle {
   final int number;
   final Puzzle puzzle;
-  final Hint? hint;
   final String qrData;
+
+  /// 9x9 grid: 0 = given cell, 1+ = step number when that cell was solved.
+  final List<List<int>> solveOrder;
 
   PdfPuzzle({
     required this.number,
     required this.puzzle,
-    this.hint,
     required this.qrData,
+    required this.solveOrder,
   });
 }
 
@@ -28,17 +30,19 @@ class PdfService {
     int count,
     Difficulty difficulty, {
     bool includeRoughGrid = false,
+    bool includeHints = true,
   }) async {
     final puzzles = await compute(
       _generatePuzzlesWithHints,
       _GenParams(count, difficulty),
     );
-    return _buildPdf(puzzles, includeRoughGrid: includeRoughGrid);
+    return _buildPdf(puzzles,
+        includeRoughGrid: includeRoughGrid, includeHints: includeHints);
   }
 
   static List<PdfPuzzle> _generatePuzzlesWithHints(_GenParams params) {
     final generator = PuzzleGenerator(random: Random());
-    final hintGen = HintGenerator();
+    final solver = Solver();
     final puzzles = <PdfPuzzle>[];
 
     for (var i = 0; i < params.count; i++) {
@@ -47,22 +51,42 @@ class PdfService {
         puzzle = generator.generate(params.difficulty);
       }
 
-      final hint = hintGen.generate(puzzle.board);
-      final qrData = 'S${params.difficulty.index}${puzzle.initialBoard.toFlatString()}';
+      final qrData =
+          'S${params.difficulty.index}${puzzle.initialBoard.toFlatString()}';
+      final solveOrder = _computeSolveOrder(puzzle.initialBoard, solver);
 
       puzzles.add(PdfPuzzle(
         number: i + 1,
         puzzle: puzzle,
-        hint: hint,
         qrData: qrData,
+        solveOrder: solveOrder,
       ));
     }
     return puzzles;
   }
 
+  /// Solve the puzzle step-by-step and record the order each cell is filled.
+  /// Returns a 9x9 grid where 0 = given, and 1+ = step number.
+  static List<List<int>> _computeSolveOrder(Board initial, Solver solver) {
+    final order = List.generate(9, (_) => List.filled(9, 0));
+    final board = initial.clone();
+    computeCandidates(board);
+    final result = solver.solve(board);
+
+    var stepNum = 0;
+    for (final step in result.steps) {
+      for (final p in step.placements) {
+        stepNum++;
+        order[p.row][p.col] = stepNum;
+      }
+    }
+    return order;
+  }
+
   Future<Uint8List> _buildPdf(
     List<PdfPuzzle> puzzles, {
     bool includeRoughGrid = false,
+    bool includeHints = true,
   }) async {
     final doc = pw.Document(
       title: 'Sudoku Puzzles',
@@ -81,23 +105,65 @@ class PdfService {
       );
     }
 
-    // Hints pages.
-    doc.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(40),
-        header: (context) => pw.Padding(
-          padding: const pw.EdgeInsets.only(bottom: 16),
-          child: pw.Text(
-            'Hints',
-            style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
+    // Hints pages: solve-order grids, 4 per page in a 2x2 layout.
+    if (includeHints) {
+      for (var i = 0; i < puzzles.length; i += 4) {
+        doc.addPage(
+          pw.Page(
+            pageFormat: PdfPageFormat.a4,
+            margin: const pw.EdgeInsets.all(30),
+            build: (context) {
+              final batch = puzzles.sublist(
+                  i, (i + 4).clamp(0, puzzles.length));
+              return pw.Column(
+                children: [
+                  pw.Text(
+                    'Solve Order',
+                    style: pw.TextStyle(
+                        fontSize: 16, fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.SizedBox(height: 12),
+                  pw.Expanded(
+                    child: pw.Row(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Expanded(
+                          child: pw.Column(
+                            children: [
+                              _buildSolveOrderEntry(batch[0], compact: true),
+                              if (batch.length > 2) ...[
+                                pw.SizedBox(height: 16),
+                                _buildSolveOrderEntry(batch[2],
+                                    compact: true),
+                              ],
+                            ],
+                          ),
+                        ),
+                        pw.SizedBox(width: 20),
+                        pw.Expanded(
+                          child: pw.Column(
+                            children: [
+                              if (batch.length > 1)
+                                _buildSolveOrderEntry(batch[1],
+                                    compact: true),
+                              if (batch.length > 3) ...[
+                                pw.SizedBox(height: 16),
+                                _buildSolveOrderEntry(batch[3],
+                                    compact: true),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
-        ),
-        build: (context) => [
-          for (final p in puzzles) _buildHintEntry(p),
-        ],
-      ),
-    );
+        );
+      }
+    }
 
     return await doc.save();
   }
@@ -251,58 +317,86 @@ class PdfService {
     );
   }
 
-  pw.Widget _buildHintEntry(PdfPuzzle puzzle) {
-    final hint = puzzle.hint;
+  /// A solve-order grid: shows the step number each cell was solved at.
+  pw.Widget _buildSolveOrderEntry(PdfPuzzle puzzle, {bool compact = false}) {
+    final gridSize = compact ? 220.0 : 280.0;
+    final cellSize = gridSize / 9;
+    final board = puzzle.puzzle.initialBoard;
+    final order = puzzle.solveOrder;
 
-    return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 16),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(
-            'Puzzle ${puzzle.number} (${puzzle.puzzle.difficulty.label})',
-            style: pw.TextStyle(
-              fontSize: 12,
-              fontWeight: pw.FontWeight.bold,
-            ),
+    return pw.Column(
+      children: [
+        pw.Text(
+          'Puzzle ${puzzle.number} - ${puzzle.puzzle.difficulty.label}',
+          style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+        ),
+        pw.SizedBox(height: 8),
+        pw.Container(
+          width: gridSize,
+          height: gridSize,
+          child: pw.Table(
+            border: pw.TableBorder.all(width: 2.0),
+            defaultColumnWidth: const pw.FlexColumnWidth(),
+            children: [
+              for (var boxRow = 0; boxRow < 3; boxRow++)
+                pw.TableRow(
+                  children: [
+                    for (var boxCol = 0; boxCol < 3; boxCol++)
+                      pw.Table(
+                        border: pw.TableBorder.all(
+                            width: 0.5, color: PdfColors.grey400),
+                        defaultColumnWidth: const pw.FlexColumnWidth(),
+                        children: [
+                          for (var r = 0; r < 3; r++)
+                            pw.TableRow(
+                              children: [
+                                for (var c = 0; c < 3; c++)
+                                  _buildOrderCell(
+                                    board,
+                                    order,
+                                    boxRow * 3 + r,
+                                    boxCol * 3 + c,
+                                    cellSize,
+                                  ),
+                              ],
+                            ),
+                        ],
+                      ),
+                  ],
+                ),
+            ],
           ),
-          pw.SizedBox(height: 4),
-          if (hint != null) ...[
-            _hintLine('Nudge', hint.nudge),
-            _hintLine('Strategy', hint.strategyHint),
-            _hintLine('Answer', hint.answer),
-          ] else
-            pw.Text(
-              'No hint available',
-              style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
-            ),
-          pw.Divider(thickness: 0.5, color: PdfColors.grey300),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  pw.Widget _hintLine(String label, String text) {
-    return pw.Padding(
-      padding: const pw.EdgeInsets.only(left: 12, bottom: 2),
-      child: pw.RichText(
-        text: pw.TextSpan(
-          children: [
-            pw.TextSpan(
-              text: '$label: ',
+  pw.Widget _buildOrderCell(
+    Board board,
+    List<List<int>> order,
+    int row,
+    int col,
+    double cellSize,
+  ) {
+    final isGiven = board.getCell(row, col).isGiven;
+    final stepNum = order[row][col];
+
+    return pw.Container(
+      width: cellSize,
+      height: cellSize,
+      alignment: pw.Alignment.center,
+      decoration: isGiven
+          ? const pw.BoxDecoration(color: PdfColors.grey200)
+          : null,
+      child: isGiven
+          ? pw.SizedBox()
+          : pw.Text(
+              stepNum > 0 ? '$stepNum' : '',
               style: pw.TextStyle(
-                fontSize: 10,
-                fontWeight: pw.FontWeight.bold,
+                fontSize: cellSize * 0.4,
                 color: PdfColors.grey700,
               ),
             ),
-            pw.TextSpan(
-              text: text,
-              style: const pw.TextStyle(fontSize: 10),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

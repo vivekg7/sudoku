@@ -18,6 +18,7 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
   Difficulty _difficulty = Difficulty.medium;
   int _count = 6;
   bool _includeRoughGrid = false;
+  bool _includeHints = true;
   Uint8List? _pdfBytes;
   bool _generating = false;
 
@@ -121,6 +122,17 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
                 ),
               ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Solve order hints: ',
+                    style: TextStyle(fontSize: 16)),
+                Switch(
+                  value: _includeHints,
+                  onChanged: (v) => setState(() => _includeHints = v),
+                ),
+              ],
+            ),
             const SizedBox(height: 32),
             if (_generating)
               const Column(
@@ -164,6 +176,7 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
         _count,
         _difficulty,
         includeRoughGrid: _includeRoughGrid,
+        includeHints: _includeHints,
       );
       setState(() {
         _pdfBytes = bytes;
