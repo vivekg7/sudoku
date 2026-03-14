@@ -74,11 +74,11 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 6: Step-by-Step Solver Engine
 
-- [ ] `Solver` class that iterates strategies in order of difficulty
-- [ ] Returns an ordered list of `SolveStep`s from start to finish
-- [ ] Classify puzzle difficulty based on hardest strategy required
-- [ ] Define 5–6 difficulty levels with strategy thresholds
-- [ ] Full integration tests: give a puzzle, verify complete solve path
+- [x] `Solver` class that iterates strategies in order of difficulty
+- [x] Returns an ordered list of `SolveStep`s from start to finish
+- [x] Classify puzzle difficulty based on hardest strategy required
+- [x] Define 5–6 difficulty levels with strategy thresholds
+- [x] Full integration tests: give a puzzle, verify complete solve path
 
 ---
 
