@@ -22,7 +22,7 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 ### Puzzle Generation
 
 - All puzzles are generated at runtime — **no hardcoded puzzles**, ever.
-- **5–6 difficulty levels**, tuned by which solving strategies are required.
+- **6 difficulty levels**, tuned by which solving strategies are required.
 - Difficulty is determined by the techniques needed to solve, not just the number of givens.
 
 ### Solving Engine

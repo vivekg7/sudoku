@@ -60,10 +60,10 @@ Strategies are listed in approximate order of difficulty, from easiest to hardes
 
 ### Basic — Singles
 
-| Strategy          | Description                                                                                                |
-| ----------------- | ---------------------------------------------------------------------------------------------------------- |
-| **Naked Single**  | A cell has only one candidate left — it must be that digit.                                                |
-| **Hidden Single** | A digit can only go in one cell within a row, column, or box — even though that cell has other candidates. |
+| Strategy          | Description                                                                                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Hidden Single** | A digit can only go in one cell within a row, column, or box — even though that cell has other candidates. Easiest for humans: just scan a house for where a digit fits. |
+| **Naked Single**  | A cell has only one candidate left — it must be that digit. Harder to spot than hidden singles because it requires eliminating all other candidates first.               |
 
 ### Basic — Subsets
 

@@ -17,15 +17,15 @@ A comprehensive, fully offline Sudoku app that doesn't just let you play — it 
 
 ## Platforms
 
-| Platform         | Technology             | Status |
-| ---------------- | ---------------------- | ------ |
-| Android          | Flutter                | Ready  |
-| iOS              | Flutter                | Ready  |
-| macOS            | Flutter                | Ready  |
-| Windows          | Flutter                | Ready  |
-| Linux            | Flutter                | Ready  |
-| CLI              | Dart (`dart compile`)  | Ready  |
-| Web              | TBD                    | —      |
+| Platform | Technology            | Status |
+| -------- | --------------------- | ------ |
+| Android  | Flutter               | Ready  |
+| iOS      | Flutter               | Ready  |
+| macOS    | Flutter               | Ready  |
+| Windows  | Flutter               | Ready  |
+| Linux    | Flutter               | Ready  |
+| CLI      | Dart (`dart compile`) | Ready  |
+| Web      | TBD                   | —      |
 
 ## Project Structure
 
@@ -98,16 +98,16 @@ flutter test
 
 ## Difficulty Levels
 
-Difficulty is determined by the most advanced solving strategy required — not by the number of givens.
+Difficulty is determined by the most advanced solving strategy required — not by the number of givens. Strategies are weighted by how hard they are for humans (e.g., hidden singles are easier to spot than naked singles because you just scan a house for where a digit fits).
 
-| Level    | Strategies Required |
-| -------- | ------------------- |
-| Beginner | Hidden & Naked Singles |
-| Easy     | + Pairs, Pointing, Box/Line Reduction |
-| Medium   | + Triples, Quads, X-Wing, Swordfish |
-| Hard     | + Jellyfish, Wings, Unique Rectangles |
-| Expert   | + Colouring, X-Chains, XY-Chains, AIC |
-| Master   | + Forcing Chains, ALS, Sue de Coq |
+| Level    | Strategies Required                                        |
+| -------- | ---------------------------------------------------------- |
+| Beginner | Hidden Singles, Naked Singles                              |
+| Easy     | + Pointing Pairs, Box/Line Reduction, Naked & Hidden Pairs |
+| Medium   | + Naked & Hidden Triples/Quads, X-Wing, Swordfish          |
+| Hard     | + Jellyfish, XY-Wing, XYZ-Wing, Unique Rectangles          |
+| Expert   | + Simple Colouring, X-Chains, XY-Chains, AIC               |
+| Master   | + Forcing Chains, ALS, Sue de Coq                          |
 
 ## Privacy
 
