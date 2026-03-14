@@ -5,6 +5,7 @@ import '../models/cell.dart';
 import '../models/difficulty.dart';
 import '../models/puzzle.dart';
 import '../solver/candidate_helper.dart';
+import '../solver/solve_result.dart';
 import '../solver/solver_engine.dart';
 import '../solver/strategies/backtracking.dart';
 
@@ -146,6 +147,9 @@ class PuzzleGenerator {
   /// Removes clues one symmetric pair at a time, checking difficulty and
   /// given count after each removal. Stops when the target is reached,
   /// and backtracks if a removal overshoots.
+  ///
+  /// Skips the expensive `solver.solve()` call while the given count is
+  /// still well above the target range (O5 optimisation).
   Puzzle? _removeCluesToDifficulty(Board solution, Difficulty target) {
     final board = solution.clone();
     final givenRange = _givenTargets[target]!;
@@ -175,8 +179,9 @@ class PuzzleGenerator {
 
     pairs.shuffle(_random);
 
-    // Track the best board that matched the target difficulty.
+    // Track the best board and its solve result.
     Board? bestBoard;
+    SolveResult? bestResult;
 
     for (final pair in pairs) {
       // Count current givens.
@@ -208,6 +213,11 @@ class PuzzleGenerator {
         continue;
       }
 
+      // O5: Skip the expensive solve when givens are still well above the
+      // target range — the puzzle is almost certainly easier than target.
+      final givensAfter = currentGivens - pair.length;
+      if (givensAfter > givenRange.max) continue;
+
       // Check if current state matches target difficulty.
       final result = _solver.solve(board);
       if (!result.isSolved) {
@@ -220,6 +230,7 @@ class PuzzleGenerator {
 
       if (result.difficulty == target) {
         bestBoard = board.clone();
+        bestResult = result;
       } else if (result.difficulty.index > target.index) {
         // Overshot — this removal made it too hard. Restore.
         for (var i = 0; i < pair.length; i++) {
@@ -234,6 +245,7 @@ class PuzzleGenerator {
       final finalResult = _solver.solve(board);
       if (finalResult.isSolved && finalResult.difficulty == target) {
         bestBoard = board;
+        bestResult = finalResult;
       }
     }
 
@@ -253,6 +265,7 @@ class PuzzleGenerator {
       solution: solution,
       board: playerBoard,
       difficulty: target,
+      solveResult: bestResult,
     );
   }
 

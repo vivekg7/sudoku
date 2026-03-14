@@ -1,19 +1,33 @@
-/// Returns all combinations of [k] items from [items].
-List<List<T>> combinations<T>(List<T> items, int k) {
-  final results = <List<T>>[];
-  void recurse(int start, List<T> current) {
-    if (current.length == k) {
-      results.add(List.of(current));
-      return;
-    }
-    for (var i = start; i < items.length; i++) {
-      current.add(items[i]);
-      recurse(i + 1, current);
-      current.removeLast();
-    }
+/// Returns all combinations of [k] items from [items] lazily.
+///
+/// Yields one combination at a time so callers that find a result early
+/// avoid generating the remaining combinations.
+Iterable<List<T>> combinations<T>(List<T> items, int k) sync* {
+  if (k == 0) {
+    yield [];
+    return;
   }
-  recurse(0, []);
-  return results;
+  if (k > items.length) return;
+
+  final indices = List.generate(k, (i) => i);
+
+  yield [for (final i in indices) items[i]];
+
+  while (true) {
+    // Find the rightmost index that can be incremented.
+    var i = k - 1;
+    while (i >= 0 && indices[i] == items.length - k + i) {
+      i--;
+    }
+    if (i < 0) return;
+
+    indices[i]++;
+    for (var j = i + 1; j < k; j++) {
+      indices[j] = indices[j - 1] + 1;
+    }
+
+    yield [for (final idx in indices) items[idx]];
+  }
 }
 
 /// Returns true if (r1,c1) and (r2,c2) share a row, column, or box.

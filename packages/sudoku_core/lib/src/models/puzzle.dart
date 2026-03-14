@@ -1,3 +1,4 @@
+import '../solver/solve_result.dart';
 import 'board.dart';
 import 'difficulty.dart';
 import 'move_history.dart';
@@ -23,11 +24,15 @@ class Puzzle {
   /// Timestamp when the puzzle was created.
   final DateTime createdAt;
 
+  /// Cached solve result from generation (avoids re-solving for hints/PDF).
+  final SolveResult? solveResult;
+
   Puzzle({
     required this.initialBoard,
     required this.solution,
     required this.board,
     required this.difficulty,
+    this.solveResult,
     MoveHistory? history,
     DateTime? createdAt,
   })  : history = history ?? MoveHistory(),

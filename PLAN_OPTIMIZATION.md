@@ -76,13 +76,15 @@ Replace `List<List<T>> combinations()` with an `Iterable<List<T>>` that yields o
 
 ---
 
-## Implementation Order
+## Status
 
-```
-O2 (peer cache)  →  O1 (backtracking undo)  →  O5 (skip early solves)
-                                               →  O4 (cache solve result)
-                                               →  O3 (parallel isolates)
-                                               →  O6 (lazy combinations)
-```
+All optimisations implemented.
 
-O2 first because it's the easiest win and unblocks cleaner undo logic in O1. O1 next as the single biggest performance gain. O3–O6 are independent of each other and can be done in any order.
+| #   | Optimisation                     | Commit          |
+| --- | -------------------------------- | --------------- |
+| O1  | Backtracking undo-and-restore    | e5a2f4e         |
+| O2  | Static peer index cache          | 6b429d1         |
+| O3  | Parallel PDF isolates            | _(this commit)_ |
+| O4  | Cached solve result on Puzzle    | _(this commit)_ |
+| O5  | Skip early solves in removal     | _(this commit)_ |
+| O6  | Lazy iterator-based combinations | _(this commit)_ |

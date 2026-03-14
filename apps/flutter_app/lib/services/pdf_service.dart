@@ -32,10 +32,8 @@ class PdfService {
     bool includeRoughGrid = false,
     bool includeHints = true,
   }) async {
-    final puzzles = await compute(
-      _generatePuzzlesWithHints,
-      _GenParams(count, difficulty),
-    );
+    // O3: Generate puzzles in parallel across multiple isolates.
+    final puzzles = await _generatePuzzlesParallel(count, difficulty);
     if (puzzles.isEmpty) {
       throw StateError('Failed to generate puzzles.');
     }
@@ -43,9 +41,50 @@ class PdfService {
         includeRoughGrid: includeRoughGrid, includeHints: includeHints);
   }
 
+  /// Spawns multiple isolates to generate puzzles concurrently.
+  static Future<List<PdfPuzzle>> _generatePuzzlesParallel(
+    int count,
+    Difficulty difficulty,
+  ) async {
+    if (count <= 1) {
+      // Single puzzle — no benefit from parallelism.
+      return compute(
+        _generatePuzzlesWithHints,
+        _GenParams(count, difficulty, 0),
+      );
+    }
+
+    // Split work across isolates. Each isolate generates a subset.
+    // Use up to `count` isolates (one per puzzle) since puzzle generation
+    // is CPU-bound and benefits from true parallelism.
+    final futures = <Future<List<PdfPuzzle>>>[];
+    for (var i = 0; i < count; i++) {
+      futures.add(compute(
+        _generatePuzzlesWithHints,
+        _GenParams(1, difficulty, i),
+      ));
+    }
+
+    final results = await Future.wait(futures);
+    final puzzles = <PdfPuzzle>[];
+    for (final batch in results) {
+      puzzles.addAll(batch);
+    }
+
+    // Re-number sequentially.
+    for (var i = 0; i < puzzles.length; i++) {
+      puzzles[i] = PdfPuzzle(
+        number: i + 1,
+        puzzle: puzzles[i].puzzle,
+        qrData: puzzles[i].qrData,
+        solveOrder: puzzles[i].solveOrder,
+      );
+    }
+    return puzzles;
+  }
+
   static List<PdfPuzzle> _generatePuzzlesWithHints(_GenParams params) {
     final generator = PuzzleGenerator(random: Random());
-    final solver = Solver();
     final puzzles = <PdfPuzzle>[];
 
     for (var i = 0; i < params.count; i++) {
@@ -56,10 +95,13 @@ class PdfService {
 
       final qrData =
           'S${params.difficulty.index}${puzzle.initialBoard.toFlatString()}';
-      final solveOrder = _computeSolveOrder(puzzle.initialBoard, solver);
+
+      // O4: Use cached solve result from generation if available,
+      // otherwise solve again.
+      final solveOrder = _solveOrderFromResult(puzzle);
 
       puzzles.add(PdfPuzzle(
-        number: i + 1,
+        number: params.startIndex + i + 1,
         puzzle: puzzle,
         qrData: qrData,
         solveOrder: solveOrder,
@@ -68,16 +110,15 @@ class PdfService {
     return puzzles;
   }
 
-  /// Solve the puzzle step-by-step and record the order each cell is filled.
-  /// Returns a 9x9 grid where 0 = given, and 1+ = step number.
-  static List<List<int>> _computeSolveOrder(Board initial, Solver solver) {
-    final order = List.generate(9, (_) => List.filled(9, 0));
-    final board = initial.clone();
-    computeCandidates(board);
-    final result = solver.solve(board);
+  /// Extracts solve order from a puzzle's cached solve result, or re-solves
+  /// if no cached result is available.
+  static List<List<int>> _solveOrderFromResult(Puzzle puzzle) {
+    final steps = puzzle.solveResult?.steps ??
+        Solver().solve(puzzle.initialBoard).steps;
 
+    final order = List.generate(9, (_) => List.filled(9, 0));
     var stepNum = 0;
-    for (final step in result.steps) {
+    for (final step in steps) {
       for (final p in step.placements) {
         stepNum++;
         order[p.row][p.col] = stepNum;
@@ -407,5 +448,6 @@ class PdfService {
 class _GenParams {
   final int count;
   final Difficulty difficulty;
-  const _GenParams(this.count, this.difficulty);
+  final int startIndex;
+  const _GenParams(this.count, this.difficulty, this.startIndex);
 }
