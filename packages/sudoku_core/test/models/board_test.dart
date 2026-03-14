@@ -63,6 +63,52 @@ void main() {
       expect(p.any((c) => c.row == 4 && c.col == 4), false);
     });
 
+    test('peers returns correct cells for every position', () {
+      final board = Board.empty();
+      for (var r = 0; r < 9; r++) {
+        for (var c = 0; c < 9; c++) {
+          final p = board.peers(r, c);
+          expect(p.length, 20, reason: 'peers($r,$c) should have 20 cells');
+
+          // No duplicates.
+          final coords = p.map((cell) => (cell.row, cell.col)).toSet();
+          expect(coords.length, 20,
+              reason: 'peers($r,$c) should have no duplicates');
+
+          // Does not include self.
+          expect(coords.contains((r, c)), false,
+              reason: 'peers($r,$c) should not include self');
+
+          // Every peer shares a row, column, or box.
+          for (final cell in p) {
+            final sameRow = cell.row == r;
+            final sameCol = cell.col == c;
+            final sameBox =
+                (cell.row ~/ 3 == r ~/ 3) && (cell.col ~/ 3 == c ~/ 3);
+            expect(sameRow || sameCol || sameBox, true,
+                reason:
+                    'peers($r,$c): cell (${cell.row},${cell.col}) shares no unit');
+          }
+
+          // Every cell that shares a unit IS in the peer list.
+          for (var rr = 0; rr < 9; rr++) {
+            for (var cc = 0; cc < 9; cc++) {
+              if (rr == r && cc == c) continue;
+              final sameRow = rr == r;
+              final sameCol = cc == c;
+              final sameBox =
+                  (rr ~/ 3 == r ~/ 3) && (cc ~/ 3 == c ~/ 3);
+              if (sameRow || sameCol || sameBox) {
+                expect(coords.contains((rr, cc)), true,
+                    reason:
+                        'peers($r,$c) should include ($rr,$cc)');
+              }
+            }
+          }
+        }
+      }
+    });
+
     test('isValid on solved board', () {
       final board = Board.fromString(_solvedFlat);
       expect(board.isValid, true);

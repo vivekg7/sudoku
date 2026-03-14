@@ -4,6 +4,36 @@ import 'cell.dart';
 class Board {
   final List<List<Cell>> _grid;
 
+  /// Pre-computed peer indices for each cell.
+  /// `_peerIndices[r][c]` is a list of (row, col) pairs for all 20 peers.
+  /// Computed once — grid geometry never changes.
+  static final List<List<List<(int, int)>>> _peerIndices = _buildPeerIndices();
+
+  static List<List<List<(int, int)>>> _buildPeerIndices() {
+    return List.generate(9, (r) {
+      return List.generate(9, (c) {
+        final peers = <(int, int)>{};
+        // Same row.
+        for (var cc = 0; cc < 9; cc++) {
+          if (cc != c) peers.add((r, cc));
+        }
+        // Same column.
+        for (var rr = 0; rr < 9; rr++) {
+          if (rr != r) peers.add((rr, c));
+        }
+        // Same box.
+        final br = (r ~/ 3) * 3;
+        final bc = (c ~/ 3) * 3;
+        for (var rr = br; rr < br + 3; rr++) {
+          for (var cc = bc; cc < bc + 3; cc++) {
+            if (rr != r || cc != c) peers.add((rr, cc));
+          }
+        }
+        return peers.toList();
+      });
+    });
+  }
+
   Board._(this._grid);
 
   /// Creates an empty board.
@@ -57,15 +87,11 @@ class Board {
   }
 
   /// Returns all cells that share a row, column, or box with the given cell
-  /// (excluding the cell itself).
+  /// (excluding the cell itself). Uses a pre-computed index table — no
+  /// allocation on each call beyond the returned list.
   List<Cell> peers(int row, int col) {
-    final cell = getCell(row, col);
-    final seen = <Cell>{};
-    seen.addAll(getRow(row));
-    seen.addAll(getColumn(col));
-    seen.addAll(getBox(cell.box));
-    seen.remove(cell);
-    return seen.toList();
+    final indices = _peerIndices[row][col];
+    return [for (final (r, c) in indices) _grid[r][c]];
   }
 
   /// Whether the board has no rule violations (no duplicate values in any
