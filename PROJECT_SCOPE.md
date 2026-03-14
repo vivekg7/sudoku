@@ -84,6 +84,7 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 - Practice mode for specific strategies (e.g., "give me puzzles that require X-Wing").
 - Puzzle difficulty rating for user-imported puzzles.
 - Localisation / multi-language support.
+- Inspirational quotes on each puzzle — see [PLAN_QUOTES.md](PLAN_QUOTES.md).
 
 ---
 
