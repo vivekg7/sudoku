@@ -32,6 +32,8 @@ class GameState extends ChangeNotifier {
   bool get isPaused => _isPaused;
   bool get isPlaying => _puzzle != null && !_puzzle!.isSolved;
   bool get isSolved => _puzzle?.isSolved ?? false;
+  String? _error;
+  String? get error => _error;
 
   // Hint getters.
   Hint? get currentHint => _currentHint;
@@ -67,16 +69,22 @@ class GameState extends ChangeNotifier {
     _hintLayer = 0;
     _hintCounts.clear();
     _hintStrategyCounts.clear();
+    _error = null;
     notifyListeners();
 
-    final puzzle = await compute(_generatePuzzle, difficulty);
-    if (puzzle == null) {
-      // Retry once — generation rarely fails.
-      final retry = await compute(_generatePuzzle, difficulty);
-      if (retry == null) return;
-      _puzzle = retry;
-    } else {
+    try {
+      var puzzle = await compute(_generatePuzzle, difficulty);
+      puzzle ??= await compute(_generatePuzzle, difficulty);
+      if (puzzle == null) {
+        _error = 'Failed to generate puzzle. Please try again.';
+        notifyListeners();
+        return;
+      }
       _puzzle = puzzle;
+    } catch (e) {
+      _error = 'Puzzle generation error: $e';
+      notifyListeners();
+      return;
     }
 
     _stopwatch.start();

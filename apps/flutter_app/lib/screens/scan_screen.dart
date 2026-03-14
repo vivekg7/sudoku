@@ -53,6 +53,29 @@ class _ScanScreenState extends State<ScanScreen> {
               formats: [BarcodeFormat.qrCode],
             ),
             onDetect: _onDetect,
+            errorBuilder: (context, error) => Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.camera_alt,
+                        size: 48, color: Color(0xFF757575)),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Camera unavailable: ${error.errorDetails?.message ?? error.errorCode.name}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Color(0xFF757575)),
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: () => setState(() => _showCamera = false),
+                      child: const Text('Use manual entry'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
         const Padding(
@@ -137,7 +160,15 @@ class _ScanScreenState extends State<ScanScreen> {
     }
 
     final difficulty = Difficulty.values[diffIndex];
-    final initialBoard = Board.fromString(boardStr);
+
+    Board initialBoard;
+    try {
+      initialBoard = Board.fromString(boardStr);
+    } catch (e) {
+      _showError('Invalid board data in puzzle code.');
+      _processed = false;
+      return;
+    }
 
     // Solve to get the solution.
     final solvedBoard = initialBoard.clone();

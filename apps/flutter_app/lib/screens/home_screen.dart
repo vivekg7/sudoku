@@ -172,32 +172,40 @@ class HomeScreen extends StatelessWidget {
   }
 
   Future<void> _exportData(BuildContext context) async {
-    final jsonString = storage.exportData();
-    final result = await FilePicker.platform.saveFile(
-      dialogTitle: 'Export Sudoku Data',
-      fileName: 'sudoku_export.json',
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-      bytes: utf8Bytes(jsonString),
-    );
-
-    if (result != null && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data exported successfully.')),
+    try {
+      final jsonString = storage.exportData();
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export Sudoku Data',
+        fileName: 'sudoku_export.json',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        bytes: utf8Bytes(jsonString),
       );
+
+      if (result != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Data exported successfully.')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Export failed: $e')),
+        );
+      }
     }
   }
 
   Future<void> _importData(BuildContext context) async {
-    final result = await FilePicker.platform.pickFiles(
-      dialogTitle: 'Import Sudoku Data',
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-    );
-
-    if (result == null || result.files.isEmpty) return;
-
     try {
+      final result = await FilePicker.platform.pickFiles(
+        dialogTitle: 'Import Sudoku Data',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
       final path = result.files.single.path;
       if (path == null) return;
       final jsonString = await File(path).readAsString();

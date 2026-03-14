@@ -108,11 +108,13 @@ class _GameScreenState extends State<GameScreen> {
                 ],
               ],
             ),
-            body: _gameState.puzzle == null
-                ? const Center(child: CircularProgressIndicator())
-                : _gameState.isPaused
-                    ? _pausedView()
-                    : _gameView(),
+            body: _gameState.error != null
+                ? _errorView()
+                : _gameState.puzzle == null
+                    ? const Center(child: CircularProgressIndicator())
+                    : _gameState.isPaused
+                        ? _pausedView()
+                        : _gameView(),
           );
         },
       ),
@@ -129,6 +131,31 @@ class _GameScreenState extends State<GameScreen> {
             fontSize: 16,
             fontFeatures: [FontFeature.tabularFigures()],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _errorView() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Color(0xFF757575)),
+            const SizedBox(height: 16),
+            Text(
+              _gameState.error!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16, color: Color(0xFF424242)),
+            ),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: () => _gameState.newGame(widget.difficulty),
+              child: const Text('Try Again'),
+            ),
+          ],
         ),
       ),
     );

@@ -36,6 +36,9 @@ class PdfService {
       _generatePuzzlesWithHints,
       _GenParams(count, difficulty),
     );
+    if (puzzles.isEmpty) {
+      throw StateError('Failed to generate puzzles.');
+    }
     return _buildPdf(puzzles,
         includeRoughGrid: includeRoughGrid, includeHints: includeHints);
   }

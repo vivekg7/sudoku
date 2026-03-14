@@ -178,43 +178,68 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
         includeRoughGrid: _includeRoughGrid,
         includeHints: _includeHints,
       );
+      if (!mounted) return;
       setState(() {
         _pdfBytes = bytes;
         _generating = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _generating = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Generation failed: $e')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Generation failed: $e')),
+      );
     }
   }
 
   Future<void> _savePdf() async {
     if (_pdfBytes == null) return;
-    final result = await FilePicker.platform.saveFile(
-      dialogTitle: 'Save Sudoku PDF',
-      fileName: 'sudoku_puzzles.pdf',
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-      bytes: _pdfBytes!,
-    );
-    if (result != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('PDF saved.')),
+    try {
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Sudoku PDF',
+        fileName: 'sudoku_puzzles.pdf',
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        bytes: _pdfBytes!,
       );
+      if (result != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('PDF saved.')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Save failed: $e')),
+        );
+      }
     }
   }
 
   Future<void> _printPdf() async {
     if (_pdfBytes == null) return;
-    await Printing.layoutPdf(onLayout: (_) async => _pdfBytes!);
+    try {
+      await Printing.layoutPdf(onLayout: (_) async => _pdfBytes!);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Print failed: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _sharePdf() async {
     if (_pdfBytes == null) return;
-    await Printing.sharePdf(bytes: _pdfBytes!, filename: 'sudoku_puzzles.pdf');
+    try {
+      await Printing.sharePdf(
+          bytes: _pdfBytes!, filename: 'sudoku_puzzles.pdf');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Share failed: $e')),
+        );
+      }
+    }
   }
 }
