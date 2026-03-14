@@ -214,10 +214,21 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
     );
   }
 
+  String get _pdfFileName {
+    final parts = <String>[
+      'sudoku',
+      _difficulty.label.toLowerCase(),
+      '${_count}x',
+    ];
+    if (_includeHints) parts.add('hints');
+    if (_includeRoughGrid) parts.add('grid');
+    return '${parts.join('_')}.pdf';
+  }
+
   Widget _previewView() {
     return PdfPreview(
       build: (_) => _pdfBytes!,
-      pdfFileName: 'sudoku_puzzles.pdf',
+      pdfFileName: _pdfFileName,
       allowPrinting: false,
       allowSharing: false,
       canChangePageFormat: false,
@@ -260,7 +271,7 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
     try {
       final result = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Sudoku PDF',
-        fileName: 'sudoku_puzzles.pdf',
+        fileName: _pdfFileName,
         type: FileType.custom,
         allowedExtensions: ['pdf'],
         bytes: _pdfBytes!,
@@ -296,7 +307,7 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
     if (_pdfBytes == null) return;
     try {
       await Printing.sharePdf(
-          bytes: _pdfBytes!, filename: 'sudoku_puzzles.pdf');
+          bytes: _pdfBytes!, filename: _pdfFileName);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

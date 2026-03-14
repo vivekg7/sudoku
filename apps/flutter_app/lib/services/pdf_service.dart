@@ -179,9 +179,15 @@ class PdfService {
               return pw.Column(
                 children: [
                   pw.Text(
-                    'Solve Order',
+                    'Hints - Solve Order',
                     style: pw.TextStyle(
                         fontSize: 16, fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.SizedBox(height: 2),
+                  pw.Text(
+                    'Numbers show the order in which cells can be solved',
+                    style: const pw.TextStyle(
+                        fontSize: 9, color: PdfColors.grey600),
                   ),
                   pw.SizedBox(height: 12),
                   pw.Expanded(
