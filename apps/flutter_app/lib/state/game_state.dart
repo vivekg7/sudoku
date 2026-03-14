@@ -8,6 +8,7 @@ class GameState extends ChangeNotifier {
   Puzzle? _puzzle;
   int? _selectedRow;
   int? _selectedCol;
+  int? _activeNumber;
   bool _isPencilMode = false;
   final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
@@ -18,6 +19,7 @@ class GameState extends ChangeNotifier {
   Puzzle? get puzzle => _puzzle;
   int? get selectedRow => _selectedRow;
   int? get selectedCol => _selectedCol;
+  int? get activeNumber => _activeNumber;
   bool get isPencilMode => _isPencilMode;
   int get elapsedSeconds => _elapsedSeconds;
   bool get isPaused => _isPaused;
@@ -33,6 +35,7 @@ class GameState extends ChangeNotifier {
     _puzzle = null;
     _selectedRow = null;
     _selectedCol = null;
+    _activeNumber = null;
     _isPencilMode = false;
     _isPaused = false;
     _isSolvedNotified = false;
@@ -81,8 +84,29 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void deselect() {
+    if (_selectedRow == null && _selectedCol == null) return;
+    _selectedRow = null;
+    _selectedCol = null;
+    notifyListeners();
+  }
+
   void selectCell(int row, int col) {
     if (_isPaused || _puzzle == null) return;
+
+    // Number-first mode: fill empty cells with the active number.
+    if (_activeNumber != null && _selectedRow == null && _selectedCol == null) {
+      final cell = _puzzle!.board.getCell(row, col);
+      if (!cell.isGiven && cell.isEmpty) {
+        _placeValue(row, col, _activeNumber!);
+        if (remainingCount(_activeNumber!) == 0) _activeNumber = null;
+        notifyListeners();
+        return;
+      }
+    }
+
+    // Normal cell-first selection.
+    _activeNumber = null;
     if (_selectedRow == row && _selectedCol == col) {
       _selectedRow = null;
       _selectedCol = null;
@@ -108,9 +132,18 @@ class GameState extends ChangeNotifier {
   }
 
   void enterValue(int value) {
-    if (_puzzle == null || _selectedRow == null || _selectedCol == null) return;
+    if (_puzzle == null) return;
     if (_isPaused || _puzzle!.isSolved) return;
 
+    // No cell selected → activate/toggle number-first mode.
+    if (_selectedRow == null || _selectedCol == null) {
+      _activeNumber = (_activeNumber == value) ? null : value;
+      notifyListeners();
+      return;
+    }
+
+    // Cell selected → cell-first input.
+    _activeNumber = null;
     final cell = _puzzle!.board.getCell(_selectedRow!, _selectedCol!);
     if (cell.isGiven) return;
 
@@ -136,23 +169,30 @@ class GameState extends ChangeNotifier {
         return;
       }
 
-      _puzzle!.history.push(Move(
-        row: _selectedRow!,
-        col: _selectedCol!,
-        type: MoveType.setValue,
-        previousValue: cell.value,
-        newValue: value,
-        previousCandidates: Set.of(cell.candidates),
-        newCandidates: {},
-      ));
-      cell.setValue(value);
-
-      if (_puzzle!.isSolved) {
-        _stopwatch.stop();
-        _timer?.cancel();
-      }
+      _placeValue(_selectedRow!, _selectedCol!, value);
     }
     notifyListeners();
+  }
+
+  /// Place a value at (row, col) with undo history. Used by both
+  /// cell-first and number-first input modes.
+  void _placeValue(int row, int col, int value) {
+    final cell = _puzzle!.board.getCell(row, col);
+    _puzzle!.history.push(Move(
+      row: row,
+      col: col,
+      type: MoveType.setValue,
+      previousValue: cell.value,
+      newValue: value,
+      previousCandidates: Set.of(cell.candidates),
+      newCandidates: {},
+    ));
+    cell.setValue(value);
+
+    if (_puzzle!.isSolved) {
+      _stopwatch.stop();
+      _timer?.cancel();
+    }
   }
 
   void clearCell() {
@@ -263,13 +303,18 @@ class GameState extends ChangeNotifier {
   }
 
   bool hasSameValueAsSelected(int row, int col) {
-    if (_puzzle == null || _selectedRow == null || _selectedCol == null) {
-      return false;
-    }
+    if (_puzzle == null) return false;
+    final cellValue = _puzzle!.board.getCell(row, col).value;
+    if (cellValue == 0) return false;
+
+    // Highlight cells matching the active number.
+    if (_activeNumber != null) return cellValue == _activeNumber;
+
+    // Highlight cells matching the selected cell's value.
+    if (_selectedRow == null || _selectedCol == null) return false;
     if (row == _selectedRow && col == _selectedCol) return false;
     final selValue = _puzzle!.board.getCell(_selectedRow!, _selectedCol!).value;
-    if (selValue == 0) return false;
-    return _puzzle!.board.getCell(row, col).value == selValue;
+    return selValue != 0 && cellValue == selValue;
   }
 
   int remainingCount(int value) {

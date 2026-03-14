@@ -64,13 +64,16 @@ class NumberPad extends StatelessWidget {
   Widget _numberButton(BuildContext context, int value) {
     final remaining = gameState.remainingCount(value);
     final isCompleted = remaining == 0;
+    final isActive = gameState.activeNumber == value;
 
     return Padding(
       padding: const EdgeInsets.all(2),
       child: Material(
         color: isCompleted
             ? const Color(0xFFE0E0E0)
-            : const Color(0xFFF5F5F5),
+            : isActive
+                ? const Color(0xFFBBDEFB)
+                : const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           canRequestFocus: false,
@@ -86,7 +89,9 @@ class NumberPad extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: isCompleted
                       ? const Color(0xFF9E9E9E)
-                      : const Color(0xFF212121),
+                      : isActive
+                          ? const Color(0xFF1565C0)
+                          : const Color(0xFF212121),
                 ),
               ),
             ),

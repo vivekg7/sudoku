@@ -130,12 +130,16 @@ class _GameScreenState extends State<GameScreen> {
         child: Column(
           children: [
             Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 500),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: BoardWidget(gameState: _gameState),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _gameState.deselect,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: BoardWidget(gameState: _gameState),
+                    ),
                   ),
                 ),
               ),
