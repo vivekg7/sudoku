@@ -171,8 +171,8 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 ## Phase 15: Polish & Release Prep
 
 - [x] Error handling and edge cases
-- [ ] Performance profiling (bulk generation, large stat stores)
+- [x] Performance profiling (bulk generation, large stat stores)
 - [ ] Platform-specific testing (Android, iOS, macOS, Windows, Linux)
-- [ ] App icons and splash screen
+- [x] App icons and splash screen
 - [ ] CLI `--help` and documentation
 - [ ] Update README with install/usage instructions
