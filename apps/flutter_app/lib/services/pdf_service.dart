@@ -99,7 +99,7 @@ class PdfService {
       crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
         pw.Text(
-          'Puzzle ${puzzle.number} — ${puzzle.puzzle.difficulty.label}',
+          'Puzzle ${puzzle.number} - ${puzzle.puzzle.difficulty.label}',
           style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
         ),
         pw.SizedBox(height: 20),

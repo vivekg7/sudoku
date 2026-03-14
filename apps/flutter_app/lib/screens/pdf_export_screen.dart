@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:sudoku_core/sudoku_core.dart';
@@ -25,6 +26,30 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
       appBar: AppBar(
         title: const Text('Export PDF'),
         centerTitle: true,
+        actions: [
+          if (_pdfBytes != null) ...[
+            IconButton(
+              icon: const Icon(Icons.save_alt),
+              onPressed: _savePdf,
+              tooltip: 'Save PDF',
+            ),
+            IconButton(
+              icon: const Icon(Icons.print),
+              onPressed: _printPdf,
+              tooltip: 'Print',
+            ),
+            IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: _sharePdf,
+              tooltip: 'Share',
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () => setState(() => _pdfBytes = null),
+              tooltip: 'New generation',
+            ),
+          ],
+        ],
       ),
       body: _pdfBytes != null ? _previewView() : _configView(),
     );
@@ -42,7 +67,6 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w300),
             ),
             const SizedBox(height: 32),
-            // Difficulty selector.
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -59,7 +83,6 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            // Count selector.
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -67,9 +90,8 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
                 const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.remove),
-                  onPressed: _count > 1
-                      ? () => setState(() => _count--)
-                      : null,
+                  onPressed:
+                      _count > 1 ? () => setState(() => _count--) : null,
                 ),
                 Text(
                   '$_count',
@@ -81,9 +103,8 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.add),
-                  onPressed: _count < 20
-                      ? () => setState(() => _count++)
-                      : null,
+                  onPressed:
+                      _count < 20 ? () => setState(() => _count++) : null,
                 ),
               ],
             ),
@@ -115,17 +136,11 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
     return PdfPreview(
       build: (_) => _pdfBytes!,
       pdfFileName: 'sudoku_puzzles.pdf',
-      allowPrinting: true,
-      allowSharing: true,
+      allowPrinting: false,
+      allowSharing: false,
       canChangePageFormat: false,
       canChangeOrientation: false,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => setState(() => _pdfBytes = null),
-          tooltip: 'Back to settings',
-        ),
-      ],
+      useActions: false,
     );
   }
 
@@ -145,5 +160,31 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
         );
       }
     }
+  }
+
+  Future<void> _savePdf() async {
+    if (_pdfBytes == null) return;
+    final result = await FilePicker.platform.saveFile(
+      dialogTitle: 'Save Sudoku PDF',
+      fileName: 'sudoku_puzzles.pdf',
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      bytes: _pdfBytes!,
+    );
+    if (result != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('PDF saved.')),
+      );
+    }
+  }
+
+  Future<void> _printPdf() async {
+    if (_pdfBytes == null) return;
+    await Printing.layoutPdf(onLayout: (_) async => _pdfBytes!);
+  }
+
+  Future<void> _sharePdf() async {
+    if (_pdfBytes == null) return;
+    await Printing.sharePdf(bytes: _pdfBytes!, filename: 'sudoku_puzzles.pdf');
   }
 }
