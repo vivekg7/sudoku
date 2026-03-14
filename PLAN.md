@@ -94,12 +94,12 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 8: Hint System
 
-- [ ] Given current board state, determine the next `SolveStep`
-- [ ] **Layer 1 (nudge)**: extract region + digit from `SolveStep` — e.g., "Look for 3 in box 4"
-- [ ] **Layer 2 (strategy)**: extract strategy name + region — e.g., "Hidden pair in box 5"
-- [ ] **Layer 3 (answer)**: full placement — e.g., "Write 3 in R4C5"
-- [ ] `Hint` model with layers, linked to the underlying `SolveStep`
-- [ ] Tests: verify each layer exposes progressively more information
+- [x] Given current board state, determine the next `SolveStep`
+- [x] **Layer 1 (nudge)**: extract region + digit from `SolveStep` — e.g., "Look for 3 in box 4"
+- [x] **Layer 2 (strategy)**: extract strategy name + region — e.g., "Hidden pair in box 5"
+- [x] **Layer 3 (answer)**: full placement — e.g., "Write 3 in R4C5"
+- [x] `Hint` model with layers, linked to the underlying `SolveStep`
+- [x] Tests: verify each layer exposes progressively more information
 
 ---
 
