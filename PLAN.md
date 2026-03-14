@@ -84,11 +84,11 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 7: Puzzle Generator
 
-- [ ] Generate a complete valid board (random fill with backtracking)
-- [ ] Remove clues symmetrically while ensuring unique solution
-- [ ] Difficulty targeting: generate → solve → check if difficulty matches → retry or adjust
-- [ ] Bulk generation support (generate N puzzles, optionally parallelised with isolates)
-- [ ] Tests: generated puzzles have unique solutions, match requested difficulty
+- [x] Generate a complete valid board (random fill with backtracking)
+- [x] Remove clues symmetrically while ensuring unique solution
+- [x] Difficulty targeting: generate → solve → check if difficulty matches → retry or adjust
+- [x] Bulk generation support (generate N puzzles, optionally parallelised with isolates)
+- [x] Tests: generated puzzles have unique solutions, match requested difficulty
 
 ---
 
