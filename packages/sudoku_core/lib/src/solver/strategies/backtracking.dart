@@ -1,4 +1,5 @@
 import '../../models/board.dart';
+import '../../models/cell.dart';
 import '../solve_step.dart';
 import '../strategy.dart';
 import '../strategy_type.dart';
@@ -46,6 +47,10 @@ class Backtracking extends Strategy {
   }
 
   /// Solves the board using recursive backtracking. Returns true if solvable.
+  ///
+  /// Uses undo-and-restore instead of cloning — sets a value, tracks
+  /// affected peers, recurses, then undoes on failure. On success the
+  /// board is left in the solved state.
   static bool _solve(Board board) {
     // Find the empty cell with fewest candidates (MRV heuristic).
     int? bestRow, bestCol;
@@ -67,15 +72,28 @@ class Backtracking extends Strategy {
     if (bestRow == null) return true; // all cells filled
 
     final cell = board.getCell(bestRow, bestCol!);
-    for (final v in cell.candidates.toList()) {
-      final clone = board.clone();
-      clone.getCell(bestRow, bestCol).setValue(v);
+    final savedCandidates = Set.of(cell.candidates);
 
-      for (final peer in clone.peers(bestRow, bestCol)) {
-        peer.removeCandidate(v);
+    for (final v in savedCandidates) {
+      cell.setValue(v);
+
+      // Remove v from peers' candidates, tracking which peers changed.
+      final affected = <Cell>[];
+      for (final peer in board.peers(bestRow, bestCol)) {
+        if (peer.candidates.contains(v)) {
+          peer.removeCandidate(v);
+          affected.add(peer);
+        }
       }
 
-      if (_solve(clone)) return true;
+      if (_solve(board)) return true;
+
+      // Undo: restore cell and affected peers.
+      cell.clearValue();
+      cell.setCandidates(savedCandidates);
+      for (final peer in affected) {
+        peer.addCandidate(v);
+      }
     }
 
     return false;
@@ -118,15 +136,29 @@ class Backtracking extends Strategy {
     }
 
     final cell = board.getCell(bestRow, bestCol!);
-    for (final v in cell.candidates.toList()) {
+    final savedCandidates = Set.of(cell.candidates);
+
+    for (final v in savedCandidates) {
       if (getCount() >= limit) return;
 
-      final clone = board.clone();
-      clone.getCell(bestRow, bestCol).setValue(v);
-      for (final peer in clone.peers(bestRow, bestCol)) {
-        peer.removeCandidate(v);
+      cell.setValue(v);
+
+      final affected = <Cell>[];
+      for (final peer in board.peers(bestRow, bestCol)) {
+        if (peer.candidates.contains(v)) {
+          peer.removeCandidate(v);
+          affected.add(peer);
+        }
       }
-      _countSolutions(clone, limit, setCount, getCount);
+
+      _countSolutions(board, limit, setCount, getCount);
+
+      // Always undo to explore other branches.
+      cell.clearValue();
+      cell.setCandidates(savedCandidates);
+      for (final peer in affected) {
+        peer.addCandidate(v);
+      }
     }
   }
 }

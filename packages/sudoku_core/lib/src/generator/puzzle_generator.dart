@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import '../models/board.dart';
+import '../models/cell.dart';
 import '../models/difficulty.dart';
 import '../models/puzzle.dart';
 import '../solver/candidate_helper.dart';
@@ -79,6 +80,8 @@ class PuzzleGenerator {
   }
 
   /// Fills remaining empty cells using randomised backtracking.
+  ///
+  /// Uses targeted undo instead of recomputing all candidates on backtrack.
   bool _fillRemaining(Board board) {
     // Find empty cell with fewest candidates (MRV).
     int? bestRow, bestCol;
@@ -99,25 +102,30 @@ class PuzzleGenerator {
 
     if (bestRow == null) return true; // All filled.
 
-    final candidates = board.getCell(bestRow, bestCol!).candidates.toList()
-      ..shuffle(_random);
+    final cell = board.getCell(bestRow, bestCol!);
+    final savedCandidates = Set.of(cell.candidates);
+    final candidates = savedCandidates.toList()..shuffle(_random);
 
     for (final v in candidates) {
-      board.getCell(bestRow, bestCol).setValue(v);
-      board.getCell(bestRow, bestCol).setCandidates({});
+      cell.setValue(v);
 
-      // Remove from peers' candidates.
+      // Remove from peers' candidates, tracking which peers changed.
+      final affected = <Cell>[];
       for (final peer in board.peers(bestRow, bestCol)) {
         if (peer.candidates.contains(v)) {
           peer.removeCandidate(v);
+          affected.add(peer);
         }
       }
 
       if (_fillRemaining(board)) return true;
 
-      // Undo.
-      board.getCell(bestRow, bestCol).clearValue();
-      computeCandidates(board);
+      // Undo: restore cell and affected peers.
+      cell.clearValue();
+      cell.setCandidates(savedCandidates);
+      for (final peer in affected) {
+        peer.addCandidate(v);
+      }
     }
 
     return false;
