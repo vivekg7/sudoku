@@ -26,17 +26,23 @@ class PdfPuzzle {
 class PdfService {
   /// Generate puzzles and build a PDF.
   /// Returns the PDF bytes.
+  ///
+  /// [onProgress] is called each time a puzzle finishes generating, with the
+  /// number of completed puzzles so far.
   Future<Uint8List> generatePdf(
     int count,
     Difficulty difficulty, {
     bool includeRoughGrid = false,
     bool includeHints = true,
+    void Function(int completed)? onProgress,
   }) async {
     // O3: Generate puzzles in parallel across multiple isolates.
-    final puzzles = await _generatePuzzlesParallel(count, difficulty);
+    final puzzles =
+        await _generatePuzzlesParallel(count, difficulty, onProgress);
     if (puzzles.isEmpty) {
       throw StateError('Failed to generate puzzles.');
     }
+    if (onProgress != null) onProgress(count); // ensure final tick
     return _buildPdf(puzzles,
         includeRoughGrid: includeRoughGrid, includeHints: includeHints);
   }
@@ -45,42 +51,53 @@ class PdfService {
   static Future<List<PdfPuzzle>> _generatePuzzlesParallel(
     int count,
     Difficulty difficulty,
+    void Function(int completed)? onProgress,
   ) async {
     if (count <= 1) {
       // Single puzzle — no benefit from parallelism.
-      return compute(
+      final result = await compute(
         _generatePuzzlesWithHints,
         _GenParams(count, difficulty, 0),
       );
+      onProgress?.call(1);
+      return result;
     }
 
     // Split work across isolates. Each isolate generates a subset.
     // Use up to `count` isolates (one per puzzle) since puzzle generation
     // is CPU-bound and benefits from true parallelism.
-    final futures = <Future<List<PdfPuzzle>>>[];
+    var completed = 0;
+    final puzzles = List<PdfPuzzle?>.filled(count, null);
+
+    final futures = <Future<void>>[];
     for (var i = 0; i < count; i++) {
-      futures.add(compute(
-        _generatePuzzlesWithHints,
-        _GenParams(1, difficulty, i),
-      ));
-    }
-
-    final results = await Future.wait(futures);
-    final puzzles = <PdfPuzzle>[];
-    for (final batch in results) {
-      puzzles.addAll(batch);
-    }
-
-    // Re-number sequentially.
-    for (var i = 0; i < puzzles.length; i++) {
-      puzzles[i] = PdfPuzzle(
-        number: i + 1,
-        puzzle: puzzles[i].puzzle,
-        qrData: puzzles[i].qrData,
-        solveOrder: puzzles[i].solveOrder,
+      final index = i;
+      futures.add(
+        compute(
+          _generatePuzzlesWithHints,
+          _GenParams(1, difficulty, index),
+        ).then((batch) {
+          puzzles[index] = batch.first;
+          completed++;
+          onProgress?.call(completed);
+        }),
       );
     }
-    return puzzles;
+
+    await Future.wait(futures);
+
+    final result = puzzles.whereType<PdfPuzzle>().toList();
+
+    // Re-number sequentially.
+    for (var i = 0; i < result.length; i++) {
+      result[i] = PdfPuzzle(
+        number: i + 1,
+        puzzle: result[i].puzzle,
+        qrData: result[i].qrData,
+        solveOrder: result[i].solveOrder,
+      );
+    }
+    return result;
   }
 
   static List<PdfPuzzle> _generatePuzzlesWithHints(_GenParams params) {
