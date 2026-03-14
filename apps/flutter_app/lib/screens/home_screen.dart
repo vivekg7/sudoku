@@ -8,7 +8,9 @@ import 'package:sudoku_core/sudoku_core.dart';
 
 import '../services/storage_service.dart';
 import 'game_screen.dart';
+import 'pdf_export_screen.dart';
 import 'saved_games_screen.dart';
+import 'scan_screen.dart';
 import 'stats_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -77,6 +79,20 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(width: 16),
                     _navButton(
                       context,
+                      icon: Icons.picture_as_pdf,
+                      label: 'PDF',
+                      onPressed: () => _openPdfExport(context),
+                    ),
+                    const SizedBox(width: 16),
+                    _navButton(
+                      context,
+                      icon: Icons.qr_code_scanner,
+                      label: 'Scan',
+                      onPressed: () => _openScan(context),
+                    ),
+                    const SizedBox(width: 16),
+                    _navButton(
+                      context,
                       icon: Icons.upload_file,
                       label: 'Export',
                       onPressed: () => _exportData(context),
@@ -134,6 +150,18 @@ class HomeScreen extends StatelessWidget {
   void _openStats(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => StatsScreen(storage: storage)),
+    );
+  }
+
+  void _openPdfExport(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const PdfExportScreen()),
+    );
+  }
+
+  void _openScan(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => ScanScreen(storage: storage)),
     );
   }
 

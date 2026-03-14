@@ -159,12 +159,12 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 14: PDF Export & QR Codes
 
-- [ ] PDF generation library integration
-- [ ] Puzzle grid rendering to PDF
-- [ ] Bulk generation UI (select count + difficulty)
-- [ ] Hints section at end of PDF
-- [ ] QR code generation per puzzle (encodes puzzle data, app opens it for interactive play)
-- [ ] QR scanning / deep link handling in Flutter app
+- [x] PDF generation library integration
+- [x] Puzzle grid rendering to PDF
+- [x] Bulk generation UI (select count + difficulty)
+- [x] Hints section at end of PDF
+- [x] QR code generation per puzzle (encodes puzzle data, app opens it for interactive play)
+- [x] QR scanning / deep link handling in Flutter app
 
 ---
 
