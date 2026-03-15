@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../services/settings_service.dart';
+import '../widgets/app_logo.dart';
 import '../services/storage_service.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -213,10 +214,7 @@ class SettingsScreen extends StatelessWidget {
       builder: (ctx) => AboutDialog(
         applicationName: 'Sudoku',
         applicationVersion: 'v1.0.0',
-        applicationIcon: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.asset('assets/icon/icon_512.png', width: 48, height: 48),
-        ),
+        applicationIcon: const AppLogo(size: 48),
         children: const [
           Text(
             'Built by a sudoku nerd, for sudoku nerds.',

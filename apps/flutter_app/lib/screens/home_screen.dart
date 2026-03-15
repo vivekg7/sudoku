@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
 import '../services/settings_service.dart';
+import '../widgets/app_logo.dart';
 import '../services/storage_service.dart';
 import 'game_screen.dart';
 import 'pdf_export_screen.dart';
@@ -30,10 +31,7 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Image.asset('assets/icon/icon_512.png', width: 80, height: 80),
-                ),
+                const AppLogo(size: 80),
                 const SizedBox(height: 12),
                 Text(
                   'Select a difficulty',
