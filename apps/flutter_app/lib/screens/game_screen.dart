@@ -39,6 +39,7 @@ class _GameScreenState extends State<GameScreen> {
     _gameState = GameState();
     _gameState.maxHintLayer = widget.settings.hintLimit.maxLayer;
     _gameState.notesEnabled = widget.settings.notesEnabled;
+    _gameState.highlightSameDigits = widget.settings.highlightSameDigits;
     _gameState.addListener(_restoreKeyboardFocus);
 
     if (widget.resumeEntry != null) {

@@ -39,6 +39,13 @@ class SettingsScreen extends StatelessWidget {
             _hintLimitTile(context),
             const Divider(height: 1, indent: 16, endIndent: 16),
             SwitchListTile(
+              title: const Text('Highlight same digits'),
+              subtitle: const Text('Highlight matching numbers on the board'),
+              value: settings.highlightSameDigits,
+              onChanged: settings.setHighlightSameDigits,
+            ),
+            const Divider(height: 1, indent: 16, endIndent: 16),
+            SwitchListTile(
               title: const Text('Pencil notes'),
               subtitle: const Text('Allow marking candidates in cells'),
               value: settings.notesEnabled,

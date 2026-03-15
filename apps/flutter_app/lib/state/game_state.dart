@@ -29,6 +29,9 @@ class GameState extends ChangeNotifier {
   /// Whether pencil notes are allowed.
   bool notesEnabled = true;
 
+  /// Whether to highlight cells with the same digit as the selected cell.
+  bool highlightSameDigits = true;
+
   Puzzle? get puzzle => _puzzle;
   int? get selectedRow => _selectedRow;
   int? get selectedCol => _selectedCol;
@@ -420,6 +423,7 @@ class GameState extends ChangeNotifier {
   }
 
   bool hasSameValueAsSelected(int row, int col) {
+    if (!highlightSameDigits) return false;
     if (_puzzle == null) return false;
     final cellValue = _puzzle!.board.getCell(row, col).value;
     if (cellValue == 0) return false;

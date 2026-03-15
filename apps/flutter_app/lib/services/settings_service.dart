@@ -49,6 +49,7 @@ class SettingsService extends ChangeNotifier {
   HintLimit _hintLimit = HintLimit.all;
   bool _showTimer = true;
   bool _notesEnabled = true;
+  bool _highlightSameDigits = true;
 
   ThemeMode get themeMode => _themeMode;
   AppColor get appColor => _appColor;
@@ -56,6 +57,7 @@ class SettingsService extends ChangeNotifier {
   HintLimit get hintLimit => _hintLimit;
   bool get showTimer => _showTimer;
   bool get notesEnabled => _notesEnabled;
+  bool get highlightSameDigits => _highlightSameDigits;
 
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -91,6 +93,13 @@ class SettingsService extends ChangeNotifier {
     _save();
   }
 
+  void setHighlightSameDigits(bool enabled) {
+    if (_highlightSameDigits == enabled) return;
+    _highlightSameDigits = enabled;
+    notifyListeners();
+    _save();
+  }
+
   void setNotesEnabled(bool enabled) {
     if (_notesEnabled == enabled) return;
     _notesEnabled = enabled;
@@ -121,6 +130,7 @@ class SettingsService extends ChangeNotifier {
       _quotesEnabled = json['quotesEnabled'] as bool? ?? true;
       _showTimer = json['showTimer'] as bool? ?? true;
       _notesEnabled = json['notesEnabled'] as bool? ?? true;
+      _highlightSameDigits = json['highlightSameDigits'] as bool? ?? true;
       _hintLimit = HintLimit.values.firstWhere(
         (h) => h.name == json['hintLimit'],
         orElse: () => HintLimit.all,
@@ -137,6 +147,7 @@ class SettingsService extends ChangeNotifier {
       'quotesEnabled': _quotesEnabled,
       'showTimer': _showTimer,
       'notesEnabled': _notesEnabled,
+      'highlightSameDigits': _highlightSameDigits,
       'hintLimit': _hintLimit.name,
     };
     await File(_filePath).writeAsString(jsonEncode(json));
