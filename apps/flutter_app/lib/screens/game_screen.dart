@@ -7,6 +7,7 @@ import '../state/game_state.dart';
 import '../widgets/board_widget.dart';
 import '../widgets/hint_panel.dart';
 import '../widgets/number_pad.dart';
+import '../widgets/quote_banner.dart';
 
 class GameScreen extends StatefulWidget {
   final Difficulty difficulty;
@@ -215,6 +216,7 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
             ),
+            QuoteBanner(quoteId: _gameState.puzzle?.quoteId),
             HintPanel(gameState: _gameState),
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
