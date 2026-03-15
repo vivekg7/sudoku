@@ -45,7 +45,7 @@ If this policy is updated, the changes will be reflected in this document with a
 
 ## Contact
 
-If you have questions about this privacy policy, you can open an issue on the [GitHub repository](https://github.com/VivekYadavDeveloper/sudoku).
+If you have questions about this privacy policy, you can open an issue on the [GitHub repository](https://github.com/vivekg7/sudoku/).
 
 ## Source Code
 
