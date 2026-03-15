@@ -386,6 +386,12 @@ class Game {
     print('\x1B[2J\x1B[H');
     print('Sudoku — ${puzzle.difficulty.label}    Time: ${_timer.formatted}'
         '    Empty: ${puzzle.emptyCellCount}');
+    if (puzzle.quoteId != null) {
+      final quote = QuoteRepository.instance.getById(puzzle.quoteId!);
+      if (quote != null) {
+        print('"${quote.text}" - ${quote.author}');
+      }
+    }
     print('');
     print(_renderer.render(
       puzzle.board,

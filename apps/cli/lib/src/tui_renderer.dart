@@ -20,6 +20,7 @@ class RenderState {
   final String? confirmPrompt;
   final Set<(int, int)> conflictCells;
   final Set<(int, int)> hintCells;
+  final int? quoteId;
 
   const RenderState({
     required this.board,
@@ -36,6 +37,7 @@ class RenderState {
     this.confirmPrompt,
     this.conflictCells = const {},
     this.hintCells = const {},
+    this.quoteId,
   });
 }
 
@@ -47,6 +49,7 @@ class TuiRenderer {
     buf.write('\x1B[2J\x1B[H'); // Clear screen, cursor home
 
     _renderHeader(buf, state);
+    _renderQuote(buf, state);
     buf.writeln();
 
     if (state.showCandidates) {
@@ -88,6 +91,14 @@ class TuiRenderer {
       buf.write('${Ansi.fgGray}NORMAL${Ansi.reset}');
     }
 
+    buf.writeln();
+  }
+
+  void _renderQuote(StringBuffer buf, RenderState state) {
+    if (state.quoteId == null) return;
+    final quote = QuoteRepository.instance.getById(state.quoteId!);
+    if (quote == null) return;
+    buf.write('${Ansi.fgGray}${Ansi.dim}  "${quote.text}" - ${quote.author}${Ansi.reset}');
     buf.writeln();
   }
 

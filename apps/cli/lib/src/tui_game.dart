@@ -457,6 +457,7 @@ class TuiGame {
       confirmPrompt: _pendingConfirm != null ? _confirmPromptText() : null,
       conflictCells: _conflictCells,
       hintCells: _hintCells,
+      quoteId: puzzle.quoteId,
     );
     _renderer.renderFrame(state);
   }
