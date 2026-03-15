@@ -4,6 +4,7 @@ import '../models/board.dart';
 import '../models/cell.dart';
 import '../models/difficulty.dart';
 import '../models/puzzle.dart';
+import '../quotes/quote_repository.dart';
 import '../solver/candidate_helper.dart';
 import '../solver/solve_result.dart';
 import '../solver/solver_engine.dart';
@@ -260,12 +261,18 @@ class PuzzleGenerator {
     final initialBoard = _boardWithGivens(bestBoard);
     final playerBoard = initialBoard.clone();
 
+    final quoteId = QuoteRepository.instance.pickQuoteId(
+      target,
+      _random.nextInt(1 << 31),
+    );
+
     return Puzzle(
       initialBoard: initialBoard,
       solution: solution,
       board: playerBoard,
       difficulty: target,
       solveResult: bestResult,
+      quoteId: quoteId,
     );
   }
 

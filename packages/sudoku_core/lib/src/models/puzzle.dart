@@ -27,12 +27,16 @@ class Puzzle {
   /// Cached solve result from generation (avoids re-solving for hints/PDF).
   final SolveResult? solveResult;
 
+  /// Stable ID of the quote assigned to this puzzle (see [QuoteRepository]).
+  final int? quoteId;
+
   Puzzle({
     required this.initialBoard,
     required this.solution,
     required this.board,
     required this.difficulty,
     this.solveResult,
+    this.quoteId,
     MoveHistory? history,
     DateTime? createdAt,
   })  : history = history ?? MoveHistory(),

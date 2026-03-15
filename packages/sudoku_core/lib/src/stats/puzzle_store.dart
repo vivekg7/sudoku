@@ -39,6 +39,7 @@ class PuzzleEntry {
         'bookmarked': bookmarked,
         'savedAt': savedAt.toIso8601String(),
         'createdAt': puzzle.createdAt.toIso8601String(),
+        if (puzzle.quoteId != null) 'quoteId': puzzle.quoteId,
       };
 
   factory PuzzleEntry.fromJson(Map<String, dynamic> json) {
@@ -57,6 +58,7 @@ class PuzzleEntry {
       board: currentBoard,
       difficulty: Difficulty.values.byName(json['difficulty'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
+      quoteId: json['quoteId'] as int?,
     );
 
     return PuzzleEntry(
