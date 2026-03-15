@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
+import '../services/settings_service.dart';
 import '../services/storage_service.dart';
 import 'game_screen.dart';
 
 class ScanScreen extends StatefulWidget {
   final StorageService storage;
+  final SettingsService settings;
 
-  const ScanScreen({super.key, required this.storage});
+  const ScanScreen({
+    super.key,
+    required this.storage,
+    required this.settings,
+  });
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -59,13 +65,13 @@ class _ScanScreenState extends State<ScanScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.camera_alt,
-                        size: 48, color: Color(0xFF757575)),
+                    Icon(Icons.camera_alt,
+                        size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(height: 16),
                     Text(
                       'Camera unavailable: ${error.errorDetails?.message ?? error.errorCode.name}',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Color(0xFF757575)),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 16),
                     TextButton(
@@ -78,11 +84,11 @@ class _ScanScreenState extends State<ScanScreen> {
             ),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.all(16),
+        Padding(
+          padding: const EdgeInsets.all(16),
           child: Text(
             'Point at a QR code on a printed puzzle',
-            style: TextStyle(fontSize: 14, color: Color(0xFF757575)),
+            style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ),
       ],
@@ -100,9 +106,9 @@ class _ScanScreenState extends State<ScanScreen> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Paste the 83-character code from a printed puzzle.',
-            style: TextStyle(fontSize: 13, color: Color(0xFF757575)),
+            style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -191,6 +197,7 @@ class _ScanScreenState extends State<ScanScreen> {
         builder: (_) => GameScreen(
           difficulty: difficulty,
           storage: widget.storage,
+          settings: widget.settings,
           resumeEntry: PuzzleEntry(
             id: DateTime.now().millisecondsSinceEpoch.toString(),
             puzzle: puzzle,

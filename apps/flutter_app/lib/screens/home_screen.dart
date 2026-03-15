@@ -1,22 +1,24 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
+import '../services/settings_service.dart';
 import '../services/storage_service.dart';
 import 'game_screen.dart';
 import 'pdf_export_screen.dart';
 import 'saved_games_screen.dart';
 import 'scan_screen.dart';
+import 'settings_screen.dart';
 import 'stats_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final StorageService storage;
+  final SettingsService settings;
 
-  const HomeScreen({super.key, required this.storage});
+  const HomeScreen({
+    super.key,
+    required this.storage,
+    required this.settings,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,19 +30,22 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   'Sudoku',
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w300,
                     letterSpacing: 4,
-                    color: Color(0xFF212121),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Select a difficulty',
-                  style: TextStyle(fontSize: 14, color: Color(0xFF757575)),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 const SizedBox(height: 32),
                 for (final difficulty in Difficulty.values) ...[
@@ -95,16 +100,9 @@ class HomeScreen extends StatelessWidget {
                       const SizedBox(width: 16),
                       _navButton(
                         context,
-                        icon: Icons.upload_file,
-                        label: 'Export',
-                        onPressed: () => _exportData(context),
-                      ),
-                      const SizedBox(width: 16),
-                      _navButton(
-                        context,
-                        icon: Icons.download,
-                        label: 'Import',
-                        onPressed: () => _importData(context),
+                        icon: Icons.settings,
+                        label: 'Settings',
+                        onPressed: () => _openSettings(context),
                       ),
                     ],
                   ),
@@ -129,11 +127,13 @@ class HomeScreen extends StatelessWidget {
         IconButton(
           icon: Icon(icon),
           onPressed: onPressed,
-          color: const Color(0xFF424242),
         ),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: Color(0xFF757575)),
+          style: TextStyle(
+            fontSize: 11,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );
@@ -145,6 +145,7 @@ class HomeScreen extends StatelessWidget {
         builder: (_) => GameScreen(
           difficulty: difficulty,
           storage: storage,
+          settings: settings,
         ),
       ),
     );
@@ -158,76 +159,39 @@ class HomeScreen extends StatelessWidget {
 
   void _openPdfExport(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const PdfExportScreen()),
+      MaterialPageRoute(
+        builder: (_) => PdfExportScreen(settings: settings),
+      ),
     );
   }
 
   void _openScan(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => ScanScreen(storage: storage)),
+      MaterialPageRoute(
+        builder: (_) => ScanScreen(storage: storage, settings: settings),
+      ),
     );
   }
 
   void _openSavedGames(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => SavedGamesScreen(storage: storage)),
+      MaterialPageRoute(
+        builder: (_) => SavedGamesScreen(
+          storage: storage,
+          settings: settings,
+        ),
+      ),
     );
   }
 
-  Future<void> _exportData(BuildContext context) async {
-    try {
-      final jsonString = storage.exportData();
-      final result = await FilePicker.platform.saveFile(
-        dialogTitle: 'Export Sudoku Data',
-        fileName: 'sudoku_export.json',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-        bytes: utf8Bytes(jsonString),
-      );
-
-      if (result != null && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Data exported successfully.')),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _importData(BuildContext context) async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        dialogTitle: 'Import Sudoku Data',
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
-
-      if (result == null || result.files.isEmpty) return;
-
-      final path = result.files.single.path;
-      if (path == null) return;
-      final jsonString = await File(path).readAsString();
-      await storage.importData(jsonString);
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Data imported successfully.')),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Import failed: $e')),
-        );
-      }
-    }
+  void _openSettings(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SettingsScreen(
+          settings: settings,
+          storage: storage,
+        ),
+      ),
+    );
   }
 }
-
-/// Convert a string to UTF-8 bytes for file saving.
-Uint8List utf8Bytes(String s) => Uint8List.fromList(utf8.encode(s));

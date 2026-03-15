@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
+import '../services/settings_service.dart';
 import '../services/storage_service.dart';
 import 'game_screen.dart';
 
 class SavedGamesScreen extends StatelessWidget {
   final StorageService storage;
+  final SettingsService settings;
 
-  const SavedGamesScreen({super.key, required this.storage});
+  const SavedGamesScreen({
+    super.key,
+    required this.storage,
+    required this.settings,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return ListenableBuilder(
       listenable: storage,
       builder: (context, _) {
@@ -21,23 +29,26 @@ class SavedGamesScreen extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(title: const Text('Saved Games'), centerTitle: true),
           body: isEmpty
-              ? const Center(
+              ? Center(
                   child: Text(
                     'No saved games yet.',
-                    style: TextStyle(fontSize: 16, color: Color(0xFF757575)),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 )
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
                     if (inProgress.isNotEmpty) ...[
-                      _sectionHeader('In Progress'),
+                      _sectionHeader(context, 'In Progress'),
                       for (final entry in inProgress)
                         _puzzleTile(context, entry),
                       const SizedBox(height: 16),
                     ],
                     if (bookmarked.isNotEmpty) ...[
-                      _sectionHeader('Bookmarked'),
+                      _sectionHeader(context, 'Bookmarked'),
                       for (final entry in bookmarked)
                         _puzzleTile(context, entry),
                     ],
@@ -48,15 +59,15 @@ class SavedGamesScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionHeader(String title) {
+  Widget _sectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Color(0xFF757575),
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           letterSpacing: 0.5,
         ),
       ),
@@ -68,12 +79,13 @@ class SavedGamesScreen extends StatelessWidget {
     final filled = puzzle.totalToFill - puzzle.emptyCellCount;
     final total = puzzle.totalToFill;
     final progress = total > 0 ? filled / total : 0.0;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        side: const BorderSide(color: Color(0xFFE0E0E0)),
+        side: BorderSide(color: colorScheme.outlineVariant),
       ),
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -84,7 +96,7 @@ class SavedGamesScreen extends StatelessWidget {
         ),
         subtitle: Text(
           '$filled / $total cells filled  \u2022  ${_formatDate(entry.savedAt)}',
-          style: const TextStyle(fontSize: 12, color: Color(0xFF757575)),
+          style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
         ),
         leading: SizedBox(
           width: 40,
@@ -92,8 +104,8 @@ class SavedGamesScreen extends StatelessWidget {
           child: CircularProgressIndicator(
             value: progress,
             strokeWidth: 3,
-            backgroundColor: const Color(0xFFE0E0E0),
-            color: const Color(0xFF1565C0),
+            backgroundColor: colorScheme.outlineVariant,
+            color: colorScheme.primary,
           ),
         ),
         trailing: Row(
@@ -104,13 +116,13 @@ class SavedGamesScreen extends StatelessWidget {
                 entry.bookmarked ? Icons.bookmark : Icons.bookmark_border,
                 color: entry.bookmarked
                     ? const Color(0xFFF9A825)
-                    : const Color(0xFF757575),
+                    : colorScheme.onSurfaceVariant,
               ),
               onPressed: () => storage.toggleBookmark(entry.id),
               tooltip: entry.bookmarked ? 'Remove bookmark' : 'Bookmark',
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: Color(0xFF757575)),
+              icon: Icon(Icons.delete_outline, color: colorScheme.onSurfaceVariant),
               onPressed: () => _confirmDelete(context, entry),
               tooltip: 'Delete',
             ),
@@ -127,6 +139,7 @@ class SavedGamesScreen extends StatelessWidget {
         builder: (_) => GameScreen(
           difficulty: entry.puzzle.difficulty,
           storage: storage,
+          settings: settings,
           resumeEntry: entry,
         ),
       ),

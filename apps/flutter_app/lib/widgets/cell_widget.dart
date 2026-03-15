@@ -25,7 +25,12 @@ class CellWidget extends StatelessWidget {
     final isHintPlacement = gameState.hintPlacementCells.contains((row, col));
     final isHintInvolved = gameState.hintInvolvedCells.contains((row, col));
 
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final bgColor = _backgroundColor(
+      colorScheme: colorScheme,
+      isDark: isDark,
       isSelected: isSelected,
       isRelated: isRelated,
       sameValue: sameValue,
@@ -33,7 +38,7 @@ class CellWidget extends StatelessWidget {
       isHintPlacement: isHintPlacement,
       isHintInvolved: isHintInvolved,
     );
-    final border = _cellBorder();
+    final border = _cellBorder(colorScheme, isDark);
 
     return GestureDetector(
       onTap: () => gameState.selectCell(row, col),
@@ -43,13 +48,15 @@ class CellWidget extends StatelessWidget {
           border: border,
         ),
         child: cell.isFilled
-            ? _buildValue(cell, isConflict)
-            : _buildCandidates(cell.candidates),
+            ? _buildValue(cell, isConflict, colorScheme)
+            : _buildCandidates(cell.candidates, colorScheme),
       ),
     );
   }
 
   Color _backgroundColor({
+    required ColorScheme colorScheme,
+    required bool isDark,
     required bool isSelected,
     required bool isRelated,
     required bool sameValue,
@@ -57,19 +64,35 @@ class CellWidget extends StatelessWidget {
     required bool isHintPlacement,
     required bool isHintInvolved,
   }) {
-    if (isHintPlacement) return const Color(0xFFC8E6C9); // green[100]
-    if (isHintInvolved) return const Color(0xFFFFE0B2); // orange[100]
-    if (isConflict && isSelected) return const Color(0xFFFFCDD2);
-    if (isSelected) return const Color(0xFFBBDEFB);
-    if (isConflict) return const Color(0xFFFFEBEE);
-    if (sameValue) return const Color(0xFFE3F2FD);
-    if (isRelated) return const Color(0xFFF5F5F5);
-    return Colors.white;
+    if (isHintPlacement) {
+      return isDark ? const Color(0xFF1B5E20).withValues(alpha: 0.4) : const Color(0xFFC8E6C9);
+    }
+    if (isHintInvolved) {
+      return isDark ? const Color(0xFFE65100).withValues(alpha: 0.3) : const Color(0xFFFFE0B2);
+    }
+    if (isConflict && isSelected) {
+      return isDark ? const Color(0xFFB71C1C).withValues(alpha: 0.4) : const Color(0xFFFFCDD2);
+    }
+    if (isSelected) {
+      return colorScheme.primaryContainer;
+    }
+    if (isConflict) {
+      return isDark ? const Color(0xFFB71C1C).withValues(alpha: 0.2) : const Color(0xFFFFEBEE);
+    }
+    if (sameValue) {
+      return colorScheme.primaryContainer.withValues(alpha: isDark ? 0.3 : 0.5);
+    }
+    if (isRelated) {
+      return colorScheme.surfaceContainerHighest.withValues(alpha: isDark ? 0.3 : 0.5);
+    }
+    return colorScheme.surface;
   }
 
-  Border _cellBorder() {
-    const thin = BorderSide(color: Color(0xFFBDBDBD), width: 0.5);
-    const thick = BorderSide(color: Color(0xFF424242), width: 1.5);
+  Border _cellBorder(ColorScheme colorScheme, bool isDark) {
+    final thinColor = isDark ? colorScheme.outlineVariant : const Color(0xFFBDBDBD);
+    final thickColor = isDark ? colorScheme.outline : const Color(0xFF424242);
+    final thin = BorderSide(color: thinColor, width: 0.5);
+    final thick = BorderSide(color: thickColor, width: 1.5);
 
     return Border(
       top: row % 3 == 0 ? thick : thin,
@@ -79,12 +102,12 @@ class CellWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildValue(Cell cell, bool isConflict) {
+  Widget _buildValue(Cell cell, bool isConflict, ColorScheme colorScheme) {
     final color = isConflict
-        ? const Color(0xFFD32F2F)
+        ? colorScheme.error
         : cell.isGiven
-            ? const Color(0xFF212121)
-            : const Color(0xFF1565C0);
+            ? colorScheme.onSurface
+            : colorScheme.primary;
 
     return Center(
       child: FittedBox(
@@ -101,7 +124,7 @@ class CellWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCandidates(CandidateSet candidates) {
+  Widget _buildCandidates(CandidateSet candidates, ColorScheme colorScheme) {
     if (candidates.isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -115,7 +138,7 @@ class CellWidget extends StatelessWidget {
                   for (var c = 0; c < 3; c++)
                     Expanded(
                       child: Center(
-                        child: _candidateDigit(r * 3 + c + 1, candidates),
+                        child: _candidateDigit(r * 3 + c + 1, candidates, colorScheme),
                       ),
                     ),
                 ],
@@ -126,15 +149,15 @@ class CellWidget extends StatelessWidget {
     );
   }
 
-  Widget _candidateDigit(int digit, CandidateSet candidates) {
+  Widget _candidateDigit(int digit, CandidateSet candidates, ColorScheme colorScheme) {
     if (!candidates.contains(digit)) return const SizedBox.shrink();
     return FittedBox(
       fit: BoxFit.scaleDown,
       child: Text(
         '$digit',
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 10,
-          color: Color(0xFF757575),
+          color: colorScheme.onSurfaceVariant,
         ),
       ),
     );

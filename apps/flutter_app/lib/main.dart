@@ -1,32 +1,44 @@
 import 'package:flutter/material.dart';
 
 import 'screens/home_screen.dart';
+import 'services/settings_service.dart';
 import 'services/storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final storage = StorageService();
-  await storage.init();
-  runApp(SudokuApp(storage: storage));
+  final settings = SettingsService();
+  await Future.wait([storage.init(), settings.init()]);
+  runApp(SudokuApp(storage: storage, settings: settings));
 }
 
 class SudokuApp extends StatelessWidget {
   final StorageService storage;
+  final SettingsService settings;
 
-  const SudokuApp({super.key, required this.storage});
+  const SudokuApp({super.key, required this.storage, required this.settings});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Sudoku',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1565C0),
+    return ListenableBuilder(
+      listenable: settings,
+      builder: (context, _) => MaterialApp(
+        title: 'Sudoku',
+        debugShowCheckedModeBanner: false,
+        themeMode: settings.themeMode,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: settings.appColor.seed),
+          useMaterial3: true,
         ),
-        useMaterial3: true,
+        darkTheme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: settings.appColor.seed,
+            brightness: Brightness.dark,
+          ),
+          useMaterial3: true,
+        ),
+        home: HomeScreen(storage: storage, settings: settings),
       ),
-      home: HomeScreen(storage: storage),
     );
   }
 }

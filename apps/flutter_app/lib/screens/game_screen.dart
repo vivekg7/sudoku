@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
+import '../services/settings_service.dart';
 import '../services/storage_service.dart';
 import '../state/game_state.dart';
 import '../widgets/board_widget.dart';
@@ -12,12 +13,14 @@ import '../widgets/quote_banner.dart';
 class GameScreen extends StatefulWidget {
   final Difficulty difficulty;
   final StorageService storage;
+  final SettingsService settings;
   final PuzzleEntry? resumeEntry;
 
   const GameScreen({
     super.key,
     required this.difficulty,
     required this.storage,
+    required this.settings,
     this.resumeEntry,
   });
 
@@ -138,18 +141,19 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _errorView() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Color(0xFF757575)),
+            Icon(Icons.error_outline, size: 48, color: colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
               _gameState.error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, color: Color(0xFF424242)),
+              style: TextStyle(fontSize: 16, color: colorScheme.onSurface),
             ),
             const SizedBox(height: 24),
             FilledButton(
@@ -171,16 +175,17 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _pausedView() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.pause_circle_outline,
-              size: 64, color: Color(0xFF757575)),
+          Icon(Icons.pause_circle_outline,
+              size: 64, color: colorScheme.onSurfaceVariant),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Paused',
-            style: TextStyle(fontSize: 24, color: Color(0xFF424242)),
+            style: TextStyle(fontSize: 24, color: colorScheme.onSurface),
           ),
           const SizedBox(height: 24),
           FilledButton.icon(
@@ -216,7 +221,8 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
             ),
-            QuoteBanner(quoteId: _gameState.puzzle?.quoteId),
+            if (widget.settings.quotesEnabled)
+              QuoteBanner(quoteId: _gameState.puzzle?.quoteId),
             HintPanel(gameState: _gameState),
             Padding(
               padding: const EdgeInsets.only(bottom: 16),

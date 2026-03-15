@@ -34,6 +34,7 @@ class PdfService {
     Difficulty difficulty, {
     bool includeRoughGrid = false,
     bool includeHints = true,
+    bool includeQuotes = true,
     void Function(int completed)? onProgress,
   }) async {
     // O3: Generate puzzles in parallel across multiple isolates.
@@ -44,7 +45,9 @@ class PdfService {
     }
     if (onProgress != null) onProgress(count); // ensure final tick
     return _buildPdf(puzzles,
-        includeRoughGrid: includeRoughGrid, includeHints: includeHints);
+        includeRoughGrid: includeRoughGrid,
+        includeHints: includeHints,
+        includeQuotes: includeQuotes);
   }
 
   /// Spawns multiple isolates to generate puzzles concurrently.
@@ -148,6 +151,7 @@ class PdfService {
     List<PdfPuzzle> puzzles, {
     bool includeRoughGrid = false,
     bool includeHints = true,
+    bool includeQuotes = true,
   }) async {
     final doc = pw.Document(
       title: 'Sudoku Puzzles',
@@ -160,8 +164,9 @@ class PdfService {
         pw.Page(
           pageFormat: PdfPageFormat.a4,
           margin: const pw.EdgeInsets.all(40),
-          build: (context) =>
-              _buildPuzzlePage(p, includeRoughGrid: includeRoughGrid),
+          build: (context) => _buildPuzzlePage(p,
+              includeRoughGrid: includeRoughGrid,
+              includeQuotes: includeQuotes),
         ),
       );
     }
@@ -238,6 +243,7 @@ class PdfService {
   pw.Widget _buildPuzzlePage(
     PdfPuzzle puzzle, {
     bool includeRoughGrid = false,
+    bool includeQuotes = true,
   }) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -246,7 +252,7 @@ class PdfService {
           'Puzzle ${puzzle.number} - ${puzzle.puzzle.difficulty.label}',
           style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
         ),
-        _buildQuoteLine(puzzle.puzzle.quoteId),
+        if (includeQuotes) _buildQuoteLine(puzzle.puzzle.quoteId),
         pw.SizedBox(height: 16),
         pw.Center(child: _buildGrid(puzzle.puzzle.initialBoard)),
         if (includeRoughGrid) ...[

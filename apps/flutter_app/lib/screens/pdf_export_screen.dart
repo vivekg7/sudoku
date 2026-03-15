@@ -6,9 +6,12 @@ import 'package:printing/printing.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
 import '../services/pdf_service.dart';
+import '../services/settings_service.dart';
 
 class PdfExportScreen extends StatefulWidget {
-  const PdfExportScreen({super.key});
+  final SettingsService settings;
+
+  const PdfExportScreen({super.key, required this.settings});
 
   @override
   State<PdfExportScreen> createState() => _PdfExportScreenState();
@@ -67,19 +70,19 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'Generate Puzzles',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w300,
                 letterSpacing: 2,
-                color: Color(0xFF212121),
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Configure and export to PDF',
-              style: TextStyle(fontSize: 14, color: Color(0xFF757575)),
+              style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 32),
             SizedBox(
@@ -182,7 +185,7 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
                     child: CircularProgressIndicator(
                       value: _count > 0 ? _generatedCount / _count : null,
                       strokeWidth: 3,
-                      backgroundColor: const Color(0xFFE0E0E0),
+                      backgroundColor: colorScheme.surfaceContainerHighest,
                       color: colorScheme.primary,
                     ),
                   ),
@@ -191,8 +194,8 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
                     _generatedCount < _count
                         ? 'Generating puzzle $_generatedCount of $_count…'
                         : 'Building PDF…',
-                    style: const TextStyle(
-                        fontSize: 14, color: Color(0xFF757575)),
+                    style: TextStyle(
+                        fontSize: 14, color: colorScheme.onSurfaceVariant),
                   ),
                 ],
               )
@@ -248,6 +251,7 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
         _difficulty,
         includeRoughGrid: _includeRoughGrid,
         includeHints: _includeHints,
+        includeQuotes: widget.settings.quotesEnabled,
         onProgress: (completed) {
           if (mounted) setState(() => _generatedCount = completed);
         },

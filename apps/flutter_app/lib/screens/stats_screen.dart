@@ -14,28 +14,32 @@ class StatsScreen extends StatelessWidget {
       listenable: storage,
       builder: (context, _) {
         final stats = storage.stats;
+        final colorScheme = Theme.of(context).colorScheme;
 
         return Scaffold(
           appBar: AppBar(title: const Text('Statistics'), centerTitle: true),
           body: stats.totalGames == 0
-              ? const Center(
+              ? Center(
                   child: Text(
                     'No games played yet.',
-                    style: TextStyle(fontSize: 16, color: Color(0xFF757575)),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 )
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
-                    _overviewCard(stats),
+                    _overviewCard(context, stats),
                     const SizedBox(height: 12),
-                    _streaksCard(stats),
+                    _streaksCard(context, stats),
                     const SizedBox(height: 12),
-                    _timesCard(stats),
+                    _timesCard(context, stats),
                     const SizedBox(height: 12),
-                    _difficultyCard(stats),
+                    _difficultyCard(context, stats),
                     const SizedBox(height: 12),
-                    _hintsCard(stats),
+                    _hintsCard(context, stats),
                   ],
                 ),
         );
@@ -43,8 +47,9 @@ class StatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _overviewCard(StatsStore stats) {
+  Widget _overviewCard(BuildContext context, StatsStore stats) {
     return _card(
+      context,
       title: 'Overview',
       children: [
         _statRow('Games played', '${stats.totalGames}'),
@@ -61,8 +66,9 @@ class StatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _streaksCard(StatsStore stats) {
+  Widget _streaksCard(BuildContext context, StatsStore stats) {
     return _card(
+      context,
       title: 'Streaks',
       children: [
         _statRow('Current streak', '${stats.currentStreak}'),
@@ -71,8 +77,9 @@ class StatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _timesCard(StatsStore stats) {
+  Widget _timesCard(BuildContext context, StatsStore stats) {
     return _card(
+      context,
       title: 'Solve Times',
       children: [
         _statRow('Best time', _formatTime(stats.bestSolveTime)),
@@ -81,12 +88,13 @@ class StatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _difficultyCard(StatsStore stats) {
+  Widget _difficultyCard(BuildContext context, StatsStore stats) {
     final byDifficulty = stats.gamesByDifficulty;
     final avgByDifficulty = stats.averageTimeByDifficulty;
     if (byDifficulty.isEmpty) return const SizedBox.shrink();
 
     return _card(
+      context,
       title: 'By Difficulty',
       children: [
         for (final d in Difficulty.values)
@@ -99,13 +107,15 @@ class StatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _hintsCard(StatsStore stats) {
+  Widget _hintsCard(BuildContext context, StatsStore stats) {
+    final colorScheme = Theme.of(context).colorScheme;
     final byLevel = stats.totalHintsByLevel;
     final byStrategy = stats.totalHintsByStrategy;
     final totalHints =
         byLevel.values.fold<int>(0, (sum, count) => sum + count);
     if (totalHints == 0) {
       return _card(
+        context,
         title: 'Hints',
         children: [_statRow('Total hints used', '0')],
       );
@@ -117,6 +127,7 @@ class StatsScreen extends StatelessWidget {
     final topStrategies = sortedStrategies.take(5);
 
     return _card(
+      context,
       title: 'Hints',
       children: [
         _statRow('Total hints', '$totalHints'),
@@ -127,14 +138,14 @@ class StatsScreen extends StatelessWidget {
               '${byLevel[level]}',
             ),
         if (topStrategies.isNotEmpty) ...[
-          const Padding(
-            padding: EdgeInsets.only(top: 8),
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
             child: Text(
               'Most-hinted strategies',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF757575),
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -145,12 +156,17 @@ class StatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _card({required String title, required List<Widget> children}) {
+  Widget _card(
+    BuildContext context, {
+    required String title,
+    required List<Widget> children,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Color(0xFFE0E0E0)),
+        side: BorderSide(color: colorScheme.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -159,10 +175,10 @@ class StatsScreen extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF424242),
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),

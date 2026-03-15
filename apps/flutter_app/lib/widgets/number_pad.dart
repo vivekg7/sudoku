@@ -71,15 +71,16 @@ class NumberPad extends StatelessWidget {
     final remaining = gameState.remainingCount(value);
     final isCompleted = remaining == 0;
     final isActive = gameState.activeNumber == value;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
       padding: const EdgeInsets.all(2),
       child: Material(
         color: isCompleted
-            ? const Color(0xFFE0E0E0)
+            ? colorScheme.surfaceContainerHighest
             : isActive
-                ? const Color(0xFFBBDEFB)
-                : const Color(0xFFF5F5F5),
+                ? colorScheme.primaryContainer
+                : colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           canRequestFocus: false,
@@ -94,10 +95,10 @@ class NumberPad extends StatelessWidget {
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: isCompleted
-                      ? const Color(0xFF9E9E9E)
+                      ? colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
                       : isActive
-                          ? const Color(0xFF1565C0)
-                          : const Color(0xFF212121),
+                          ? colorScheme.primary
+                          : colorScheme.onSurface,
                 ),
               ),
             ),
@@ -113,19 +114,24 @@ class NumberPad extends StatelessWidget {
     required String label,
     VoidCallback? onPressed,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton.outlined(
           icon: Icon(icon),
           onPressed: onPressed,
-          color: const Color(0xFF424242),
-          disabledColor: const Color(0xFFBDBDBD),
+          color: colorScheme.onSurfaceVariant,
+          disabledColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
           focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
         ),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: Color(0xFF757575)),
+          style: TextStyle(
+            fontSize: 11,
+            color: colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );
@@ -133,23 +139,27 @@ class NumberPad extends StatelessWidget {
 
   Widget _pencilButton(BuildContext context) {
     final isActive = gameState.isPencilMode;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton.outlined(
-          icon: Icon(Icons.edit, color: isActive ? Colors.blue : const Color(0xFF424242)),
+          icon: Icon(
+            Icons.edit,
+            color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
+          ),
           onPressed: gameState.togglePencilMode,
           focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
           style: isActive
-              ? IconButton.styleFrom(backgroundColor: const Color(0xFFE3F2FD))
+              ? IconButton.styleFrom(backgroundColor: colorScheme.primaryContainer)
               : null,
         ),
         Text(
           'Notes',
           style: TextStyle(
             fontSize: 11,
-            color: isActive ? Colors.blue : const Color(0xFF757575),
+            color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
           ),
         ),
       ],
