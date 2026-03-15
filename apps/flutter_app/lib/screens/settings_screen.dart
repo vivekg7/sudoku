@@ -36,6 +36,8 @@ class SettingsScreen extends StatelessWidget {
             _colorTile(context),
             const SizedBox(height: 16),
             _sectionHeader(context, 'Gameplay'),
+            _hintLimitTile(context),
+            const Divider(height: 1, indent: 16, endIndent: 16),
             SwitchListTile(
               title: const Text('Show quotes'),
               subtitle: const Text('Display a quote on each puzzle'),
@@ -137,6 +139,41 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _hintLimitTile(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.lightbulb_outline),
+      title: const Text('Hints'),
+      subtitle: Text(settings.hintLimit.description),
+      trailing: SegmentedButton<HintLimit>(
+        segments: const [
+          ButtonSegment(
+            value: HintLimit.disabled,
+            icon: Icon(Icons.block, size: 18),
+          ),
+          ButtonSegment(
+            value: HintLimit.nudgeOnly,
+            icon: Icon(Icons.lightbulb_outline, size: 18),
+          ),
+          ButtonSegment(
+            value: HintLimit.upToStrategy,
+            icon: Icon(Icons.psychology_outlined, size: 18),
+          ),
+          ButtonSegment(
+            value: HintLimit.all,
+            icon: Icon(Icons.check_circle_outline, size: 18),
+          ),
+        ],
+        selected: {settings.hintLimit},
+        onSelectionChanged: (s) => settings.setHintLimit(s.first),
+        showSelectedIcon: false,
+        style: ButtonStyle(
+          visualDensity: VisualDensity.compact,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
       ),
     );
   }

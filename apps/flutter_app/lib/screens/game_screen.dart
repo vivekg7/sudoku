@@ -37,6 +37,7 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     _gameState = GameState();
+    _gameState.maxHintLayer = widget.settings.hintLimit.maxLayer;
     _gameState.addListener(_restoreKeyboardFocus);
 
     if (widget.resumeEntry != null) {

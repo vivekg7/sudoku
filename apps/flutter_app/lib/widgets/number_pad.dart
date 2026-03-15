@@ -58,7 +58,9 @@ class NumberPad extends StatelessWidget {
                 context,
                 icon: Icons.lightbulb_outline,
                 label: 'Hint',
-                onPressed: gameState.requestHint,
+                onPressed: gameState.maxHintLayer > 0
+                    ? gameState.requestHint
+                    : null,
               ),
             ],
           ),

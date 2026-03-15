@@ -51,7 +51,7 @@ class HintPanel extends StatelessWidget {
               ],
             ),
           ),
-          if (layer < 3)
+          if (layer < gameState.maxHintLayer)
             TextButton(
               onPressed: gameState.requestHint,
               style: TextButton.styleFrom(

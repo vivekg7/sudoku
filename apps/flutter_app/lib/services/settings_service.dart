@@ -18,6 +18,27 @@ enum AppColor {
   const AppColor(this.seed, this.label);
 }
 
+/// Maximum hint depth available to the player.
+enum HintLimit {
+  /// Hints are completely disabled.
+  disabled(0, 'Disabled', 'No hints available'),
+
+  /// Only nudge hints (e.g. "Look for 3 in box 4").
+  nudgeOnly(1, 'Nudge only', 'Direction nudge'),
+
+  /// Nudge + strategy hints (e.g. "Try X-Wing on rows 2 and 7").
+  upToStrategy(2, 'Up to strategy', 'Nudge + strategy name'),
+
+  /// All three layers: nudge, strategy, and exact answer.
+  all(3, 'All hints', 'Nudge + strategy + answer');
+
+  /// Maximum hint layer (1 = nudge, 2 = strategy, 3 = answer, 0 = none).
+  final int maxLayer;
+  final String label;
+  final String description;
+  const HintLimit(this.maxLayer, this.label, this.description);
+}
+
 /// Persists user preferences to a local JSON file.
 class SettingsService extends ChangeNotifier {
   late final String _filePath;
@@ -25,10 +46,12 @@ class SettingsService extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   AppColor _appColor = AppColor.blue;
   bool _quotesEnabled = true;
+  HintLimit _hintLimit = HintLimit.all;
 
   ThemeMode get themeMode => _themeMode;
   AppColor get appColor => _appColor;
   bool get quotesEnabled => _quotesEnabled;
+  HintLimit get hintLimit => _hintLimit;
 
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -57,6 +80,13 @@ class SettingsService extends ChangeNotifier {
     _save();
   }
 
+  void setHintLimit(HintLimit limit) {
+    if (_hintLimit == limit) return;
+    _hintLimit = limit;
+    notifyListeners();
+    _save();
+  }
+
   Future<void> _load() async {
     final file = File(_filePath);
     if (!file.existsSync()) return;
@@ -71,6 +101,10 @@ class SettingsService extends ChangeNotifier {
         orElse: () => AppColor.blue,
       );
       _quotesEnabled = json['quotesEnabled'] as bool? ?? true;
+      _hintLimit = HintLimit.values.firstWhere(
+        (h) => h.name == json['hintLimit'],
+        orElse: () => HintLimit.all,
+      );
     } catch (_) {
       // Ignore corrupt settings — defaults are fine.
     }
@@ -81,6 +115,7 @@ class SettingsService extends ChangeNotifier {
       'themeMode': _themeMode.name,
       'appColor': _appColor.name,
       'quotesEnabled': _quotesEnabled,
+      'hintLimit': _hintLimit.name,
     };
     await File(_filePath).writeAsString(jsonEncode(json));
   }

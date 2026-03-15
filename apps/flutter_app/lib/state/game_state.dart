@@ -23,6 +23,9 @@ class GameState extends ChangeNotifier {
   final Map<HintLevel, int> _hintCounts = {};
   final Map<StrategyType, int> _hintStrategyCounts = {};
 
+  /// Maximum hint layer allowed (0 = disabled, 1 = nudge, 2 = strategy, 3 = all).
+  int maxHintLayer = 3;
+
   Puzzle? get puzzle => _puzzle;
   int? get selectedRow => _selectedRow;
   int? get selectedCol => _selectedCol;
@@ -319,9 +322,10 @@ class GameState extends ChangeNotifier {
 
   void requestHint() {
     if (_puzzle == null || _isPaused || _puzzle!.isSolved) return;
+    if (maxHintLayer <= 0) return; // hints disabled
 
-    // If we've shown all 3 layers, generate a new hint on next press.
-    if (_currentHint == null || _hintLayer >= 3) {
+    // If we've shown all allowed layers, generate a new hint on next press.
+    if (_currentHint == null || _hintLayer >= maxHintLayer) {
       _currentHint = _hintGen.generate(_puzzle!.board);
       _hintLayer = 0;
 
