@@ -264,14 +264,27 @@ class GameState extends ChangeNotifier {
 
   void clearCell() {
     if (_puzzle == null || _selectedRow == null || _selectedCol == null) return;
+    _clearCellAt(_selectedRow!, _selectedCol!);
+  }
+
+  /// Selects the cell at [row], [col] and clears its value.
+  void clearCellAt(int row, int col) {
+    if (_puzzle == null || _isPaused) return;
+    _selectedRow = row;
+    _selectedCol = col;
+    _activeNumber = null;
+    _clearCellAt(row, col);
+  }
+
+  void _clearCellAt(int row, int col) {
     if (_isPaused) return;
 
-    final cell = _puzzle!.board.getCell(_selectedRow!, _selectedCol!);
+    final cell = _puzzle!.board.getCell(row, col);
     if (cell.isGiven || cell.isEmpty) return;
 
     _puzzle!.history.push(Move(
-      row: _selectedRow!,
-      col: _selectedCol!,
+      row: row,
+      col: col,
       type: MoveType.clearValue,
       previousValue: cell.value,
       newValue: 0,

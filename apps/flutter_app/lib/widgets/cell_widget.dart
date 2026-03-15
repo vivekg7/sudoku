@@ -42,6 +42,7 @@ class CellWidget extends StatelessWidget {
 
     return GestureDetector(
       onTap: () => gameState.selectCell(row, col),
+      onLongPress: () => _eraseCell(),
       child: Container(
         decoration: BoxDecoration(
           color: bgColor,
@@ -52,6 +53,10 @@ class CellWidget extends StatelessWidget {
             : _buildCandidates(cell.candidates, colorScheme),
       ),
     );
+  }
+
+  void _eraseCell() {
+    gameState.clearCellAt(row, col);
   }
 
   Color _backgroundColor({
