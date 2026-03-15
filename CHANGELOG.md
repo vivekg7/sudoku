@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### New Features
 
-- **Inspirational quotes** — 36 hand-picked quotes across 3 tiers (light, medium, deep) with weighted distribution per difficulty. Shown on the puzzle screen, in PDF exports, and in the CLI.
+- **Inspirational quotes** — 90 hand-picked quotes across 3 tiers (light, medium, deep) with weighted distribution per difficulty. Includes wisdom from the Bhagavad Gita, Upanishads, Rig Veda, and Indian thinkers. Shown on the puzzle screen, in PDF exports, and in the CLI.
 - **Settings page** — centralized preferences with export/import moved from the home screen.
 - **Dark mode** — light, dark, and system theme toggle.
 - **Accent colors** — 6 preset color themes (blue, teal, green, purple, orange, red).
