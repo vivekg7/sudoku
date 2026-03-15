@@ -30,16 +30,11 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Sudoku',
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w300,
-                    letterSpacing: 4,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset('assets/icon/icon_512.png', width: 80, height: 80),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Text(
                   'Select a difficulty',
                   style: TextStyle(
