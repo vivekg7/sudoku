@@ -246,7 +246,8 @@ class PdfService {
           'Puzzle ${puzzle.number} - ${puzzle.puzzle.difficulty.label}',
           style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
         ),
-        pw.SizedBox(height: 20),
+        _buildQuoteLine(puzzle.puzzle.quoteId),
+        pw.SizedBox(height: 16),
         pw.Center(child: _buildGrid(puzzle.puzzle.initialBoard)),
         if (includeRoughGrid) ...[
           pw.SizedBox(height: 12),
@@ -283,6 +284,25 @@ class PdfService {
           ],
         ),
       ],
+    );
+  }
+
+  pw.Widget _buildQuoteLine(int? quoteId) {
+    if (quoteId == null) return pw.SizedBox(height: 4);
+    final quote = QuoteRepository.instance.getById(quoteId);
+    if (quote == null) return pw.SizedBox(height: 4);
+
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(top: 8, left: 20, right: 20),
+      child: pw.Text(
+        '"${quote.text}" - ${quote.author}',
+        textAlign: pw.TextAlign.center,
+        style: pw.TextStyle(
+          fontSize: 9,
+          fontStyle: pw.FontStyle.italic,
+          color: PdfColors.grey700,
+        ),
+      ),
     );
   }
 
