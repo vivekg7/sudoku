@@ -80,6 +80,14 @@ class SettingsScreen extends StatelessWidget {
               subtitle: const Text('Restore from a JSON backup'),
               onTap: () => _importData(context),
             ),
+            const SizedBox(height: 16),
+            _sectionHeader(context, 'About'),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('About Sudoku'),
+              subtitle: const Text('v1.0.0'),
+              onTap: () => _showAbout(context),
+            ),
           ],
         ),
       ),
@@ -195,6 +203,53 @@ class SettingsScreen extends StatelessWidget {
           visualDensity: VisualDensity.compact,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
+      ),
+    );
+  }
+
+  void _showAbout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AboutDialog(
+        applicationName: 'Sudoku',
+        applicationVersion: 'v1.0.0',
+        applicationIcon: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.asset('assets/icon/icon_512.png', width: 48, height: 48),
+        ),
+        children: const [
+          Text(
+            'Built by a sudoku nerd, for sudoku nerds.',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          SizedBox(height: 12),
+          Text(
+            'This app teaches you how to think, not just gives you answers. '
+            'Every puzzle is generated on the fly with real solving strategies '
+            '— from naked singles to forcing chains.',
+          ),
+          SizedBox(height: 12),
+          Text(
+            'No internet. No ads. No tracking. No accounts. '
+            'Just you and the puzzle.',
+            style: TextStyle(fontStyle: FontStyle.italic),
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Philosophy',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          SizedBox(height: 4),
+          Text('\u2022 Offline-first \u2014 everything works without internet'),
+          Text('\u2022 Respect the player \u2014 hints are layered and intentional'),
+          Text('\u2022 Teach, don\'t tell \u2014 guide thinking, not just answers'),
+          Text('\u2022 No bloat \u2014 no tracking, no ads, just sudoku'),
+          SizedBox(height: 12),
+          Text(
+            'Licensed under GPLv3.\nhttps://github.com/vivekg7/sudoku',
+            style: TextStyle(fontSize: 12),
+          ),
+        ],
       ),
     );
   }
