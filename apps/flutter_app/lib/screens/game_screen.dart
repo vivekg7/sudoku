@@ -107,8 +107,10 @@ class _GameScreenState extends State<GameScreen> {
               centerTitle: true,
               actions: [
                 if (_gameState.puzzle != null) ...[
-                  _timerDisplay(),
-                  _pauseButton(),
+                  if (widget.settings.showTimer) ...[
+                    _timerDisplay(),
+                    _pauseButton(),
+                  ],
                   const SizedBox(width: 8),
                 ],
               ],

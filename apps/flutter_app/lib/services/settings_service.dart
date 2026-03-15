@@ -47,11 +47,13 @@ class SettingsService extends ChangeNotifier {
   AppColor _appColor = AppColor.blue;
   bool _quotesEnabled = true;
   HintLimit _hintLimit = HintLimit.all;
+  bool _showTimer = true;
 
   ThemeMode get themeMode => _themeMode;
   AppColor get appColor => _appColor;
   bool get quotesEnabled => _quotesEnabled;
   HintLimit get hintLimit => _hintLimit;
+  bool get showTimer => _showTimer;
 
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -87,6 +89,13 @@ class SettingsService extends ChangeNotifier {
     _save();
   }
 
+  void setShowTimer(bool show) {
+    if (_showTimer == show) return;
+    _showTimer = show;
+    notifyListeners();
+    _save();
+  }
+
   Future<void> _load() async {
     final file = File(_filePath);
     if (!file.existsSync()) return;
@@ -101,6 +110,7 @@ class SettingsService extends ChangeNotifier {
         orElse: () => AppColor.blue,
       );
       _quotesEnabled = json['quotesEnabled'] as bool? ?? true;
+      _showTimer = json['showTimer'] as bool? ?? true;
       _hintLimit = HintLimit.values.firstWhere(
         (h) => h.name == json['hintLimit'],
         orElse: () => HintLimit.all,
@@ -115,6 +125,7 @@ class SettingsService extends ChangeNotifier {
       'themeMode': _themeMode.name,
       'appColor': _appColor.name,
       'quotesEnabled': _quotesEnabled,
+      'showTimer': _showTimer,
       'hintLimit': _hintLimit.name,
     };
     await File(_filePath).writeAsString(jsonEncode(json));
