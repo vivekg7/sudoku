@@ -43,3 +43,4 @@ Full-Featured Gameplay
 
 Open Source
 The entire source code is public. No secrets, no hidden tracking. GPLv3 licensed.
+https://github.com/vivekg7/sudoku
