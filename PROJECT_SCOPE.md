@@ -76,15 +76,21 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 
 ## Future Improvements (May Be Added)
 
-- Dark mode / theme customisation.
 - Accessibility improvements (screen reader support, high contrast).
 - Animation and transition polish.
+- Theme and UI component polish — refine colours, spacing, and visual consistency across light/dark modes.
 - Import a puzzle by clicking a photo or importing an image — OCR extracts the grid for interactive play.
 - Puzzle sharing via links or text export.
 - Practice mode for specific strategies (e.g., "give me puzzles that require X-Wing").
 - Puzzle difficulty rating for user-imported puzzles.
 - Localisation / multi-language support.
-- Inspirational quotes on each puzzle — see [PLAN_QUOTES.md](PLAN_QUOTES.md).
+
+---
+
+## Implemented Extra Features
+
+- **Dark mode / theme customisation** — Settings page with light/dark/system toggle and 6 accent color presets.
+- **Inspirational quotes** — 36 hand-picked quotes across 3 tiers with weighted distribution per difficulty. Togglable in settings. See [PLAN_QUOTES.md](PLAN_QUOTES.md).
 
 ---
 
