@@ -26,6 +26,9 @@ class GameState extends ChangeNotifier {
   /// Maximum hint layer allowed (0 = disabled, 1 = nudge, 2 = strategy, 3 = all).
   int maxHintLayer = 3;
 
+  /// Whether pencil notes are allowed.
+  bool notesEnabled = true;
+
   Puzzle? get puzzle => _puzzle;
   int? get selectedRow => _selectedRow;
   int? get selectedCol => _selectedCol;
@@ -185,6 +188,7 @@ class GameState extends ChangeNotifier {
   }
 
   void togglePencilMode() {
+    if (!notesEnabled) return;
     _isPencilMode = !_isPencilMode;
     notifyListeners();
   }

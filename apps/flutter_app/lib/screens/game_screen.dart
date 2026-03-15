@@ -38,6 +38,7 @@ class _GameScreenState extends State<GameScreen> {
     super.initState();
     _gameState = GameState();
     _gameState.maxHintLayer = widget.settings.hintLimit.maxLayer;
+    _gameState.notesEnabled = widget.settings.notesEnabled;
     _gameState.addListener(_restoreKeyboardFocus);
 
     if (widget.resumeEntry != null) {

@@ -39,6 +39,13 @@ class SettingsScreen extends StatelessWidget {
             _hintLimitTile(context),
             const Divider(height: 1, indent: 16, endIndent: 16),
             SwitchListTile(
+              title: const Text('Pencil notes'),
+              subtitle: const Text('Allow marking candidates in cells'),
+              value: settings.notesEnabled,
+              onChanged: settings.setNotesEnabled,
+            ),
+            const Divider(height: 1, indent: 16, endIndent: 16),
+            SwitchListTile(
               title: const Text('Show timer'),
               subtitle: const Text('Display elapsed time during play'),
               value: settings.showTimer,

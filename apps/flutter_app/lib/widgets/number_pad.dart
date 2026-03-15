@@ -53,15 +53,14 @@ class NumberPad extends StatelessWidget {
                 label: 'Erase',
                 onPressed: gameState.clearCell,
               ),
-              _pencilButton(context),
-              _actionButton(
-                context,
-                icon: Icons.lightbulb_outline,
-                label: 'Hint',
-                onPressed: gameState.maxHintLayer > 0
-                    ? gameState.requestHint
-                    : null,
-              ),
+              if (gameState.notesEnabled) _pencilButton(context),
+              if (gameState.maxHintLayer > 0)
+                _actionButton(
+                  context,
+                  icon: Icons.lightbulb_outline,
+                  label: 'Hint',
+                  onPressed: gameState.requestHint,
+                ),
             ],
           ),
         ),
