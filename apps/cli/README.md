@@ -41,8 +41,8 @@ For macOS, you'll need to compile natively on the target architecture — Docker
 ```ruby
 class Sudoku < Formula
   desc "Play Sudoku in the terminal with hints and stats"
-  homepage "https://github.com/your-username/sudoku"
-  url "https://github.com/your-username/sudoku/releases/download/v1.0.0/sudoku-macos-arm64.tar.gz"
+  homepage "https://github.com/vivekg7/sudoku"
+  url "https://github.com/vivekg7/sudoku/releases/download/v1.0.0/sudoku-macos-arm64.tar.gz"
   sha256 "YOUR_SHA256_HERE"
 
   def install

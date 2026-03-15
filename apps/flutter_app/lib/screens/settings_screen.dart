@@ -86,7 +86,7 @@ class SettingsScreen extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.info_outline),
               title: const Text('About Sudoku'),
-              subtitle: const Text('v1.0.0'),
+              subtitle: const Text('v1.1.0'),
               onTap: () => _showAbout(context),
             ),
           ],
@@ -213,7 +213,7 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AboutDialog(
         applicationName: 'Sudoku',
-        applicationVersion: 'v1.0.0',
+        applicationVersion: 'v1.1.0',
         applicationIcon: const AppLogo(size: 48),
         children: const [
           Text(
