@@ -84,6 +84,9 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 - Practice mode for specific strategies (e.g., "give me puzzles that require X-Wing").
 - Puzzle difficulty rating for user-imported puzzles.
 - Localisation / multi-language support.
+- **How to Solve Sudoku** — An in-app guide that teaches players how to approach and solve Sudoku puzzles from scratch.
+- **Interactive Strategy Guide** — Walkthroughs for every solving strategy with interactive examples the player can step through.
+- **Difficulty & Strategy Reference** — An in-app screen explaining all difficulty levels and which strategies are needed to solve each one.
 
 ---
 
