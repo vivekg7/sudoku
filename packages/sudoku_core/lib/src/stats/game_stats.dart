@@ -28,6 +28,20 @@ class GameStats {
   /// The puzzle's initial board as an 81-char flat string (for identification).
   final String puzzleId;
 
+  // -- Settings context (what was active during the game) --
+
+  /// Assistance level name (e.g. 'none', 'basic', 'standard', 'full').
+  final String assistLevel;
+
+  /// Whether pencil notes were enabled.
+  final bool notesEnabled;
+
+  /// Whether the timer was visible.
+  final bool showTimer;
+
+  /// Board layout name (e.g. 'circular', 'classic').
+  final String boardLayout;
+
   const GameStats({
     required this.id,
     required this.difficulty,
@@ -37,6 +51,10 @@ class GameStats {
     this.hintsByStrategy = const {},
     required this.playedAt,
     this.puzzleId = '',
+    this.assistLevel = 'full',
+    this.notesEnabled = true,
+    this.showTimer = true,
+    this.boardLayout = 'circular',
   });
 
   /// Total number of hints taken across all layers.
@@ -59,6 +77,10 @@ class GameStats {
         },
         'playedAt': playedAt.toIso8601String(),
         'puzzleId': puzzleId,
+        'assistLevel': assistLevel,
+        'notesEnabled': notesEnabled,
+        'showTimer': showTimer,
+        'boardLayout': boardLayout,
       };
 
   factory GameStats.fromJson(Map<String, dynamic> json) => GameStats(
@@ -78,5 +100,9 @@ class GameStats {
         },
         playedAt: DateTime.parse(json['playedAt'] as String),
         puzzleId: (json['puzzleId'] as String?) ?? '',
+        assistLevel: (json['assistLevel'] as String?) ?? 'full',
+        notesEnabled: (json['notesEnabled'] as bool?) ?? true,
+        showTimer: (json['showTimer'] as bool?) ?? true,
+        boardLayout: (json['boardLayout'] as String?) ?? 'circular',
       );
 }

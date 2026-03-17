@@ -472,7 +472,11 @@ class GameState extends ChangeNotifier {
   }
 
   /// Build a [GameStats] snapshot from the current session.
-  GameStats toGameStats() => GameStats(
+  GameStats toGameStats({
+    required bool showTimer,
+    required String boardLayout,
+  }) =>
+      GameStats(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         difficulty: _puzzle!.difficulty,
         solveTimeSeconds: _elapsedSeconds,
@@ -481,6 +485,10 @@ class GameState extends ChangeNotifier {
         hintsByStrategy: Map.of(_hintStrategyCounts),
         playedAt: DateTime.now(),
         puzzleId: _puzzle!.initialBoard.toFlatString(),
+        assistLevel: assistLevel.name,
+        notesEnabled: notesEnabled,
+        showTimer: showTimer,
+        boardLayout: boardLayout,
       );
 
   @override

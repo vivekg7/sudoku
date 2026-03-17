@@ -80,7 +80,10 @@ class _GameScreenState extends State<GameScreen> {
   /// Record game stats on completion.
   Future<void> _recordStats() async {
     if (_gameState.puzzle == null) return;
-    await widget.storage.recordGame(_gameState.toGameStats());
+    await widget.storage.recordGame(_gameState.toGameStats(
+      showTimer: widget.settings.showTimer,
+      boardLayout: widget.settings.boardLayout.name,
+    ));
     // Remove from saved games if it was saved.
     if (_puzzleEntryId != null) {
       await widget.storage.removePuzzle(_puzzleEntryId!);
