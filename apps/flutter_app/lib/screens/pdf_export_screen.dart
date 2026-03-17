@@ -22,41 +22,14 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
   int _count = 6;
   bool _includeRoughGrid = false;
   bool _includeHints = true;
-  Uint8List? _pdfBytes;
   bool _generating = false;
   int _generatedCount = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Export PDF'),
-        actions: [
-          if (_pdfBytes != null) ...[
-            IconButton(
-              icon: const Icon(Icons.save_alt),
-              onPressed: _savePdf,
-              tooltip: 'Save PDF',
-            ),
-            IconButton(
-              icon: const Icon(Icons.print),
-              onPressed: _printPdf,
-              tooltip: 'Print',
-            ),
-            IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: _sharePdf,
-              tooltip: 'Share',
-            ),
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () => setState(() => _pdfBytes = null),
-              tooltip: 'New generation',
-            ),
-          ],
-        ],
-      ),
-      body: _pdfBytes != null ? _previewView() : _configView(),
+      appBar: AppBar(title: const Text('Export PDF')),
+      body: _configView(),
     );
   }
 
@@ -227,18 +200,6 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
     return '${parts.join('_')}.pdf';
   }
 
-  Widget _previewView() {
-    return PdfPreview(
-      build: (_) => _pdfBytes!,
-      pdfFileName: _pdfFileName,
-      allowPrinting: false,
-      allowSharing: false,
-      canChangePageFormat: false,
-      canChangeOrientation: false,
-      useActions: false,
-    );
-  }
-
   Future<void> _generate() async {
     setState(() {
       _generating = true;
@@ -256,10 +217,15 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
         },
       );
       if (!mounted) return;
-      setState(() {
-        _pdfBytes = bytes;
-        _generating = false;
-      });
+      setState(() => _generating = false);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => _PdfPreviewScreen(
+            pdfBytes: bytes,
+            fileName: _pdfFileName,
+          ),
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       setState(() => _generating = false);
@@ -268,24 +234,68 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
       );
     }
   }
+}
 
-  Future<void> _savePdf() async {
-    if (_pdfBytes == null) return;
+class _PdfPreviewScreen extends StatelessWidget {
+  final Uint8List pdfBytes;
+  final String fileName;
+
+  const _PdfPreviewScreen({
+    required this.pdfBytes,
+    required this.fileName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('PDF Preview'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save_alt),
+            onPressed: () => _savePdf(context),
+            tooltip: 'Save PDF',
+          ),
+          IconButton(
+            icon: const Icon(Icons.print),
+            onPressed: () => _printPdf(context),
+            tooltip: 'Print',
+          ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () => _sharePdf(context),
+            tooltip: 'Share',
+          ),
+        ],
+      ),
+      body: PdfPreview(
+        build: (_) => pdfBytes,
+        pdfFileName: fileName,
+        allowPrinting: false,
+        allowSharing: false,
+        canChangePageFormat: false,
+        canChangeOrientation: false,
+        useActions: false,
+      ),
+    );
+  }
+
+  Future<void> _savePdf(BuildContext context) async {
     try {
       final result = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Sudoku PDF',
-        fileName: _pdfFileName,
+        fileName: fileName,
         type: FileType.custom,
         allowedExtensions: ['pdf'],
-        bytes: _pdfBytes!,
+        bytes: pdfBytes,
       );
-      if (result != null && mounted) {
+      if (result != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('PDF saved.')),
         );
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Save failed: $e')),
         );
@@ -293,12 +303,11 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
     }
   }
 
-  Future<void> _printPdf() async {
-    if (_pdfBytes == null) return;
+  Future<void> _printPdf(BuildContext context) async {
     try {
-      await Printing.layoutPdf(onLayout: (_) async => _pdfBytes!);
+      await Printing.layoutPdf(onLayout: (_) async => pdfBytes);
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Print failed: $e')),
         );
@@ -306,13 +315,11 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
     }
   }
 
-  Future<void> _sharePdf() async {
-    if (_pdfBytes == null) return;
+  Future<void> _sharePdf(BuildContext context) async {
     try {
-      await Printing.sharePdf(
-          bytes: _pdfBytes!, filename: _pdfFileName);
+      await Printing.sharePdf(bytes: pdfBytes, filename: fileName);
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Share failed: $e')),
         );
