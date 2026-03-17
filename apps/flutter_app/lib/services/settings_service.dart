@@ -45,16 +45,16 @@ enum HintLimit {
 /// Level of visual assistance provided during gameplay.
 enum AssistLevel {
   /// No highlighting or counts.
-  none(0, 'None', 'No assistance'),
+  none(0, 'None', 'No visual aids'),
 
   /// Highlight related cells (same row, column, box).
-  basic(1, 'Basic', 'Row / column / box'),
+  basic(1, 'Basic', 'Highlight row, column & box'),
 
   /// + Highlight cells with the same digit.
-  standard(2, 'Standard', '+ Same digit highlight'),
+  standard(2, 'Standard', '+ highlight same digit'),
 
   /// + Show remaining count on the number pad.
-  full(3, 'Full', '+ Remaining count');
+  full(3, 'Full', '+ digit count on numpad');
 
   final int level;
   final String label;
