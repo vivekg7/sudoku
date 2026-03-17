@@ -93,6 +93,7 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 
 - **Dark mode / theme customisation** — Settings page with light/dark/AMOLED/system toggle and 9 accent color presets. Centralised theme with `SudokuColors` extension for consistent semantic colours across light, dark, and AMOLED modes.
 - **Inspirational quotes** — 36 hand-picked quotes across 3 tiers with weighted distribution per difficulty. Togglable in settings. See [PLAN_QUOTES.md](PLAN_QUOTES.md).
+- **Board layout selection** — Two board layouts selectable in settings: Circular (default, circular cells with tick-mark grid lines and no outer border) and Classic (traditional rectangular grid with full borders). Layout picker uses a bottom sheet with visual preview cards.
 
 ---
 

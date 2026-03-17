@@ -32,6 +32,8 @@ class SettingsScreen extends StatelessWidget {
             _themeTile(context),
             const Divider(),
             _colorTile(context),
+            const Divider(),
+            _layoutTile(context),
             const SizedBox(height: 16),
             _sectionHeader(context, 'Gameplay'),
             _hintLimitTile(context),
@@ -228,6 +230,109 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  Widget _layoutTile(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.grid_view_rounded),
+      title: const Text('Board layout'),
+      subtitle: Text(settings.boardLayout.label),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => _showLayoutPicker(context),
+    );
+  }
+
+  void _showLayoutPicker(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Board layout',
+              style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                for (final layout in BoardLayout.values)
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        right: layout != BoardLayout.values.last ? 12 : 0,
+                      ),
+                      child: _layoutCard(ctx, layout, colorScheme),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _layoutCard(
+    BuildContext context,
+    BoardLayout layout,
+    ColorScheme colorScheme,
+  ) {
+    final isSelected = settings.boardLayout == layout;
+
+    return GestureDetector(
+      onTap: () {
+        settings.setBoardLayout(layout);
+        Navigator.pop(context);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? colorScheme.primary : colorScheme.outlineVariant,
+            width: isSelected ? 2.5 : 1,
+          ),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            SizedBox(
+              width: 80,
+              height: 80,
+              child: CustomPaint(
+                painter: _LayoutPreviewPainter(
+                  layout: layout,
+                  color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              layout.label,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              layout.description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showAbout(BuildContext context) {
     showDialog(
       context: context,
@@ -325,4 +430,85 @@ class SettingsScreen extends StatelessWidget {
       }
     }
   }
+}
+
+class _LayoutPreviewPainter extends CustomPainter {
+  final BoardLayout layout;
+  final Color color;
+
+  _LayoutPreviewPainter({required this.layout, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cellSize = size.width / 3;
+
+    if (layout == BoardLayout.classic) {
+      _paintClassic(canvas, size, cellSize);
+    } else {
+      _paintCircular(canvas, size, cellSize);
+    }
+  }
+
+  void _paintClassic(Canvas canvas, Size size, double cellSize) {
+    // Outer border.
+    final thickPaint = Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+    canvas.drawRect(Offset.zero & size, thickPaint);
+
+    // Inner grid lines.
+    final thinPaint = Paint()
+      ..color = color.withValues(alpha: 0.4)
+      ..strokeWidth = 0.5;
+
+    for (var i = 1; i < 3; i++) {
+      final pos = i * cellSize;
+      canvas.drawLine(Offset(pos, 0), Offset(pos, size.height), thinPaint);
+      canvas.drawLine(Offset(0, pos), Offset(size.width, pos), thinPaint);
+    }
+  }
+
+  void _paintCircular(Canvas canvas, Size size, double cellSize) {
+    final circlePaint = Paint()
+      ..color = color.withValues(alpha: 0.3)
+      ..style = PaintingStyle.fill;
+    final radius = cellSize * 0.35;
+
+    // Draw 3x3 circles.
+    for (var r = 0; r < 3; r++) {
+      for (var c = 0; c < 3; c++) {
+        final center = Offset((c + 0.5) * cellSize, (r + 0.5) * cellSize);
+        canvas.drawCircle(center, radius, circlePaint);
+      }
+    }
+
+    // Tick marks between circles.
+    final tickPaint = Paint()
+      ..color = color.withValues(alpha: 0.4)
+      ..strokeWidth = 0.5;
+    final tickLen = cellSize * 0.12;
+
+    // Horizontal ticks at row boundaries.
+    for (var r = 1; r < 3; r++) {
+      final y = r * cellSize;
+      for (var c = 0; c < 3; c++) {
+        final midX = (c + 0.5) * cellSize;
+        canvas.drawLine(Offset(midX - tickLen, y), Offset(midX + tickLen, y), tickPaint);
+      }
+    }
+
+    // Vertical ticks at column boundaries.
+    for (var c = 1; c < 3; c++) {
+      final x = c * cellSize;
+      for (var r = 0; r < 3; r++) {
+        final midY = (r + 0.5) * cellSize;
+        canvas.drawLine(Offset(x, midY - tickLen), Offset(x, midY + tickLen), tickPaint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_LayoutPreviewPainter oldDelegate) =>
+      layout != oldDelegate.layout || color != oldDelegate.color;
 }

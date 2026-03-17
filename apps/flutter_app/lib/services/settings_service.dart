@@ -42,6 +42,16 @@ enum HintLimit {
   const HintLimit(this.maxLayer, this.label, this.description);
 }
 
+/// Board layout style.
+enum BoardLayout {
+  circular('Circular', 'Circular cells with tick-mark grid lines'),
+  classic('Classic', 'Traditional rectangular grid with borders');
+
+  final String label;
+  final String description;
+  const BoardLayout(this.label, this.description);
+}
+
 /// App theme mode — extends Flutter's ThemeMode with AMOLED support.
 enum AppThemeMode {
   system,
@@ -71,6 +81,7 @@ class SettingsService extends ChangeNotifier {
   bool _showTimer = true;
   bool _notesEnabled = true;
   bool _highlightSameDigits = true;
+  BoardLayout _boardLayout = BoardLayout.circular;
 
   AppThemeMode get appThemeMode => _appThemeMode;
   AppColor get appColor => _appColor;
@@ -79,6 +90,7 @@ class SettingsService extends ChangeNotifier {
   bool get showTimer => _showTimer;
   bool get notesEnabled => _notesEnabled;
   bool get highlightSameDigits => _highlightSameDigits;
+  BoardLayout get boardLayout => _boardLayout;
 
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -135,6 +147,13 @@ class SettingsService extends ChangeNotifier {
     _save();
   }
 
+  void setBoardLayout(BoardLayout layout) {
+    if (_boardLayout == layout) return;
+    _boardLayout = layout;
+    notifyListeners();
+    _save();
+  }
+
   Future<void> _load() async {
     final file = File(_filePath);
     if (!file.existsSync()) return;
@@ -156,6 +175,10 @@ class SettingsService extends ChangeNotifier {
         (h) => h.name == json['hintLimit'],
         orElse: () => HintLimit.all,
       );
+      _boardLayout = BoardLayout.values.firstWhere(
+        (l) => l.name == json['boardLayout'],
+        orElse: () => BoardLayout.circular,
+      );
     } catch (_) {
       // Ignore corrupt settings — defaults are fine.
     }
@@ -170,6 +193,7 @@ class SettingsService extends ChangeNotifier {
       'notesEnabled': _notesEnabled,
       'highlightSameDigits': _highlightSameDigits,
       'hintLimit': _hintLimit.name,
+      'boardLayout': _boardLayout.name,
     };
     await File(_filePath).writeAsString(jsonEncode(json));
   }

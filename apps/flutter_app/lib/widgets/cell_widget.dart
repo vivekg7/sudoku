@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
+import '../services/settings_service.dart';
 import '../state/game_state.dart';
 import '../theme/app_theme.dart';
 
@@ -8,12 +9,14 @@ class CellWidget extends StatelessWidget {
   final int row;
   final int col;
   final GameState gameState;
+  final BoardLayout boardLayout;
 
   const CellWidget({
     super.key,
     required this.row,
     required this.col,
     required this.gameState,
+    required this.boardLayout,
   });
 
   @override
@@ -27,7 +30,6 @@ class CellWidget extends StatelessWidget {
     final isHintInvolved = gameState.hintInvolvedCells.contains((row, col));
 
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final sudokuColors = Theme.of(context).extension<SudokuColors>()!;
 
     final bgColor = _backgroundColor(
@@ -40,20 +42,32 @@ class CellWidget extends StatelessWidget {
       isHintPlacement: isHintPlacement,
       isHintInvolved: isHintInvolved,
     );
-    final border = _cellBorder(colorScheme, isDark);
+
+    final content = cell.isFilled
+        ? _buildValue(cell, isConflict, colorScheme)
+        : _buildCandidates(cell.candidates, colorScheme);
 
     return GestureDetector(
       onTap: () => gameState.selectCell(row, col),
       onLongPress: () => _eraseCell(),
-      child: Container(
-        decoration: BoxDecoration(
-          color: bgColor,
-          border: border,
-        ),
-        child: cell.isFilled
-            ? _buildValue(cell, isConflict, colorScheme)
-            : _buildCandidates(cell.candidates, colorScheme),
-      ),
+      child: boardLayout == BoardLayout.circular
+          ? Padding(
+              padding: const EdgeInsets.all(2),
+              child: Container(
+                decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+                child: content,
+              ),
+            )
+          : Container(
+              decoration: BoxDecoration(
+                color: bgColor,
+                border: _cellBorder(
+                  colorScheme,
+                  colorScheme.brightness == Brightness.dark,
+                ),
+              ),
+              child: content,
+            ),
     );
   }
 

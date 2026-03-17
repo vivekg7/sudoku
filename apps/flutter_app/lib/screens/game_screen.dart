@@ -219,7 +219,10 @@ class _GameScreenState extends State<GameScreen> {
                     constraints: const BoxConstraints(maxWidth: 500),
                     child: Padding(
                       padding: const EdgeInsets.all(8),
-                      child: BoardWidget(gameState: _gameState),
+                      child: BoardWidget(
+                        gameState: _gameState,
+                        boardLayout: widget.settings.boardLayout,
+                      ),
                     ),
                   ),
                 ),
@@ -230,7 +233,10 @@ class _GameScreenState extends State<GameScreen> {
             HintPanel(gameState: _gameState),
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: NumberPad(gameState: _gameState),
+              child: NumberPad(
+                gameState: _gameState,
+                boardLayout: widget.settings.boardLayout,
+              ),
             ),
           ],
         ),

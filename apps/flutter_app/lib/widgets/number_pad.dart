@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../services/settings_service.dart';
 import '../state/game_state.dart';
 
 class NumberPad extends StatelessWidget {
   final GameState gameState;
+  final BoardLayout boardLayout;
 
-  const NumberPad({super.key, required this.gameState});
+  const NumberPad({
+    super.key,
+    required this.gameState,
+    required this.boardLayout,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,13 +19,18 @@ class NumberPad extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         // Number buttons.
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            children: [
-              for (var i = 1; i <= 9; i++)
-                Expanded(child: _numberButton(context, i)),
-            ],
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  for (var i = 1; i <= 9; i++)
+                    Expanded(child: _numberButton(context, i)),
+                ],
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -73,39 +84,67 @@ class NumberPad extends StatelessWidget {
     final isCompleted = remaining == 0;
     final isActive = gameState.activeNumber == value;
     final colorScheme = Theme.of(context).colorScheme;
+    final isCircular = boardLayout == BoardLayout.circular;
+
+    final color = isCompleted
+        ? colorScheme.surfaceContainerHighest
+        : isActive
+            ? colorScheme.primaryContainer
+            : colorScheme.surfaceContainerLow;
+
+    final textColor = isCompleted
+        ? colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
+        : isActive
+            ? colorScheme.primary
+            : colorScheme.onSurface;
 
     return Padding(
       padding: const EdgeInsets.all(2),
-      child: Material(
-        color: isCompleted
-            ? colorScheme.surfaceContainerHighest
-            : isActive
-                ? colorScheme.primaryContainer
-                : colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(8),
-        child: InkWell(
-          canRequestFocus: false,
-          borderRadius: BorderRadius.circular(8),
-          onTap: isCompleted ? null : () => gameState.enterValue(value),
-          child: SizedBox(
-            height: 48,
-            child: Center(
-              child: Text(
-                '$value',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: isCompleted
-                      ? colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
-                      : isActive
-                          ? colorScheme.primary
-                          : colorScheme.onSurface,
+      child: isCircular
+          ? AspectRatio(
+              aspectRatio: 1.0,
+              child: Material(
+                color: color,
+                shape: const CircleBorder(),
+                child: InkWell(
+                  canRequestFocus: false,
+                  customBorder: const CircleBorder(),
+                  onTap: isCompleted ? null : () => gameState.enterValue(value),
+                  child: Center(
+                    child: Text(
+                      '$value',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          : Material(
+              color: color,
+              borderRadius: BorderRadius.circular(8),
+              child: InkWell(
+                canRequestFocus: false,
+                borderRadius: BorderRadius.circular(8),
+                onTap: isCompleted ? null : () => gameState.enterValue(value),
+                child: SizedBox(
+                  height: 48,
+                  child: Center(
+                    child: Text(
+                      '$value',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 
