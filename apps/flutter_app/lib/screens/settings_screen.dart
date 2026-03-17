@@ -37,6 +37,7 @@ class SettingsScreen extends StatelessWidget {
             _hintLimitTile(context),
             const Divider(),
             SwitchListTile(
+              secondary: const Icon(Icons.highlight_outlined),
               title: const Text('Highlight same digits'),
               subtitle: const Text('Highlight matching numbers on the board'),
               value: settings.highlightSameDigits,
@@ -44,6 +45,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             const Divider(),
             SwitchListTile(
+              secondary: const Icon(Icons.edit_outlined),
               title: const Text('Pencil notes'),
               subtitle: const Text('Allow marking candidates in cells'),
               value: settings.notesEnabled,
@@ -51,6 +53,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             const Divider(),
             SwitchListTile(
+              secondary: const Icon(Icons.timer_outlined),
               title: const Text('Show timer'),
               subtitle: const Text('Display elapsed time during play'),
               value: settings.showTimer,
@@ -58,6 +61,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             const Divider(),
             SwitchListTile(
+              secondary: const Icon(Icons.format_quote_outlined),
               title: const Text('Show quotes'),
               subtitle: const Text('Display a quote on each puzzle'),
               value: settings.quotesEnabled,

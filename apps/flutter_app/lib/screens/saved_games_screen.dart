@@ -84,7 +84,7 @@ class SavedGamesScreen extends StatelessWidget {
     final sudokuColors = Theme.of(context).extension<SudokuColors>()!;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         title: Text(

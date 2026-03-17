@@ -127,6 +127,7 @@ class NumberPad extends StatelessWidget {
           disabledColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
           focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
         ),
+        const SizedBox(height: 2),
         Text(
           label,
           style: TextStyle(
@@ -147,7 +148,7 @@ class NumberPad extends StatelessWidget {
       children: [
         IconButton.outlined(
           icon: Icon(
-            Icons.edit,
+            Icons.edit_outlined,
             color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
           ),
           onPressed: gameState.togglePencilMode,
@@ -156,6 +157,7 @@ class NumberPad extends StatelessWidget {
               ? IconButton.styleFrom(backgroundColor: colorScheme.primaryContainer)
               : null,
         ),
+        const SizedBox(height: 2),
         Text(
           'Notes',
           style: TextStyle(

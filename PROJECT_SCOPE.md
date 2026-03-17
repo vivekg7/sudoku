@@ -78,7 +78,6 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 
 - Accessibility improvements (screen reader support, high contrast).
 - Animation and transition polish.
-- Theme and UI component polish — refine colours, spacing, and visual consistency across light/dark modes.
 - Import a puzzle by clicking a photo or importing an image — OCR extracts the grid for interactive play.
 - Puzzle sharing via links or text export.
 - Practice mode for specific strategies (e.g., "give me puzzles that require X-Wing").
@@ -92,7 +91,7 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 
 ## Implemented Extra Features
 
-- **Dark mode / theme customisation** — Settings page with light/dark/AMOLED/system toggle and 9 accent color presets.
+- **Dark mode / theme customisation** — Settings page with light/dark/AMOLED/system toggle and 9 accent color presets. Centralised theme with `SudokuColors` extension for consistent semantic colours across light, dark, and AMOLED modes.
 - **Inspirational quotes** — 36 hand-picked quotes across 3 tiers with weighted distribution per difficulty. Togglable in settings. See [PLAN_QUOTES.md](PLAN_QUOTES.md).
 
 ---
