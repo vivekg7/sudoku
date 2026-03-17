@@ -92,7 +92,7 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 
 ## Implemented Extra Features
 
-- **Dark mode / theme customisation** — Settings page with light/dark/system toggle and 6 accent color presets.
+- **Dark mode / theme customisation** — Settings page with light/dark/AMOLED/system toggle and 9 accent color presets.
 - **Inspirational quotes** — 36 hand-picked quotes across 3 tiers with weighted distribution per difficulty. Togglable in settings. See [PLAN_QUOTES.md](PLAN_QUOTES.md).
 
 ---

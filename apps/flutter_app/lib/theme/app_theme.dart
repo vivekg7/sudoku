@@ -148,19 +148,38 @@ class SudokuColors extends ThemeExtension<SudokuColors> {
 }
 
 /// Builds the app [ThemeData] for the given [seedColor] and [brightness].
-ThemeData buildAppTheme(Color seedColor, Brightness brightness) {
+///
+/// Set [amoled] to true for a pure-black dark theme optimised for OLED screens.
+ThemeData buildAppTheme(
+  Color seedColor,
+  Brightness brightness, {
+  bool amoled = false,
+}) {
   final isDark = brightness == Brightness.dark;
-  final colorScheme = ColorScheme.fromSeed(
+  var colorScheme = ColorScheme.fromSeed(
     seedColor: seedColor,
     brightness: brightness,
   );
 
+  if (amoled && isDark) {
+    colorScheme = colorScheme.copyWith(
+      surface: const Color(0xFF000000),
+      surfaceDim: const Color(0xFF000000),
+      surfaceContainerLowest: const Color(0xFF000000),
+      surfaceContainerLow: const Color(0xFF0C0C0C),
+      surfaceContainer: const Color(0xFF141414),
+      surfaceContainerHigh: const Color(0xFF1C1C1C),
+      surfaceContainerHighest: const Color(0xFF252525),
+    );
+  }
+
   return ThemeData(
     colorScheme: colorScheme,
     useMaterial3: true,
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       centerTitle: true,
-      scrolledUnderElevation: 0.5,
+      scrolledUnderElevation: amoled ? 0 : 0.5,
+      backgroundColor: amoled ? const Color(0xFF000000) : null,
     ),
     cardTheme: CardThemeData(
       elevation: 0,

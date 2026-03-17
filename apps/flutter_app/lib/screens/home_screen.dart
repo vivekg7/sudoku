@@ -114,18 +114,22 @@ class HomeScreen extends StatelessWidget {
     required String label,
     required VoidCallback onPressed,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
+        IconButton.outlined(
           icon: Icon(icon),
           onPressed: onPressed,
+          color: colorScheme.onSurfaceVariant,
         ),
+        const SizedBox(height: 2),
         Text(
           label,
           style: TextStyle(
             fontSize: 11,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
       ],

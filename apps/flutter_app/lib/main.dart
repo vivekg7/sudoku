@@ -26,9 +26,13 @@ class SudokuApp extends StatelessWidget {
       builder: (context, _) => MaterialApp(
         title: 'Sudoku',
         debugShowCheckedModeBanner: false,
-        themeMode: settings.themeMode,
+        themeMode: settings.appThemeMode.flutterThemeMode,
         theme: buildAppTheme(settings.appColor.seed, Brightness.light),
-        darkTheme: buildAppTheme(settings.appColor.seed, Brightness.dark),
+        darkTheme: buildAppTheme(
+          settings.appColor.seed,
+          Brightness.dark,
+          amoled: settings.appThemeMode.isAmoled,
+        ),
         home: HomeScreen(storage: storage, settings: settings),
       ),
     );

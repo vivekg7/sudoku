@@ -7,11 +7,14 @@ import 'package:path_provider/path_provider.dart';
 /// Preset accent colors for the app theme.
 enum AppColor {
   blue(Color(0xFF1565C0), 'Blue'),
+  indigo(Color(0xFF3949AB), 'Indigo'),
   teal(Color(0xFF00695C), 'Teal'),
   green(Color(0xFF2E7D32), 'Green'),
   purple(Color(0xFF6A1B9A), 'Purple'),
+  rose(Color(0xFFC2185B), 'Rose'),
   orange(Color(0xFFE65100), 'Orange'),
-  red(Color(0xFFC62828), 'Red');
+  red(Color(0xFFC62828), 'Red'),
+  slate(Color(0xFF546E7A), 'Slate');
 
   final Color seed;
   final String label;
@@ -39,11 +42,29 @@ enum HintLimit {
   const HintLimit(this.maxLayer, this.label, this.description);
 }
 
+/// App theme mode — extends Flutter's ThemeMode with AMOLED support.
+enum AppThemeMode {
+  system,
+  light,
+  dark,
+  amoled;
+
+  /// Maps to Flutter's [ThemeMode] for [MaterialApp].
+  ThemeMode get flutterThemeMode => switch (this) {
+        AppThemeMode.system => ThemeMode.system,
+        AppThemeMode.light => ThemeMode.light,
+        AppThemeMode.dark => ThemeMode.dark,
+        AppThemeMode.amoled => ThemeMode.dark,
+      };
+
+  bool get isAmoled => this == AppThemeMode.amoled;
+}
+
 /// Persists user preferences to a local JSON file.
 class SettingsService extends ChangeNotifier {
   late final String _filePath;
 
-  ThemeMode _themeMode = ThemeMode.system;
+  AppThemeMode _appThemeMode = AppThemeMode.system;
   AppColor _appColor = AppColor.blue;
   bool _quotesEnabled = true;
   HintLimit _hintLimit = HintLimit.all;
@@ -51,7 +72,7 @@ class SettingsService extends ChangeNotifier {
   bool _notesEnabled = true;
   bool _highlightSameDigits = true;
 
-  ThemeMode get themeMode => _themeMode;
+  AppThemeMode get appThemeMode => _appThemeMode;
   AppColor get appColor => _appColor;
   bool get quotesEnabled => _quotesEnabled;
   HintLimit get hintLimit => _hintLimit;
@@ -65,9 +86,9 @@ class SettingsService extends ChangeNotifier {
     await _load();
   }
 
-  void setThemeMode(ThemeMode mode) {
-    if (_themeMode == mode) return;
-    _themeMode = mode;
+  void setThemeMode(AppThemeMode mode) {
+    if (_appThemeMode == mode) return;
+    _appThemeMode = mode;
     notifyListeners();
     _save();
   }
@@ -119,9 +140,9 @@ class SettingsService extends ChangeNotifier {
     if (!file.existsSync()) return;
     try {
       final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-      _themeMode = ThemeMode.values.firstWhere(
+      _appThemeMode = AppThemeMode.values.firstWhere(
         (m) => m.name == json['themeMode'],
-        orElse: () => ThemeMode.system,
+        orElse: () => AppThemeMode.system,
       );
       _appColor = AppColor.values.firstWhere(
         (c) => c.name == json['appColor'],
@@ -142,7 +163,7 @@ class SettingsService extends ChangeNotifier {
 
   Future<void> _save() async {
     final json = {
-      'themeMode': _themeMode.name,
+      'themeMode': _appThemeMode.name,
       'appColor': _appColor.name,
       'quotesEnabled': _quotesEnabled,
       'showTimer': _showTimer,

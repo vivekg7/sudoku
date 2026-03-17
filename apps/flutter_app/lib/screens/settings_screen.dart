@@ -111,22 +111,26 @@ class SettingsScreen extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.brightness_6),
       title: const Text('Theme'),
-      trailing: SegmentedButton<ThemeMode>(
+      trailing: SegmentedButton<AppThemeMode>(
         segments: const [
           ButtonSegment(
-            value: ThemeMode.system,
+            value: AppThemeMode.system,
             icon: Icon(Icons.settings_brightness, size: 18),
           ),
           ButtonSegment(
-            value: ThemeMode.light,
+            value: AppThemeMode.light,
             icon: Icon(Icons.light_mode, size: 18),
           ),
           ButtonSegment(
-            value: ThemeMode.dark,
+            value: AppThemeMode.dark,
             icon: Icon(Icons.dark_mode, size: 18),
           ),
+          ButtonSegment(
+            value: AppThemeMode.amoled,
+            icon: Icon(Icons.brightness_1, size: 18),
+          ),
         ],
-        selected: {settings.themeMode},
+        selected: {settings.appThemeMode},
         onSelectionChanged: (s) => settings.setThemeMode(s.first),
         showSelectedIcon: false,
         style: ButtonStyle(
@@ -138,33 +142,48 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _colorTile(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.palette),
-      title: const Text('Accent color'),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (final color in AppColor.values)
-            Padding(
-              padding: const EdgeInsets.only(left: 4),
-              child: GestureDetector(
-                onTap: () => settings.setAppColor(color),
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: color.seed,
-                    shape: BoxShape.circle,
-                    border: settings.appColor == color
-                        ? Border.all(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            width: 2.5,
-                          )
-                        : null,
-                  ),
+          Icon(Icons.palette, color: colorScheme.onSurfaceVariant),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Accent color'),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    for (final color in AppColor.values)
+                      GestureDetector(
+                        onTap: () => settings.setAppColor(color),
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: color.seed,
+                            shape: BoxShape.circle,
+                            border: settings.appColor == color
+                                ? Border.all(
+                                    color: colorScheme.onSurface,
+                                    width: 2.5,
+                                  )
+                                : null,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-              ),
+              ],
             ),
+          ),
         ],
       ),
     );
