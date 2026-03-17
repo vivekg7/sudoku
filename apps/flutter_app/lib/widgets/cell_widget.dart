@@ -78,11 +78,14 @@ class CellWidget extends StatelessWidget {
     if (isConflict && isSelected) return sudokuColors.conflictSelected;
     if (isSelected) return colorScheme.primaryContainer;
     if (isConflict) return sudokuColors.conflict;
+    final isAmoled = isDark && colorScheme.surface == const Color(0xFF000000);
+    final highlightAlpha = isAmoled ? 0.5 : isDark ? 0.3 : 0.4;
+
     if (sameValue) {
-      return colorScheme.primaryContainer.withValues(alpha: isDark ? 0.3 : 0.5);
+      return colorScheme.primaryContainer.withValues(alpha: highlightAlpha);
     }
     if (isRelated) {
-      return colorScheme.surfaceContainerHighest.withValues(alpha: isDark ? 0.3 : 0.5);
+      return colorScheme.surfaceContainerHighest.withValues(alpha: highlightAlpha);
     }
     return colorScheme.surface;
   }
