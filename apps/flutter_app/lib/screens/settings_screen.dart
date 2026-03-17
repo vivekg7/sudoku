@@ -22,10 +22,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListenableBuilder(
         listenable: settings,
         builder: (context, _) => ListView(
@@ -33,33 +30,33 @@ class SettingsScreen extends StatelessWidget {
           children: [
             _sectionHeader(context, 'Appearance'),
             _themeTile(context),
-            const Divider(height: 1, indent: 16, endIndent: 16),
+            const Divider(),
             _colorTile(context),
             const SizedBox(height: 16),
             _sectionHeader(context, 'Gameplay'),
             _hintLimitTile(context),
-            const Divider(height: 1, indent: 16, endIndent: 16),
+            const Divider(),
             SwitchListTile(
               title: const Text('Highlight same digits'),
               subtitle: const Text('Highlight matching numbers on the board'),
               value: settings.highlightSameDigits,
               onChanged: settings.setHighlightSameDigits,
             ),
-            const Divider(height: 1, indent: 16, endIndent: 16),
+            const Divider(),
             SwitchListTile(
               title: const Text('Pencil notes'),
               subtitle: const Text('Allow marking candidates in cells'),
               value: settings.notesEnabled,
               onChanged: settings.setNotesEnabled,
             ),
-            const Divider(height: 1, indent: 16, endIndent: 16),
+            const Divider(),
             SwitchListTile(
               title: const Text('Show timer'),
               subtitle: const Text('Display elapsed time during play'),
               value: settings.showTimer,
               onChanged: settings.setShowTimer,
             ),
-            const Divider(height: 1, indent: 16, endIndent: 16),
+            const Divider(),
             SwitchListTile(
               title: const Text('Show quotes'),
               subtitle: const Text('Display a quote on each puzzle'),
@@ -74,7 +71,7 @@ class SettingsScreen extends StatelessWidget {
               subtitle: const Text('Save stats and puzzles as JSON'),
               onTap: () => _exportData(context),
             ),
-            const Divider(height: 1, indent: 16, endIndent: 16),
+            const Divider(),
             ListTile(
               leading: const Icon(Icons.download),
               title: const Text('Import data'),

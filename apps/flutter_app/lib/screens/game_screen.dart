@@ -106,7 +106,6 @@ class _GameScreenState extends State<GameScreen> {
                     ? 'Sudoku — ${_gameState.puzzle!.difficulty.label}'
                     : 'Sudoku',
               ),
-              centerTitle: true,
               actions: [
                 if (_gameState.puzzle != null) ...[
                   if (widget.settings.showTimer) ...[

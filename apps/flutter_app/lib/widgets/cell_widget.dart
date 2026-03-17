@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
 import '../state/game_state.dart';
+import '../theme/app_theme.dart';
 
 class CellWidget extends StatelessWidget {
   final int row;
@@ -27,10 +28,11 @@ class CellWidget extends StatelessWidget {
 
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sudokuColors = Theme.of(context).extension<SudokuColors>()!;
 
     final bgColor = _backgroundColor(
       colorScheme: colorScheme,
-      isDark: isDark,
+      sudokuColors: sudokuColors,
       isSelected: isSelected,
       isRelated: isRelated,
       sameValue: sameValue,
@@ -61,7 +63,7 @@ class CellWidget extends StatelessWidget {
 
   Color _backgroundColor({
     required ColorScheme colorScheme,
-    required bool isDark,
+    required SudokuColors sudokuColors,
     required bool isSelected,
     required bool isRelated,
     required bool sameValue,
@@ -69,21 +71,13 @@ class CellWidget extends StatelessWidget {
     required bool isHintPlacement,
     required bool isHintInvolved,
   }) {
-    if (isHintPlacement) {
-      return isDark ? const Color(0xFF1B5E20).withValues(alpha: 0.4) : const Color(0xFFC8E6C9);
-    }
-    if (isHintInvolved) {
-      return isDark ? const Color(0xFFE65100).withValues(alpha: 0.3) : const Color(0xFFFFE0B2);
-    }
-    if (isConflict && isSelected) {
-      return isDark ? const Color(0xFFB71C1C).withValues(alpha: 0.4) : const Color(0xFFFFCDD2);
-    }
-    if (isSelected) {
-      return colorScheme.primaryContainer;
-    }
-    if (isConflict) {
-      return isDark ? const Color(0xFFB71C1C).withValues(alpha: 0.2) : const Color(0xFFFFEBEE);
-    }
+    final isDark = colorScheme.brightness == Brightness.dark;
+
+    if (isHintPlacement) return sudokuColors.hintPlacement;
+    if (isHintInvolved) return sudokuColors.hintInvolved;
+    if (isConflict && isSelected) return sudokuColors.conflictSelected;
+    if (isSelected) return colorScheme.primaryContainer;
+    if (isConflict) return sudokuColors.conflict;
     if (sameValue) {
       return colorScheme.primaryContainer.withValues(alpha: isDark ? 0.3 : 0.5);
     }

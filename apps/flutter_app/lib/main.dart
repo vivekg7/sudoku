@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'services/settings_service.dart';
 import 'services/storage_service.dart';
+import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,17 +27,8 @@ class SudokuApp extends StatelessWidget {
         title: 'Sudoku',
         debugShowCheckedModeBanner: false,
         themeMode: settings.themeMode,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: settings.appColor.seed),
-          useMaterial3: true,
-        ),
-        darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: settings.appColor.seed,
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-        ),
+        theme: buildAppTheme(settings.appColor.seed, Brightness.light),
+        darkTheme: buildAppTheme(settings.appColor.seed, Brightness.dark),
         home: HomeScreen(storage: storage, settings: settings),
       ),
     );

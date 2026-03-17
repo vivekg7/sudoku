@@ -3,6 +3,7 @@ import 'package:sudoku_core/sudoku_core.dart';
 
 import '../services/settings_service.dart';
 import '../services/storage_service.dart';
+import '../theme/app_theme.dart';
 import 'game_screen.dart';
 
 class SavedGamesScreen extends StatelessWidget {
@@ -27,7 +28,7 @@ class SavedGamesScreen extends StatelessWidget {
         final isEmpty = inProgress.isEmpty && bookmarked.isEmpty;
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Saved Games'), centerTitle: true),
+          appBar: AppBar(title: const Text('Saved Games')),
           body: isEmpty
               ? Center(
                   child: Text(
@@ -65,9 +66,9 @@ class SavedGamesScreen extends StatelessWidget {
       child: Text(
         title,
         style: TextStyle(
-          fontSize: 14,
+          fontSize: 13,
           fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          color: Theme.of(context).colorScheme.primary,
           letterSpacing: 0.5,
         ),
       ),
@@ -80,13 +81,9 @@ class SavedGamesScreen extends StatelessWidget {
     final total = puzzle.totalToFill;
     final progress = total > 0 ? filled / total : 0.0;
     final colorScheme = Theme.of(context).colorScheme;
+    final sudokuColors = Theme.of(context).extension<SudokuColors>()!;
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: colorScheme.outlineVariant),
-      ),
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -115,7 +112,7 @@ class SavedGamesScreen extends StatelessWidget {
               icon: Icon(
                 entry.bookmarked ? Icons.bookmark : Icons.bookmark_border,
                 color: entry.bookmarked
-                    ? const Color(0xFFF9A825)
+                    ? sudokuColors.bookmark
                     : colorScheme.onSurfaceVariant,
               ),
               onPressed: () => storage.toggleBookmark(entry.id),

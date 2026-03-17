@@ -31,7 +31,6 @@ class _PdfExportScreenState extends State<PdfExportScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Export PDF'),
-        centerTitle: true,
         actions: [
           if (_pdfBytes != null) ...[
             IconButton(

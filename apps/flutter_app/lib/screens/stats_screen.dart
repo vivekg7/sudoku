@@ -17,7 +17,7 @@ class StatsScreen extends StatelessWidget {
         final colorScheme = Theme.of(context).colorScheme;
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Statistics'), centerTitle: true),
+          appBar: AppBar(title: const Text('Statistics')),
           body: stats.totalGames == 0
               ? Center(
                   child: Text(
@@ -163,11 +163,6 @@ class StatsScreen extends StatelessWidget {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: colorScheme.outlineVariant),
-      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

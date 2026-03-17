@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
 import '../state/game_state.dart';
+import '../theme/app_theme.dart';
 
 class HintPanel extends StatelessWidget {
   final GameState gameState;
@@ -15,19 +16,19 @@ class HintPanel extends StatelessWidget {
 
     final level = gameState.currentHintLevel!;
     final layer = gameState.hintLayer;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sc = Theme.of(context).extension<SudokuColors>()!;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: _bgColor(level, isDark),
+        color: _bgColor(level, sc),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: _borderColor(level, isDark), width: 0.5),
+        border: Border.all(color: _borderColor(level, sc), width: 0.5),
       ),
       child: Row(
         children: [
-          Icon(_icon(level), size: 18, color: _iconColor(level, isDark)),
+          Icon(_icon(level), size: 18, color: _accentColor(level, sc)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -39,7 +40,7 @@ class HintPanel extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: _iconColor(level, isDark),
+                    color: _accentColor(level, sc),
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -86,21 +87,21 @@ class HintPanel extends StatelessWidget {
         HintLevel.answer => Icons.check_circle_outline,
       };
 
-  Color _bgColor(HintLevel level, bool isDark) => switch (level) {
-        HintLevel.nudge => isDark ? const Color(0xFF3E2723) : const Color(0xFFFFF8E1),
-        HintLevel.strategy => isDark ? const Color(0xFF0D47A1).withValues(alpha: 0.3) : const Color(0xFFE3F2FD),
-        HintLevel.answer => isDark ? const Color(0xFF1B5E20).withValues(alpha: 0.3) : const Color(0xFFE8F5E9),
+  Color _bgColor(HintLevel level, SudokuColors sc) => switch (level) {
+        HintLevel.nudge => sc.nudgeBg,
+        HintLevel.strategy => sc.strategyBg,
+        HintLevel.answer => sc.answerBg,
       };
 
-  Color _borderColor(HintLevel level, bool isDark) => switch (level) {
-        HintLevel.nudge => isDark ? const Color(0xFF8D6E63) : const Color(0xFFFFE082),
-        HintLevel.strategy => isDark ? const Color(0xFF42A5F5) : const Color(0xFF90CAF9),
-        HintLevel.answer => isDark ? const Color(0xFF66BB6A) : const Color(0xFFA5D6A7),
+  Color _borderColor(HintLevel level, SudokuColors sc) => switch (level) {
+        HintLevel.nudge => sc.nudgeBorder,
+        HintLevel.strategy => sc.strategyBorder,
+        HintLevel.answer => sc.answerBorder,
       };
 
-  Color _iconColor(HintLevel level, bool isDark) => switch (level) {
-        HintLevel.nudge => isDark ? const Color(0xFFFFB74D) : const Color(0xFFF9A825),
-        HintLevel.strategy => isDark ? const Color(0xFF64B5F6) : const Color(0xFF1565C0),
-        HintLevel.answer => isDark ? const Color(0xFF81C784) : const Color(0xFF2E7D32),
+  Color _accentColor(HintLevel level, SudokuColors sc) => switch (level) {
+        HintLevel.nudge => sc.nudgeAccent,
+        HintLevel.strategy => sc.strategyAccent,
+        HintLevel.answer => sc.answerAccent,
       };
 }

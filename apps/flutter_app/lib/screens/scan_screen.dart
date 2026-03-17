@@ -36,7 +36,6 @@ class _ScanScreenState extends State<ScanScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scan Puzzle'),
-        centerTitle: true,
         actions: [
           TextButton.icon(
             icon: Icon(_showCamera ? Icons.keyboard : Icons.camera_alt),
