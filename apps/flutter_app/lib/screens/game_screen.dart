@@ -9,6 +9,7 @@ import '../widgets/board_widget.dart';
 import '../widgets/hint_panel.dart';
 import '../widgets/number_pad.dart';
 import '../widgets/quote_banner.dart';
+import '../widgets/solved_dialog.dart';
 
 class GameScreen extends StatefulWidget {
   final Difficulty difficulty;
@@ -392,34 +393,17 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _showSolvedDialog() {
-    showDialog(
+    showSolvedDialog(
       context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Puzzle Solved!'),
-        content: Text(
-          'Difficulty: ${_gameState.puzzle!.difficulty.label}\n'
-          'Time: ${_gameState.formattedTime}\n'
-          'Hints used: ${_gameState.totalHints}',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.of(context).pop();
-            },
-            child: const Text('Home'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              _puzzleEntryId = null;
-              _gameState.newGame(widget.difficulty);
-            },
-            child: const Text('New Game'),
-          ),
-        ],
-      ),
+      difficulty: _gameState.puzzle!.difficulty.label,
+      time: _gameState.formattedTime,
+      hints: _gameState.totalHints,
+      animationsEnabled: widget.settings.animationsEnabled,
+      onHome: () => Navigator.of(context).pop(),
+      onNewGame: () {
+        _puzzleEntryId = null;
+        _gameState.newGame(widget.difficulty);
+      },
     );
   }
 }
