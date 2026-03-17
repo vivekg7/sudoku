@@ -10,6 +10,7 @@ class CellWidget extends StatelessWidget {
   final int col;
   final GameState gameState;
   final BoardLayout boardLayout;
+  final bool animationsEnabled;
 
   const CellWidget({
     super.key,
@@ -17,6 +18,7 @@ class CellWidget extends StatelessWidget {
     required this.col,
     required this.gameState,
     required this.boardLayout,
+    this.animationsEnabled = false,
   });
 
   @override
@@ -47,27 +49,49 @@ class CellWidget extends StatelessWidget {
         ? _buildValue(cell, isConflict, colorScheme)
         : _buildCandidates(cell.candidates, colorScheme);
 
+    final bgDuration = animationsEnabled
+        ? const Duration(milliseconds: 200)
+        : Duration.zero;
+
+    Widget cellWidget = boardLayout == BoardLayout.circular
+        ? Padding(
+            padding: const EdgeInsets.all(2),
+            child: AnimatedContainer(
+              duration: bgDuration,
+              curve: Curves.easeOutCubic,
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+              child: content,
+            ),
+          )
+        : AnimatedContainer(
+            duration: bgDuration,
+            curve: Curves.easeOutCubic,
+            decoration: BoxDecoration(
+              color: bgColor,
+              border: _cellBorder(
+                colorScheme,
+                colorScheme.brightness == Brightness.dark,
+              ),
+            ),
+            child: content,
+          );
+
+    // Conflict flash: brief scale pulse when cell enters conflict.
+    if (animationsEnabled && isConflict && !cell.isGiven) {
+      cellWidget = TweenAnimationBuilder<double>(
+        tween: Tween(begin: 1.08, end: 1.0),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        builder: (context, s, child) =>
+            Transform.scale(scale: s, child: child),
+        child: cellWidget,
+      );
+    }
+
     return GestureDetector(
       onTap: () => gameState.selectCell(row, col),
       onLongPress: () => _eraseCell(),
-      child: boardLayout == BoardLayout.circular
-          ? Padding(
-              padding: const EdgeInsets.all(2),
-              child: Container(
-                decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-                child: content,
-              ),
-            )
-          : Container(
-              decoration: BoxDecoration(
-                color: bgColor,
-                border: _cellBorder(
-                  colorScheme,
-                  colorScheme.brightness == Brightness.dark,
-                ),
-              ),
-              child: content,
-            ),
+      child: cellWidget,
     );
   }
 
@@ -125,7 +149,7 @@ class CellWidget extends StatelessWidget {
             ? colorScheme.onSurface
             : colorScheme.primary;
 
-    return Center(
+    final textWidget = Center(
       child: FittedBox(
         fit: BoxFit.scaleDown,
         child: Text(
@@ -137,6 +161,20 @@ class CellWidget extends StatelessWidget {
           ),
         ),
       ),
+    );
+
+    if (!animationsEnabled || cell.isGiven) return textWidget;
+
+    return TweenAnimationBuilder<double>(
+      key: ValueKey('${row}_${col}_${cell.value}'),
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOutCubic,
+      builder: (context, t, child) => Transform.scale(
+        scale: 0.5 + 0.5 * t,
+        child: Opacity(opacity: t, child: child),
+      ),
+      child: textWidget,
     );
   }
 

@@ -32,6 +32,7 @@ class _GameScreenState extends State<GameScreen> {
   late final GameState _gameState;
   final FocusNode _focusNode = FocusNode();
   String? _puzzleEntryId;
+  bool _celebrating = false;
 
   @override
   void initState() {
@@ -183,24 +184,37 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _pausedView() {
     final colorScheme = Theme.of(context).colorScheme;
+    final content = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.pause_circle_outline,
+            size: 64, color: colorScheme.onSurfaceVariant),
+        const SizedBox(height: 16),
+        Text(
+          'Paused',
+          style: TextStyle(fontSize: 24, color: colorScheme.onSurface),
+        ),
+        const SizedBox(height: 24),
+        FilledButton.icon(
+          onPressed: _gameState.togglePause,
+          icon: const Icon(Icons.play_arrow),
+          label: const Text('Resume'),
+        ),
+      ],
+    );
+
+    if (!widget.settings.animationsEnabled) return Center(child: content);
+
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.pause_circle_outline,
-              size: 64, color: colorScheme.onSurfaceVariant),
-          const SizedBox(height: 16),
-          Text(
-            'Paused',
-            style: TextStyle(fontSize: 24, color: colorScheme.onSurface),
-          ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: _gameState.togglePause,
-            icon: const Icon(Icons.play_arrow),
-            label: const Text('Resume'),
-          ),
-        ],
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        builder: (context, t, child) => Opacity(
+          opacity: t,
+          child: Transform.scale(scale: 0.9 + 0.1 * t, child: child),
+        ),
+        child: content,
       ),
     );
   }
@@ -222,10 +236,7 @@ class _GameScreenState extends State<GameScreen> {
                     constraints: const BoxConstraints(maxWidth: 500),
                     child: Padding(
                       padding: const EdgeInsets.all(8),
-                      child: BoardWidget(
-                        gameState: _gameState,
-                        boardLayout: widget.settings.boardLayout,
-                      ),
+                      child: _buildBoardArea(),
                     ),
                   ),
                 ),
@@ -233,18 +244,85 @@ class _GameScreenState extends State<GameScreen> {
             ),
             if (widget.settings.quotesEnabled)
               QuoteBanner(quoteId: _gameState.puzzle?.quoteId),
-            HintPanel(gameState: _gameState),
+            AnimatedSize(
+              duration: widget.settings.animationsEnabled
+                  ? const Duration(milliseconds: 300)
+                  : Duration.zero,
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              clipBehavior: Clip.hardEdge,
+              child: HintPanel(
+                gameState: _gameState,
+                animationsEnabled: widget.settings.animationsEnabled,
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: NumberPad(
                 gameState: _gameState,
                 boardLayout: widget.settings.boardLayout,
                 assistLevel: widget.settings.assistLevel,
+                animationsEnabled: widget.settings.animationsEnabled,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBoardArea() {
+    final animate = widget.settings.animationsEnabled;
+
+    Widget board = BoardWidget(
+      gameState: _gameState,
+      boardLayout: widget.settings.boardLayout,
+      animationsEnabled: animate,
+    );
+
+    if (!animate) return board;
+
+    // Board reveal: fade in when a new puzzle loads.
+    board = TweenAnimationBuilder<double>(
+      key: ValueKey(_gameState.puzzle!.initialBoard.toFlatString()),
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOutCubic,
+      builder: (context, t, child) => Opacity(opacity: t, child: child),
+      child: board,
+    );
+
+    // Celebration: scale pulse + accent overlay when solved.
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: _celebrating ? 1.0 : 0.0),
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeInOut,
+      builder: (context, t, child) {
+        if (t < 0.001) return child!;
+        // Parabolic curve: peaks at t=0.5, zero at t=0 and t=1.
+        final p = 4 * t * (1 - t);
+        return Transform.scale(
+          scale: 1.0 + 0.015 * p,
+          child: Stack(
+            children: [
+              child!,
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.12 * p),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      child: board,
     );
   }
 
@@ -298,7 +376,17 @@ class _GameScreenState extends State<GameScreen> {
       _gameState.markSolvedNotified();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _recordStats();
-        _showSolvedDialog();
+        if (widget.settings.animationsEnabled) {
+          setState(() => _celebrating = true);
+          Future.delayed(const Duration(milliseconds: 700), () {
+            if (mounted) {
+              setState(() => _celebrating = false);
+              _showSolvedDialog();
+            }
+          });
+        } else {
+          _showSolvedDialog();
+        }
       });
     }
   }

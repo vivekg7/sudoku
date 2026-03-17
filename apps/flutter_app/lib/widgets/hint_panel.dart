@@ -6,8 +6,13 @@ import '../theme/app_theme.dart';
 
 class HintPanel extends StatelessWidget {
   final GameState gameState;
+  final bool animationsEnabled;
 
-  const HintPanel({super.key, required this.gameState});
+  const HintPanel({
+    super.key,
+    required this.gameState,
+    this.animationsEnabled = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +23,13 @@ class HintPanel extends StatelessWidget {
     final layer = gameState.hintLayer;
     final sc = Theme.of(context).extension<SudokuColors>()!;
 
-    return Container(
+    final colorDuration = animationsEnabled
+        ? const Duration(milliseconds: 250)
+        : Duration.zero;
+
+    return AnimatedContainer(
+      duration: colorDuration,
+      curve: Curves.easeOutCubic,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(

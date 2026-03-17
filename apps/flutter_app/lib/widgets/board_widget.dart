@@ -7,11 +7,13 @@ import 'cell_widget.dart';
 class BoardWidget extends StatelessWidget {
   final GameState gameState;
   final BoardLayout boardLayout;
+  final bool animationsEnabled;
 
   const BoardWidget({
     super.key,
     required this.gameState,
     required this.boardLayout,
+    this.animationsEnabled = false,
   });
 
   @override
@@ -39,6 +41,7 @@ class BoardWidget extends StatelessWidget {
           col: col,
           gameState: gameState,
           boardLayout: boardLayout,
+          animationsEnabled: animationsEnabled,
         );
       },
     );
@@ -66,6 +69,7 @@ class BoardWidget extends StatelessWidget {
               col: col,
               gameState: gameState,
               boardLayout: boardLayout,
+              animationsEnabled: animationsEnabled,
             );
           },
         ),

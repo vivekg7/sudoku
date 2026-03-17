@@ -106,6 +106,7 @@ class SettingsService extends ChangeNotifier {
   bool _notesEnabled = true;
   AssistLevel _assistLevel = AssistLevel.full;
   BoardLayout _boardLayout = BoardLayout.circular;
+  bool _animationsEnabled = true;
 
   AppThemeMode get appThemeMode => _appThemeMode;
   AppColor get appColor => _appColor;
@@ -115,6 +116,7 @@ class SettingsService extends ChangeNotifier {
   bool get notesEnabled => _notesEnabled;
   AssistLevel get assistLevel => _assistLevel;
   BoardLayout get boardLayout => _boardLayout;
+  bool get animationsEnabled => _animationsEnabled;
 
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -178,6 +180,13 @@ class SettingsService extends ChangeNotifier {
     _save();
   }
 
+  void setAnimationsEnabled(bool enabled) {
+    if (_animationsEnabled == enabled) return;
+    _animationsEnabled = enabled;
+    notifyListeners();
+    _save();
+  }
+
   Future<void> _load() async {
     final file = File(_filePath);
     if (!file.existsSync()) return;
@@ -206,6 +215,7 @@ class SettingsService extends ChangeNotifier {
         (l) => l.name == json['boardLayout'],
         orElse: () => BoardLayout.circular,
       );
+      _animationsEnabled = json['animationsEnabled'] as bool? ?? true;
     } catch (_) {
       // Ignore corrupt settings — defaults are fine.
     }
@@ -221,6 +231,7 @@ class SettingsService extends ChangeNotifier {
       'assistLevel': _assistLevel.name,
       'hintLimit': _hintLimit.name,
       'boardLayout': _boardLayout.name,
+      'animationsEnabled': _animationsEnabled,
     };
     await File(_filePath).writeAsString(jsonEncode(json));
   }

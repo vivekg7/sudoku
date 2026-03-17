@@ -7,12 +7,14 @@ class NumberPad extends StatelessWidget {
   final GameState gameState;
   final BoardLayout boardLayout;
   final AssistLevel assistLevel;
+  final bool animationsEnabled;
 
   const NumberPad({
     super.key,
     required this.gameState,
     required this.boardLayout,
     required this.assistLevel,
+    this.animationsEnabled = false,
   });
 
   @override
@@ -89,6 +91,10 @@ class NumberPad extends StatelessWidget {
     final isCircular = boardLayout == BoardLayout.circular;
     final showCount = assistLevel.showRemainingCount && !isCompleted;
 
+    final duration = animationsEnabled
+        ? const Duration(milliseconds: 150)
+        : Duration.zero;
+
     final color = isCompleted
         ? colorScheme.surfaceContainerHighest
         : isActive
@@ -129,35 +135,46 @@ class NumberPad extends StatelessWidget {
       ),
     );
 
-    return Padding(
-      padding: const EdgeInsets.all(2),
-      child: isCircular
-          ? AspectRatio(
-              aspectRatio: 1.0,
-              child: Material(
-                color: color,
-                shape: const CircleBorder(),
-                child: InkWell(
-                  canRequestFocus: false,
-                  customBorder: const CircleBorder(),
-                  onTap: isCompleted ? null : () => gameState.enterValue(value),
-                  child: Center(child: label),
-                ),
-              ),
-            )
-          : Material(
+    Widget button = isCircular
+        ? AspectRatio(
+            aspectRatio: 1.0,
+            child: Material(
               color: color,
-              borderRadius: BorderRadius.circular(8),
+              shape: const CircleBorder(),
               child: InkWell(
                 canRequestFocus: false,
-                borderRadius: BorderRadius.circular(8),
+                customBorder: const CircleBorder(),
                 onTap: isCompleted ? null : () => gameState.enterValue(value),
-                child: SizedBox(
-                  height: 48,
-                  child: Center(child: label),
-                ),
+                child: Center(child: label),
               ),
             ),
+          )
+        : Material(
+            color: color,
+            borderRadius: BorderRadius.circular(8),
+            child: InkWell(
+              canRequestFocus: false,
+              borderRadius: BorderRadius.circular(8),
+              onTap: isCompleted ? null : () => gameState.enterValue(value),
+              child: SizedBox(
+                height: 48,
+                child: Center(child: label),
+              ),
+            ),
+          );
+
+    return Padding(
+      padding: const EdgeInsets.all(2),
+      child: AnimatedScale(
+        scale: isActive ? 1.08 : 1.0,
+        duration: duration,
+        curve: Curves.easeOutCubic,
+        child: AnimatedOpacity(
+          opacity: isCompleted ? 0.5 : 1.0,
+          duration: duration,
+          child: button,
+        ),
+      ),
     );
   }
 
@@ -194,30 +211,38 @@ class NumberPad extends StatelessWidget {
   Widget _pencilButton(BuildContext context) {
     final isActive = gameState.isPencilMode;
     final colorScheme = Theme.of(context).colorScheme;
+    final duration = animationsEnabled
+        ? const Duration(milliseconds: 150)
+        : Duration.zero;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton.outlined(
-          icon: Icon(
-            Icons.edit_outlined,
-            color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
+    return AnimatedScale(
+      scale: isActive ? 1.08 : 1.0,
+      duration: duration,
+      curve: Curves.easeOutCubic,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton.outlined(
+            icon: Icon(
+              Icons.edit_outlined,
+              color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
+            ),
+            onPressed: gameState.togglePencilMode,
+            focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
+            style: isActive
+                ? IconButton.styleFrom(backgroundColor: colorScheme.primaryContainer)
+                : null,
           ),
-          onPressed: gameState.togglePencilMode,
-          focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
-          style: isActive
-              ? IconButton.styleFrom(backgroundColor: colorScheme.primaryContainer)
-              : null,
-        ),
-        const SizedBox(height: 2),
-        Text(
-          'Notes',
-          style: TextStyle(
-            fontSize: 11,
-            color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
+          const SizedBox(height: 2),
+          Text(
+            'Notes',
+            style: TextStyle(
+              fontSize: 11,
+              color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
