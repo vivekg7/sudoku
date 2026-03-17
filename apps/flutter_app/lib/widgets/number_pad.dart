@@ -6,11 +6,13 @@ import '../state/game_state.dart';
 class NumberPad extends StatelessWidget {
   final GameState gameState;
   final BoardLayout boardLayout;
+  final AssistLevel assistLevel;
 
   const NumberPad({
     super.key,
     required this.gameState,
     required this.boardLayout,
+    required this.assistLevel,
   });
 
   @override
@@ -85,6 +87,7 @@ class NumberPad extends StatelessWidget {
     final isActive = gameState.activeNumber == value;
     final colorScheme = Theme.of(context).colorScheme;
     final isCircular = boardLayout == BoardLayout.circular;
+    final showCount = assistLevel.showRemainingCount && !isCompleted;
 
     final color = isCompleted
         ? colorScheme.surfaceContainerHighest
@@ -98,6 +101,34 @@ class NumberPad extends StatelessWidget {
             ? colorScheme.primary
             : colorScheme.onSurface;
 
+    final label = Text.rich(
+      TextSpan(
+        text: '$value',
+        children: [
+          if (showCount)
+            WidgetSpan(
+              alignment: PlaceholderAlignment.top,
+              child: Transform.translate(
+                offset: const Offset(1, -2),
+                child: Text(
+                  '$remaining',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: textColor.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: textColor,
+      ),
+    );
+
     return Padding(
       padding: const EdgeInsets.all(2),
       child: isCircular
@@ -110,16 +141,7 @@ class NumberPad extends StatelessWidget {
                   canRequestFocus: false,
                   customBorder: const CircleBorder(),
                   onTap: isCompleted ? null : () => gameState.enterValue(value),
-                  child: Center(
-                    child: Text(
-                      '$value',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                      ),
-                    ),
-                  ),
+                  child: Center(child: label),
                 ),
               ),
             )
@@ -132,16 +154,7 @@ class NumberPad extends StatelessWidget {
                 onTap: isCompleted ? null : () => gameState.enterValue(value),
                 child: SizedBox(
                   height: 48,
-                  child: Center(
-                    child: Text(
-                      '$value',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                      ),
-                    ),
-                  ),
+                  child: Center(child: label),
                 ),
               ),
             ),

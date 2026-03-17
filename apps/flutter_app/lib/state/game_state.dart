@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
+import '../services/settings_service.dart';
+
 class GameState extends ChangeNotifier {
   Puzzle? _puzzle;
   int? _selectedRow;
@@ -29,8 +31,8 @@ class GameState extends ChangeNotifier {
   /// Whether pencil notes are allowed.
   bool notesEnabled = true;
 
-  /// Whether to highlight cells with the same digit as the selected cell.
-  bool highlightSameDigits = true;
+  /// Level of visual assistance (highlighting, remaining counts).
+  AssistLevel assistLevel = AssistLevel.full;
 
   Puzzle? get puzzle => _puzzle;
   int? get selectedRow => _selectedRow;
@@ -427,6 +429,7 @@ class GameState extends ChangeNotifier {
       _selectedRow == row && _selectedCol == col;
 
   bool isRelatedToSelected(int row, int col) {
+    if (!assistLevel.showRelated) return false;
     if (_selectedRow == null || _selectedCol == null) return false;
     if (row == _selectedRow && col == _selectedCol) return false;
     if (row == _selectedRow || col == _selectedCol) return true;
@@ -436,7 +439,7 @@ class GameState extends ChangeNotifier {
   }
 
   bool hasSameValueAsSelected(int row, int col) {
-    if (!highlightSameDigits) return false;
+    if (!assistLevel.showSameDigit) return false;
     if (_puzzle == null) return false;
     final cellValue = _puzzle!.board.getCell(row, col).value;
     if (cellValue == 0) return false;

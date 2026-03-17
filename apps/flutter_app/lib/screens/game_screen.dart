@@ -39,7 +39,7 @@ class _GameScreenState extends State<GameScreen> {
     _gameState = GameState();
     _gameState.maxHintLayer = widget.settings.hintLimit.maxLayer;
     _gameState.notesEnabled = widget.settings.notesEnabled;
-    _gameState.highlightSameDigits = widget.settings.highlightSameDigits;
+    _gameState.assistLevel = widget.settings.assistLevel;
     _gameState.addListener(_restoreKeyboardFocus);
 
     if (widget.resumeEntry != null) {
@@ -236,6 +236,7 @@ class _GameScreenState extends State<GameScreen> {
               child: NumberPad(
                 gameState: _gameState,
                 boardLayout: widget.settings.boardLayout,
+                assistLevel: widget.settings.assistLevel,
               ),
             ),
           ],

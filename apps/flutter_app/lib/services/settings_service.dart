@@ -42,6 +42,30 @@ enum HintLimit {
   const HintLimit(this.maxLayer, this.label, this.description);
 }
 
+/// Level of visual assistance provided during gameplay.
+enum AssistLevel {
+  /// No highlighting or counts.
+  none(0, 'None', 'No assistance'),
+
+  /// Highlight related cells (same row, column, box).
+  basic(1, 'Basic', 'Row / column / box'),
+
+  /// + Highlight cells with the same digit.
+  standard(2, 'Standard', '+ Same digit highlight'),
+
+  /// + Show remaining count on the number pad.
+  full(3, 'Full', '+ Remaining count');
+
+  final int level;
+  final String label;
+  final String description;
+  const AssistLevel(this.level, this.label, this.description);
+
+  bool get showRelated => level >= 1;
+  bool get showSameDigit => level >= 2;
+  bool get showRemainingCount => level >= 3;
+}
+
 /// Board layout style.
 enum BoardLayout {
   circular('Circular', 'Circular cells with tick-mark grid lines'),
@@ -80,7 +104,7 @@ class SettingsService extends ChangeNotifier {
   HintLimit _hintLimit = HintLimit.all;
   bool _showTimer = true;
   bool _notesEnabled = true;
-  bool _highlightSameDigits = true;
+  AssistLevel _assistLevel = AssistLevel.full;
   BoardLayout _boardLayout = BoardLayout.circular;
 
   AppThemeMode get appThemeMode => _appThemeMode;
@@ -89,7 +113,7 @@ class SettingsService extends ChangeNotifier {
   HintLimit get hintLimit => _hintLimit;
   bool get showTimer => _showTimer;
   bool get notesEnabled => _notesEnabled;
-  bool get highlightSameDigits => _highlightSameDigits;
+  AssistLevel get assistLevel => _assistLevel;
   BoardLayout get boardLayout => _boardLayout;
 
   Future<void> init() async {
@@ -126,9 +150,9 @@ class SettingsService extends ChangeNotifier {
     _save();
   }
 
-  void setHighlightSameDigits(bool enabled) {
-    if (_highlightSameDigits == enabled) return;
-    _highlightSameDigits = enabled;
+  void setAssistLevel(AssistLevel level) {
+    if (_assistLevel == level) return;
+    _assistLevel = level;
     notifyListeners();
     _save();
   }
@@ -170,7 +194,10 @@ class SettingsService extends ChangeNotifier {
       _quotesEnabled = json['quotesEnabled'] as bool? ?? true;
       _showTimer = json['showTimer'] as bool? ?? true;
       _notesEnabled = json['notesEnabled'] as bool? ?? true;
-      _highlightSameDigits = json['highlightSameDigits'] as bool? ?? true;
+      _assistLevel = AssistLevel.values.firstWhere(
+        (a) => a.name == json['assistLevel'],
+        orElse: () => AssistLevel.full,
+      );
       _hintLimit = HintLimit.values.firstWhere(
         (h) => h.name == json['hintLimit'],
         orElse: () => HintLimit.all,
@@ -191,7 +218,7 @@ class SettingsService extends ChangeNotifier {
       'quotesEnabled': _quotesEnabled,
       'showTimer': _showTimer,
       'notesEnabled': _notesEnabled,
-      'highlightSameDigits': _highlightSameDigits,
+      'assistLevel': _assistLevel.name,
       'hintLimit': _hintLimit.name,
       'boardLayout': _boardLayout.name,
     };

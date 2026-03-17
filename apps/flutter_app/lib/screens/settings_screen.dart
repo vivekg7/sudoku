@@ -38,13 +38,7 @@ class SettingsScreen extends StatelessWidget {
             _sectionHeader(context, 'Gameplay'),
             _hintLimitTile(context),
             const Divider(),
-            SwitchListTile(
-              secondary: const Icon(Icons.highlight_outlined),
-              title: const Text('Highlight same digits'),
-              subtitle: const Text('Highlight matching numbers on the board'),
-              value: settings.highlightSameDigits,
-              onChanged: settings.setHighlightSameDigits,
-            ),
+            _assistLevelTile(context),
             const Divider(),
             SwitchListTile(
               secondary: const Icon(Icons.edit_outlined),
@@ -221,6 +215,41 @@ class SettingsScreen extends StatelessWidget {
         ],
         selected: {settings.hintLimit},
         onSelectionChanged: (s) => settings.setHintLimit(s.first),
+        showSelectedIcon: false,
+        style: ButtonStyle(
+          visualDensity: VisualDensity.compact,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+      ),
+    );
+  }
+
+  Widget _assistLevelTile(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.visibility_outlined),
+      title: const Text('Assistance'),
+      subtitle: Text(settings.assistLevel.description),
+      trailing: SegmentedButton<AssistLevel>(
+        segments: const [
+          ButtonSegment(
+            value: AssistLevel.none,
+            icon: Icon(Icons.block, size: 18),
+          ),
+          ButtonSegment(
+            value: AssistLevel.basic,
+            icon: Icon(Icons.grid_on, size: 18),
+          ),
+          ButtonSegment(
+            value: AssistLevel.standard,
+            icon: Icon(Icons.filter_1, size: 18),
+          ),
+          ButtonSegment(
+            value: AssistLevel.full,
+            icon: Icon(Icons.auto_awesome, size: 18),
+          ),
+        ],
+        selected: {settings.assistLevel},
+        onSelectionChanged: (s) => settings.setAssistLevel(s.first),
         showSelectedIcon: false,
         style: ButtonStyle(
           visualDensity: VisualDensity.compact,
