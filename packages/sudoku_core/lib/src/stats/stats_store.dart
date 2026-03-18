@@ -125,6 +125,30 @@ class StatsStore {
     return noHint / completed.length;
   }
 
+  /// Games filtered to a single difficulty.
+  List<GameStats> gamesForDifficulty(Difficulty d) =>
+      _games.where((g) => g.difficulty == d).toList();
+
+  /// Top completed games sorted by fastest solve time.
+  ///
+  /// Optionally filter by [difficulty] and/or [assistLevel].
+  List<GameStats> topScores({
+    Difficulty? difficulty,
+    String? assistLevel,
+    int limit = 10,
+  }) {
+    var results = _games.where((g) => g.completed);
+    if (difficulty != null) {
+      results = results.where((g) => g.difficulty == difficulty);
+    }
+    if (assistLevel != null) {
+      results = results.where((g) => g.assistLevel == assistLevel);
+    }
+    final sorted = results.toList()
+      ..sort((a, b) => a.solveTimeSeconds.compareTo(b.solveTimeSeconds));
+    return sorted.take(limit).toList();
+  }
+
   Map<String, dynamic> toJson() => {
         'games': _games.map((g) => g.toJson()).toList(),
       };
