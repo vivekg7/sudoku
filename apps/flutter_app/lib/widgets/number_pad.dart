@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/settings_service.dart';
 import '../state/game_state.dart';
+import 'hold_button.dart';
 
 class NumberPad extends StatelessWidget {
   final GameState gameState;
@@ -69,13 +70,7 @@ class NumberPad extends StatelessWidget {
                 onPressed: gameState.clearCell,
               ),
               if (gameState.notesEnabled) _pencilButton(context),
-              if (gameState.maxHintLayer > 0)
-                _actionButton(
-                  context,
-                  icon: Icons.lightbulb_outline,
-                  label: 'Hint',
-                  onPressed: gameState.requestHint,
-                ),
+              if (gameState.maxHintLayer > 0) _hintButton(context),
             ],
           ),
         ),
@@ -243,6 +238,67 @@ class NumberPad extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _hintButton(BuildContext context) {
+    // Disable the hold button while a hint is showing at a non-max layer
+    // (advancing is done through "More" in the hint panel).
+    final canRequestNew = gameState.currentHint == null ||
+        gameState.hintLayer >= gameState.maxHintLayer;
+
+    if (!canRequestNew) {
+      return _actionButton(
+        context,
+        icon: Icons.lightbulb_outline,
+        label: 'Hint',
+        onPressed: null,
+      );
+    }
+
+    final colorScheme = Theme.of(context).colorScheme;
+    final color = colorScheme.onSurfaceVariant;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        HoldButton(
+          holdDuration: const Duration(milliseconds: 1500),
+          onActivated: gameState.requestHint,
+          builder: (context, progress) {
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                AbsorbPointer(
+                  child: IconButton.outlined(
+                    icon: const Icon(Icons.lightbulb_outline),
+                    onPressed: () {},
+                    color: color,
+                    focusNode: FocusNode(
+                        skipTraversal: true, canRequestFocus: false),
+                  ),
+                ),
+                if (progress > 0)
+                  SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: CircularProgressIndicator(
+                      value: progress,
+                      strokeWidth: 2.5,
+                      color: colorScheme.primary,
+                      backgroundColor: Colors.transparent,
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Hint',
+          style: TextStyle(fontSize: 11, color: color),
+        ),
+      ],
     );
   }
 }

@@ -3,15 +3,18 @@ import 'package:sudoku_core/sudoku_core.dart';
 
 import '../state/game_state.dart';
 import '../theme/app_theme.dart';
+import 'hold_button.dart';
 
 class HintPanel extends StatelessWidget {
   final GameState gameState;
   final bool animationsEnabled;
+  final VoidCallback? onRequestAnswer;
 
   const HintPanel({
     super.key,
     required this.gameState,
     this.animationsEnabled = false,
+    this.onRequestAnswer,
   });
 
   @override
@@ -63,16 +66,7 @@ class HintPanel extends StatelessWidget {
               ],
             ),
           ),
-          if (layer < gameState.maxHintLayer)
-            TextButton(
-              onPressed: gameState.requestHint,
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: const Text('More', style: TextStyle(fontSize: 12)),
-            ),
+          if (layer < gameState.maxHintLayer) _moreButton(context),
           IconButton(
             icon: const Icon(Icons.close, size: 16),
             onPressed: gameState.dismissHint,
@@ -115,4 +109,71 @@ class HintPanel extends StatelessWidget {
         HintLevel.strategy => sc.strategyAccent,
         HintLevel.answer => sc.answerAccent,
       };
+
+  Widget _moreButton(BuildContext context) {
+    final cooldown = gameState.hintCooldownRemaining;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // Cooldown active: show countdown.
+    if (cooldown > 0) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text(
+          '${cooldown}s',
+          style: TextStyle(
+            fontSize: 12,
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+      );
+    }
+
+    // Answer layer: regular tap triggers confirmation dialog.
+    if (gameState.nextHintIsAnswer) {
+      return TextButton(
+        onPressed: onRequestAnswer,
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: const Text('More', style: TextStyle(fontSize: 12)),
+      );
+    }
+
+    // Strategy layer: hold to reveal.
+    return HoldButton(
+      holdDuration: const Duration(milliseconds: 1500),
+      onActivated: gameState.requestHint,
+      builder: (context, progress) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'More',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 1),
+              SizedBox(
+                width: 28,
+                height: 1.5,
+                child: LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.transparent,
+                  color: colorScheme.primary,
+                  minHeight: 1.5,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }

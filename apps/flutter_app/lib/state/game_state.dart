@@ -22,9 +22,16 @@ class GameState extends ChangeNotifier {
   final HintGenerator _hintGen = HintGenerator();
   Hint? _currentHint;
   int _hintLayer = 0; // 0 = none, 1 = nudge, 2 = strategy, 3 = answer
+  DateTime? _hintShownAt;
   final Map<HintLevel, int> _hintCounts = {};
   final Map<StrategyType, int> _hintStrategyCounts = {};
   int _mistakeCount = 0;
+
+  /// Cooldown seconds: nudge -> strategy.
+  static const int _cooldownNudge = 10;
+
+  /// Cooldown seconds: strategy -> answer.
+  static const int _cooldownStrategy = 15;
 
   /// Maximum hint layer allowed (0 = disabled, 1 = nudge, 2 = strategy, 3 = all).
   int maxHintLayer = 3;
@@ -63,6 +70,19 @@ class GameState extends ChangeNotifier {
   int get totalHints => _hintCounts.values.fold(0, (s, c) => s + c);
   int get mistakeCount => _mistakeCount;
 
+  /// Seconds remaining before the next hint layer can be requested.
+  int get hintCooldownRemaining {
+    if (_hintShownAt == null || _hintLayer == 0 || _hintLayer >= maxHintLayer) {
+      return 0;
+    }
+    final cooldown = _hintLayer == 1 ? _cooldownNudge : _cooldownStrategy;
+    final elapsed = DateTime.now().difference(_hintShownAt!).inSeconds;
+    return (cooldown - elapsed).clamp(0, cooldown);
+  }
+
+  /// Whether the next hint layer would be the answer (layer 3).
+  bool get nextHintIsAnswer => _hintLayer == 2 && maxHintLayer >= 3;
+
   /// Whether the solved state has been shown to the user.
   bool get isSolvedNotified => _isSolvedNotified;
   void markSolvedNotified() => _isSolvedNotified = true;
@@ -80,6 +100,7 @@ class GameState extends ChangeNotifier {
     _stopwatch.reset();
     _currentHint = null;
     _hintLayer = 0;
+    _hintShownAt = null;
     _hintCounts.clear();
     _hintStrategyCounts.clear();
     _mistakeCount = 0;
@@ -124,6 +145,7 @@ class GameState extends ChangeNotifier {
     _stopwatch.reset();
     _currentHint = null;
     _hintLayer = 0;
+    _hintShownAt = null;
     _hintCounts.clear();
     _hintStrategyCounts.clear();
     _mistakeCount = 0;
@@ -385,6 +407,7 @@ class GameState extends ChangeNotifier {
     }
 
     _hintLayer++;
+    _hintShownAt = DateTime.now();
     final level = HintLevel.values[_hintLayer - 1];
     _hintCounts[level] = (_hintCounts[level] ?? 0) + 1;
     final strategy = _currentHint!.step.strategy;
@@ -402,6 +425,7 @@ class GameState extends ChangeNotifier {
   void _clearHint() {
     _currentHint = null;
     _hintLayer = 0;
+    _hintShownAt = null;
   }
 
   /// Cells involved in the current hint pattern (for board highlighting).

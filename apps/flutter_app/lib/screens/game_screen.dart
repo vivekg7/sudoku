@@ -255,6 +255,7 @@ class _GameScreenState extends State<GameScreen> {
               child: HintPanel(
                 gameState: _gameState,
                 animationsEnabled: widget.settings.animationsEnabled,
+                onRequestAnswer: _showAnswerConfirmation,
               ),
             ),
             Padding(
@@ -365,11 +366,70 @@ class _GameScreenState extends State<GameScreen> {
           HardwareKeyboard.instance.isMetaPressed) {
         _gameState.redo();
       }
-    } else if (key == LogicalKeyboardKey.keyH) {
-      _gameState.requestHint();
     } else if (key == LogicalKeyboardKey.space) {
       _gameState.togglePause();
     }
+  }
+
+  void _showAnswerConfirmation() {
+    final colorScheme = Theme.of(context).colorScheme;
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.visibility_outlined,
+                size: 32,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Reveal the answer?',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'This will show you exactly where to place the digit.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('Keep trying'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _gameState.requestHint();
+                      },
+                      child: const Text('Show answer'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _checkSolved() {

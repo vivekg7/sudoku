@@ -33,11 +33,11 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 
 ### Hint System (Multi-Layer)
 
-- Hints are layered from vague to specific, requiring deliberate progression through each level:
-  - **Smallest hint**: Direction nudge — e.g., _"Look for 3 in box 4"_ (or row/column, whichever is most relevant — only one).
-  - **Medium hint**: Strategy nudge — e.g., _"Try using X-Wing on row 2 and row 7"_ or _"There's a hidden pair in box 5"_.
-  - **Largest hint**: Exact answer — e.g., _"You can write 3 in row 4, column 5"_.
-- Each layer requires a deliberate action to reveal — progressive disclosure, not a single "show hint" button.
+- Hints are layered from vague to specific, with graduated friction that increases with each level:
+  - **Smallest hint**: Direction nudge — e.g., _"Look for 3 in box 4"_. Requires a 1.5-second long-press on the Hint button.
+  - **Medium hint**: Strategy nudge — e.g., _"Try using X-Wing on row 2 and row 7"_. Requires a 10-second cooldown, then a 1.5-second long-press on "More".
+  - **Largest hint**: Exact answer — e.g., _"You can write 3 in row 4, column 5"_. Requires a 15-second cooldown, then a confirmation dialog ("Reveal the answer?").
+- The friction is intentional: each layer is progressively harder to reach, mirroring that each layer gives progressively more away.
 
 ### Interactive Gameplay
 
