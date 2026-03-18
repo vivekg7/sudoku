@@ -38,7 +38,6 @@ class SettingsScreen extends StatelessWidget {
             SwitchListTile(
               secondary: const Icon(Icons.animation),
               title: const Text('Animations'),
-              subtitle: const Text('Smooth transitions and effects'),
               value: settings.animationsEnabled,
               onChanged: settings.setAnimationsEnabled,
             ),
@@ -51,7 +50,6 @@ class SettingsScreen extends StatelessWidget {
             SwitchListTile(
               secondary: const Icon(Icons.edit_outlined),
               title: const Text('Pencil notes'),
-              subtitle: const Text('Allow marking candidates in cells'),
               value: settings.notesEnabled,
               onChanged: settings.setNotesEnabled,
             ),
@@ -59,7 +57,6 @@ class SettingsScreen extends StatelessWidget {
             SwitchListTile(
               secondary: const Icon(Icons.timer_outlined),
               title: const Text('Show timer'),
-              subtitle: const Text('Display elapsed time during play'),
               value: settings.showTimer,
               onChanged: settings.setShowTimer,
             ),
@@ -67,7 +64,6 @@ class SettingsScreen extends StatelessWidget {
             SwitchListTile(
               secondary: const Icon(Icons.format_quote_outlined),
               title: const Text('Show quotes'),
-              subtitle: const Text('Display a quote on each puzzle'),
               value: settings.quotesEnabled,
               onChanged: settings.setQuotesEnabled,
             ),
@@ -76,14 +72,12 @@ class SettingsScreen extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.upload_file),
               title: const Text('Export data'),
-              subtitle: const Text('Save stats and puzzles as JSON'),
               onTap: () => _exportData(context),
             ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.download),
               title: const Text('Import data'),
-              subtitle: const Text('Restore from a JSON backup'),
               onTap: () => _importData(context),
             ),
             const SizedBox(height: 16),
@@ -290,8 +284,7 @@ class SettingsScreen extends StatelessWidget {
     return [
       SwitchListTile(
         secondary: const Icon(Icons.grid_on_outlined),
-        title: const Text('Highlight row, column & box'),
-        subtitle: const Text('Highlight cells related to selection'),
+        title: const Text('Highlight row/col/box'),
         value: t.highlightRelated,
         onChanged: (v) =>
             settings.setAssistToggles(t.copyWith(highlightRelated: v)),
@@ -300,7 +293,6 @@ class SettingsScreen extends StatelessWidget {
       SwitchListTile(
         secondary: const Icon(Icons.filter_1_outlined),
         title: const Text('Highlight same digit'),
-        subtitle: const Text('Highlight cells with the same number'),
         value: t.highlightSameDigit,
         onChanged: (v) =>
             settings.setAssistToggles(t.copyWith(highlightSameDigit: v)),
@@ -309,7 +301,7 @@ class SettingsScreen extends StatelessWidget {
       SwitchListTile(
         secondary: const Icon(Icons.error_outline),
         title: const Text('Show conflicts'),
-        subtitle: const Text('Highlight duplicate numbers in red'),
+        subtitle: const Text('Highlight duplicates in red'),
         value: t.showConflicts,
         onChanged: (v) =>
             settings.setAssistToggles(t.copyWith(showConflicts: v)),
@@ -318,7 +310,6 @@ class SettingsScreen extends StatelessWidget {
       SwitchListTile(
         secondary: const Icon(Icons.pin_outlined),
         title: const Text('Digit count on numpad'),
-        subtitle: const Text('Show remaining count for each number'),
         value: t.showRemainingCount,
         onChanged: (v) =>
             settings.setAssistToggles(t.copyWith(showRemainingCount: v)),
@@ -327,7 +318,7 @@ class SettingsScreen extends StatelessWidget {
       SwitchListTile(
         secondary: const Icon(Icons.auto_fix_high_outlined),
         title: const Text('Auto-remove candidates'),
-        subtitle: const Text('Remove placed digit from peer candidates'),
+        subtitle: const Text('Remove from row/col/box peers'),
         value: t.autoRemoveCandidates,
         onChanged: (v) =>
             settings.setAssistToggles(t.copyWith(autoRemoveCandidates: v)),
