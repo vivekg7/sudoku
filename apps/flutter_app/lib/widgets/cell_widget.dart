@@ -156,8 +156,8 @@ class CellWidget extends StatelessWidget {
         child: Text(
           '${cell.value}',
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: cell.isGiven ? FontWeight.w700 : FontWeight.w500,
+            fontSize: 28,
+            fontWeight: cell.isGiven ? FontWeight.w400 : FontWeight.w300,
             color: color,
           ),
         ),
