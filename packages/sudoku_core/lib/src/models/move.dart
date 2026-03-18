@@ -27,6 +27,10 @@ class Move {
   /// Candidates after the move.
   final CandidateSet newCandidates;
 
+  /// Candidates auto-removed from peer cells (for undo).
+  /// Each entry is (row, col, value).
+  final List<(int, int, int)> removedPeerCandidates;
+
   Move({
     required this.row,
     required this.col,
@@ -35,6 +39,7 @@ class Move {
     this.newValue = 0,
     CandidateSet? previousCandidates,
     CandidateSet? newCandidates,
+    this.removedPeerCandidates = const [],
   })  : previousCandidates = previousCandidates ?? CandidateSet(),
         newCandidates = newCandidates ?? CandidateSet();
 

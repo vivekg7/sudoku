@@ -32,8 +32,8 @@ class GameState extends ChangeNotifier {
   /// Whether pencil notes are allowed.
   bool notesEnabled = true;
 
-  /// Level of visual assistance (highlighting, remaining counts).
-  AssistLevel assistLevel = AssistLevel.full;
+  /// Individual visual-aid toggles.
+  AssistToggles assistToggles = AssistToggles.allOn;
 
   Puzzle? get puzzle => _puzzle;
   int? get selectedRow => _selectedRow;
@@ -251,16 +251,25 @@ class GameState extends ChangeNotifier {
   void _placeValue(int row, int col, int value) {
     _clearHint();
     final cell = _puzzle!.board.getCell(row, col);
+    final prevValue = cell.value;
+    final prevCandidates = cell.candidates.copy();
+    cell.setValue(value);
+
+    // Auto-remove the placed digit from peer candidates.
+    final removedPeers = assistToggles.autoRemoveCandidates
+        ? _puzzle!.board.removeCandidateFromPeers(row, col, value)
+        : const <(int, int, int)>[];
+
     _puzzle!.history.push(Move(
       row: row,
       col: col,
       type: MoveType.setValue,
-      previousValue: cell.value,
+      previousValue: prevValue,
       newValue: value,
-      previousCandidates: cell.candidates.copy(),
+      previousCandidates: prevCandidates,
       newCandidates: CandidateSet(),
+      removedPeerCandidates: removedPeers,
     ));
-    cell.setValue(value);
 
     // Count mistakes: check if the placed value conflicts with any peer.
     if (conflicts.contains((row, col))) {
@@ -318,6 +327,12 @@ class GameState extends ChangeNotifier {
       cell.clearValue();
     }
     cell.setCandidates(move.previousCandidates);
+
+    // Restore candidates that were auto-removed from peers.
+    for (final (r, c, v) in move.removedPeerCandidates) {
+      _puzzle!.board.getCell(r, c).addCandidate(v);
+    }
+
     _clearHint();
 
     _selectedRow = move.row;
@@ -337,6 +352,12 @@ class GameState extends ChangeNotifier {
       cell.clearValue();
     }
     cell.setCandidates(move.newCandidates);
+
+    // Re-apply auto-removed peer candidates.
+    for (final (r, c, v) in move.removedPeerCandidates) {
+      _puzzle!.board.getCell(r, c).removeCandidate(v);
+    }
+
     _clearHint();
 
     _selectedRow = move.row;
@@ -438,7 +459,7 @@ class GameState extends ChangeNotifier {
       _selectedRow == row && _selectedCol == col;
 
   bool isRelatedToSelected(int row, int col) {
-    if (!assistLevel.showRelated) return false;
+    if (!assistToggles.highlightRelated) return false;
     if (_selectedRow == null || _selectedCol == null) return false;
     if (row == _selectedRow && col == _selectedCol) return false;
     if (row == _selectedRow || col == _selectedCol) return true;
@@ -448,7 +469,7 @@ class GameState extends ChangeNotifier {
   }
 
   bool hasSameValueAsSelected(int row, int col) {
-    if (!assistLevel.showSameDigit) return false;
+    if (!assistToggles.highlightSameDigit) return false;
     if (_puzzle == null) return false;
     final cellValue = _puzzle!.board.getCell(row, col).value;
     if (cellValue == 0) return false;
@@ -494,7 +515,8 @@ class GameState extends ChangeNotifier {
         hintsByStrategy: Map.of(_hintStrategyCounts),
         playedAt: DateTime.now(),
         puzzleId: _puzzle!.initialBoard.toFlatString(),
-        assistLevel: assistLevel.name,
+        assistLevel: assistToggles.statsLabel,
+        assistToggles: assistToggles.toJson(),
         notesEnabled: notesEnabled,
         showTimer: showTimer,
         boardLayout: boardLayout,

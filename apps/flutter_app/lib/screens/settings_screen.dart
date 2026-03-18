@@ -46,7 +46,7 @@ class SettingsScreen extends StatelessWidget {
             _sectionHeader(context, 'Gameplay'),
             _hintLimitTile(context),
             const Divider(),
-            _assistLevelTile(context),
+            ..._assistToggleTiles(context),
             const Divider(),
             SwitchListTile(
               secondary: const Icon(Icons.edit_outlined),
@@ -232,39 +232,54 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _assistLevelTile(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.visibility_outlined),
-      title: const Text('Assistance'),
-      subtitle: Text(settings.assistLevel.description),
-      trailing: SegmentedButton<AssistLevel>(
-        segments: const [
-          ButtonSegment(
-            value: AssistLevel.none,
-            icon: Icon(Icons.block, size: 18),
-          ),
-          ButtonSegment(
-            value: AssistLevel.basic,
-            icon: Icon(Icons.grid_on, size: 18),
-          ),
-          ButtonSegment(
-            value: AssistLevel.standard,
-            icon: Icon(Icons.filter_1, size: 18),
-          ),
-          ButtonSegment(
-            value: AssistLevel.full,
-            icon: Icon(Icons.auto_awesome, size: 18),
-          ),
-        ],
-        selected: {settings.assistLevel},
-        onSelectionChanged: (s) => settings.setAssistLevel(s.first),
-        showSelectedIcon: false,
-        style: ButtonStyle(
-          visualDensity: VisualDensity.compact,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
+  List<Widget> _assistToggleTiles(BuildContext context) {
+    final t = settings.assistToggles;
+    return [
+      SwitchListTile(
+        secondary: const Icon(Icons.grid_on_outlined),
+        title: const Text('Highlight row, column & box'),
+        subtitle: const Text('Highlight cells related to selection'),
+        value: t.highlightRelated,
+        onChanged: (v) =>
+            settings.setAssistToggles(t.copyWith(highlightRelated: v)),
       ),
-    );
+      const Divider(),
+      SwitchListTile(
+        secondary: const Icon(Icons.filter_1_outlined),
+        title: const Text('Highlight same digit'),
+        subtitle: const Text('Highlight cells with the same number'),
+        value: t.highlightSameDigit,
+        onChanged: (v) =>
+            settings.setAssistToggles(t.copyWith(highlightSameDigit: v)),
+      ),
+      const Divider(),
+      SwitchListTile(
+        secondary: const Icon(Icons.error_outline),
+        title: const Text('Show conflicts'),
+        subtitle: const Text('Highlight duplicate numbers in red'),
+        value: t.showConflicts,
+        onChanged: (v) =>
+            settings.setAssistToggles(t.copyWith(showConflicts: v)),
+      ),
+      const Divider(),
+      SwitchListTile(
+        secondary: const Icon(Icons.pin_outlined),
+        title: const Text('Digit count on numpad'),
+        subtitle: const Text('Show remaining count for each number'),
+        value: t.showRemainingCount,
+        onChanged: (v) =>
+            settings.setAssistToggles(t.copyWith(showRemainingCount: v)),
+      ),
+      const Divider(),
+      SwitchListTile(
+        secondary: const Icon(Icons.auto_fix_high_outlined),
+        title: const Text('Auto-remove candidates'),
+        subtitle: const Text('Remove placed digit from peer candidates'),
+        value: t.autoRemoveCandidates,
+        onChanged: (v) =>
+            settings.setAssistToggles(t.copyWith(autoRemoveCandidates: v)),
+      ),
+    ];
   }
 
   Widget _layoutTile(BuildContext context) {

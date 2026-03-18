@@ -42,28 +42,88 @@ enum HintLimit {
   const HintLimit(this.maxLayer, this.label, this.description);
 }
 
-/// Level of visual assistance provided during gameplay.
-enum AssistLevel {
-  /// No highlighting or counts.
-  none(0, 'None', 'No visual aids'),
+/// Individual visual-aid toggles — replaces the old tiered AssistLevel.
+class AssistToggles {
+  final bool highlightRelated;
+  final bool highlightSameDigit;
+  final bool showConflicts;
+  final bool showRemainingCount;
+  final bool autoRemoveCandidates;
 
-  /// Highlight related cells (same row, column, box).
-  basic(1, 'Basic', 'Highlight row, column & box'),
+  const AssistToggles({
+    this.highlightRelated = true,
+    this.highlightSameDigit = true,
+    this.showConflicts = true,
+    this.showRemainingCount = true,
+    this.autoRemoveCandidates = false,
+  });
 
-  /// + Highlight cells with the same digit.
-  standard(2, 'Standard', '+ highlight same digit'),
+  static const allOn = AssistToggles();
+  static const allOff = AssistToggles(
+    highlightRelated: false,
+    highlightSameDigit: false,
+    showConflicts: false,
+    showRemainingCount: false,
+    autoRemoveCandidates: false,
+  );
 
-  /// + Show remaining count on the number pad.
-  full(3, 'Full', '+ digit count on numpad');
+  /// Derived label for stats: none, full, or custom.
+  String get statsLabel {
+    final core = [highlightRelated, highlightSameDigit, showConflicts, showRemainingCount];
+    if (core.every((t) => !t) && !autoRemoveCandidates) return 'none';
+    if (core.every((t) => t) && !autoRemoveCandidates) return 'full';
+    return 'custom';
+  }
 
-  final int level;
-  final String label;
-  final String description;
-  const AssistLevel(this.level, this.label, this.description);
+  AssistToggles copyWith({
+    bool? highlightRelated,
+    bool? highlightSameDigit,
+    bool? showConflicts,
+    bool? showRemainingCount,
+    bool? autoRemoveCandidates,
+  }) =>
+      AssistToggles(
+        highlightRelated: highlightRelated ?? this.highlightRelated,
+        highlightSameDigit: highlightSameDigit ?? this.highlightSameDigit,
+        showConflicts: showConflicts ?? this.showConflicts,
+        showRemainingCount: showRemainingCount ?? this.showRemainingCount,
+        autoRemoveCandidates: autoRemoveCandidates ?? this.autoRemoveCandidates,
+      );
 
-  bool get showRelated => level >= 1;
-  bool get showSameDigit => level >= 2;
-  bool get showRemainingCount => level >= 3;
+  Map<String, dynamic> toJson() => {
+        'highlightRelated': highlightRelated,
+        'highlightSameDigit': highlightSameDigit,
+        'showConflicts': showConflicts,
+        'showRemainingCount': showRemainingCount,
+        'autoRemoveCandidates': autoRemoveCandidates,
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AssistToggles &&
+          highlightRelated == other.highlightRelated &&
+          highlightSameDigit == other.highlightSameDigit &&
+          showConflicts == other.showConflicts &&
+          showRemainingCount == other.showRemainingCount &&
+          autoRemoveCandidates == other.autoRemoveCandidates;
+
+  @override
+  int get hashCode => Object.hash(
+        highlightRelated,
+        highlightSameDigit,
+        showConflicts,
+        showRemainingCount,
+        autoRemoveCandidates,
+      );
+
+  factory AssistToggles.fromJson(Map<String, dynamic> json) => AssistToggles(
+        highlightRelated: json['highlightRelated'] as bool? ?? true,
+        highlightSameDigit: json['highlightSameDigit'] as bool? ?? true,
+        showConflicts: json['showConflicts'] as bool? ?? true,
+        showRemainingCount: json['showRemainingCount'] as bool? ?? true,
+        autoRemoveCandidates: json['autoRemoveCandidates'] as bool? ?? false,
+      );
 }
 
 /// Board layout style.
@@ -104,7 +164,7 @@ class SettingsService extends ChangeNotifier {
   HintLimit _hintLimit = HintLimit.all;
   bool _showTimer = true;
   bool _notesEnabled = true;
-  AssistLevel _assistLevel = AssistLevel.full;
+  AssistToggles _assistToggles = AssistToggles.allOn;
   BoardLayout _boardLayout = BoardLayout.circular;
   bool _animationsEnabled = true;
 
@@ -114,7 +174,7 @@ class SettingsService extends ChangeNotifier {
   HintLimit get hintLimit => _hintLimit;
   bool get showTimer => _showTimer;
   bool get notesEnabled => _notesEnabled;
-  AssistLevel get assistLevel => _assistLevel;
+  AssistToggles get assistToggles => _assistToggles;
   BoardLayout get boardLayout => _boardLayout;
   bool get animationsEnabled => _animationsEnabled;
 
@@ -152,9 +212,9 @@ class SettingsService extends ChangeNotifier {
     _save();
   }
 
-  void setAssistLevel(AssistLevel level) {
-    if (_assistLevel == level) return;
-    _assistLevel = level;
+  void setAssistToggles(AssistToggles toggles) {
+    if (_assistToggles == toggles) return;
+    _assistToggles = toggles;
     notifyListeners();
     _save();
   }
@@ -203,10 +263,10 @@ class SettingsService extends ChangeNotifier {
       _quotesEnabled = json['quotesEnabled'] as bool? ?? true;
       _showTimer = json['showTimer'] as bool? ?? true;
       _notesEnabled = json['notesEnabled'] as bool? ?? true;
-      _assistLevel = AssistLevel.values.firstWhere(
-        (a) => a.name == json['assistLevel'],
-        orElse: () => AssistLevel.full,
-      );
+      if (json['assistToggles'] is Map<String, dynamic>) {
+        _assistToggles = AssistToggles.fromJson(
+            json['assistToggles'] as Map<String, dynamic>);
+      }
       _hintLimit = HintLimit.values.firstWhere(
         (h) => h.name == json['hintLimit'],
         orElse: () => HintLimit.all,
@@ -228,7 +288,7 @@ class SettingsService extends ChangeNotifier {
       'quotesEnabled': _quotesEnabled,
       'showTimer': _showTimer,
       'notesEnabled': _notesEnabled,
-      'assistLevel': _assistLevel.name,
+      'assistToggles': _assistToggles.toJson(),
       'hintLimit': _hintLimit.name,
       'boardLayout': _boardLayout.name,
       'animationsEnabled': _animationsEnabled,

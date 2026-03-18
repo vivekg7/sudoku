@@ -94,6 +94,20 @@ class Board {
     return [for (final (r, c) in indices) _grid[r][c]];
   }
 
+  /// Removes [value] from the candidates of every peer of (row, col)
+  /// that is still empty. Returns the list of (row, col, value) that
+  /// were actually removed, so they can be restored on undo.
+  List<(int, int, int)> removeCandidateFromPeers(int row, int col, int value) {
+    final removed = <(int, int, int)>[];
+    for (final peer in peers(row, col)) {
+      if (peer.isEmpty && peer.candidates.contains(value)) {
+        peer.removeCandidate(value);
+        removed.add((peer.row, peer.col, value));
+      }
+    }
+    return removed;
+  }
+
   /// Whether the board has no rule violations (no duplicate values in any
   /// row, column, or box). Empty cells are ignored.
   bool get isValid {

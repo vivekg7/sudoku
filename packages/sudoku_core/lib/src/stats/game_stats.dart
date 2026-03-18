@@ -45,6 +45,9 @@ class GameStats {
   /// Number of conflicting placements made during the game.
   final int mistakeCount;
 
+  /// Individual assist toggle states active during the game.
+  final Map<String, dynamic> assistToggles;
+
   const GameStats({
     required this.id,
     required this.difficulty,
@@ -59,6 +62,7 @@ class GameStats {
     this.showTimer = true,
     this.boardLayout = 'circular',
     this.mistakeCount = 0,
+    this.assistToggles = const {},
   });
 
   /// Total number of hints taken across all layers.
@@ -86,6 +90,7 @@ class GameStats {
         'showTimer': showTimer,
         'boardLayout': boardLayout,
         'mistakeCount': mistakeCount,
+        'assistToggles': assistToggles,
       };
 
   factory GameStats.fromJson(Map<String, dynamic> json) => GameStats(
@@ -110,5 +115,6 @@ class GameStats {
         showTimer: (json['showTimer'] as bool?) ?? true,
         boardLayout: (json['boardLayout'] as String?) ?? 'circular',
         mistakeCount: (json['mistakeCount'] as int?) ?? 0,
+        assistToggles: (json['assistToggles'] as Map<String, dynamic>?) ?? const {},
       );
 }

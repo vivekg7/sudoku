@@ -6,14 +6,14 @@ import '../state/game_state.dart';
 class NumberPad extends StatelessWidget {
   final GameState gameState;
   final BoardLayout boardLayout;
-  final AssistLevel assistLevel;
+  final AssistToggles assistToggles;
   final bool animationsEnabled;
 
   const NumberPad({
     super.key,
     required this.gameState,
     required this.boardLayout,
-    required this.assistLevel,
+    required this.assistToggles,
     this.animationsEnabled = false,
   });
 
@@ -89,7 +89,7 @@ class NumberPad extends StatelessWidget {
     final isActive = gameState.activeNumber == value;
     final colorScheme = Theme.of(context).colorScheme;
     final isCircular = boardLayout == BoardLayout.circular;
-    final showCount = assistLevel.showRemainingCount && !isCompleted;
+    final showCount = assistToggles.showRemainingCount && !isCompleted;
 
     final duration = animationsEnabled
         ? const Duration(milliseconds: 150)

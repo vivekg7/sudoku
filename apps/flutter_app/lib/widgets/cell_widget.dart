@@ -27,7 +27,7 @@ class CellWidget extends StatelessWidget {
     final isSelected = gameState.isSelected(row, col);
     final isRelated = gameState.isRelatedToSelected(row, col);
     final sameValue = gameState.hasSameValueAsSelected(row, col);
-    final isConflict = gameState.assistLevel != AssistLevel.none &&
+    final isConflict = gameState.assistToggles.showConflicts &&
         gameState.conflicts.contains((row, col));
     final isHintPlacement = gameState.hintPlacementCells.contains((row, col));
     final isHintInvolved = gameState.hintInvolvedCells.contains((row, col));

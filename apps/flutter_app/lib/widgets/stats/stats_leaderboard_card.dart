@@ -21,8 +21,6 @@ class StatsLeaderboardCard extends StatefulWidget {
 class _StatsLeaderboardCardState extends State<StatsLeaderboardCard> {
   String? _assistFilter; // null = all
 
-  static const _assistLevels = ['none', 'basic', 'standard', 'full'];
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -35,21 +33,23 @@ class _StatsLeaderboardCardState extends State<StatsLeaderboardCard> {
       title: 'Leaderboard',
       children: [
         SegmentedButton<String?>(
-          segments: [
-            const ButtonSegment(
+          segments: const [
+            ButtonSegment(
               value: null,
               label: Text('All', maxLines: 1, softWrap: false, overflow: TextOverflow.fade),
             ),
-            for (final level in _assistLevels)
-              ButtonSegment(
-                value: level,
-                label: Text(
-                  level[0].toUpperCase() + level.substring(1),
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.fade,
-                ),
-              ),
+            ButtonSegment(
+              value: 'none',
+              label: Text('None', maxLines: 1, softWrap: false, overflow: TextOverflow.fade),
+            ),
+            ButtonSegment(
+              value: 'custom',
+              label: Text('Custom', maxLines: 1, softWrap: false, overflow: TextOverflow.fade),
+            ),
+            ButtonSegment(
+              value: 'full',
+              label: Text('Full', maxLines: 1, softWrap: false, overflow: TextOverflow.fade),
+            ),
           ],
           selected: {_assistFilter},
           onSelectionChanged: (selection) {
