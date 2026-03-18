@@ -108,8 +108,8 @@ class _GameScreenState extends State<GameScreen> {
             appBar: AppBar(
               title: Text(
                 _gameState.puzzle != null
-                    ? 'Sudoku — ${_gameState.puzzle!.difficulty.label}'
-                    : 'Sudoku',
+                    ? _gameState.puzzle!.difficulty.label
+                    : '',
               ),
               actions: [
                 if (_gameState.puzzle != null) ...[
