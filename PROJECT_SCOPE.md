@@ -33,8 +33,7 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 
 ### Hint System (Multi-Layer)
 
-- Hints are **not one click away**. They are intentionally buried to respect the player's effort.
-- Hints are layered from vague to specific:
+- Hints are layered from vague to specific, requiring deliberate progression through each level:
   - **Smallest hint**: Direction nudge — e.g., _"Look for 3 in box 4"_ (or row/column, whichever is most relevant — only one).
   - **Medium hint**: Strategy nudge — e.g., _"Try using X-Wing on row 2 and row 7"_ or _"There's a hidden pair in box 5"_.
   - **Largest hint**: Exact answer — e.g., _"You can write 3 in row 4, column 5"_.
@@ -43,8 +42,8 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 ### Interactive Gameplay
 
 - Fill cells, undo/redo, pencil marks / candidate notes.
-- Immediate feedback on rule violations (duplicate in row/column/box).
-- Highlight related cells (same row, column, box) on selection.
+- Optional feedback on rule violations (duplicate in row/column/box) — togglable via assist settings.
+- Optional highlighting of related cells (same row, column, box, same digit) — togglable via assist settings.
 - Keyboard and touch navigation.
 
 ### PDF Export & Bulk Puzzle Creation
@@ -52,7 +51,7 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 - Users can generate puzzles in bulk and **export as PDF** for printing.
 - PDF layout:
   - Puzzle pages with grids.
-  - Hints section at the end (after all puzzles).
+  - Solve-order hint grids at the end (after all puzzles) showing the sequence in which cells can be solved.
   - Each puzzle includes a small **QR code** that, when scanned through the app, opens that exact puzzle for interactive play.
 
 ### Player Stats
@@ -123,8 +122,8 @@ All sudoku logic lives in a shared `sudoku_core` Dart package. Every target — 
 | Mobile & Desktop | Flutter (depends on `sudoku_core`)   | Decided                                          |
 | CLI              | Dart CLI (`dart compile exe`)        | Decided                                          |
 | Web              | Flutter web or lightweight framework | Deferred — depends on Flutter web output quality |
-| PDF export       | TBD                                  | Feature confirmed, library TBD                   |
-| QR code          | TBD                                  | Feature confirmed, library TBD                   |
+| PDF export       | `pdf` + `printing` (Dart/Flutter)    | Decided                                          |
+| QR code          | `mobile_scanner` + `pdf` Barcode API | Decided                                          |
 
 ### Project Structure
 
@@ -137,6 +136,7 @@ sudoku/
 │       │   ├── generator/      # Puzzle generation
 │       │   ├── solver/         # All solving strategies
 │       │   ├── hint/           # Multi-layer hint engine
+│       │   ├── quotes/         # Inspirational quote data & tiers
 │       │   └── stats/          # Stats tracking logic
 │       └── test/
 ├── apps/
