@@ -116,35 +116,65 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _themeTile(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.brightness_6),
-      title: const Text('Theme'),
-      trailing: SegmentedButton<AppThemeMode>(
-        segments: const [
-          ButtonSegment(
-            value: AppThemeMode.system,
-            icon: Icon(Icons.settings_brightness, size: 18),
-          ),
-          ButtonSegment(
-            value: AppThemeMode.light,
-            icon: Icon(Icons.light_mode, size: 18),
-          ),
-          ButtonSegment(
-            value: AppThemeMode.dark,
-            icon: Icon(Icons.dark_mode, size: 18),
-          ),
-          ButtonSegment(
-            value: AppThemeMode.amoled,
-            icon: Icon(Icons.brightness_1, size: 18),
+    final colorScheme = Theme.of(context).colorScheme;
+    final themeLabel = switch (settings.appThemeMode) {
+      AppThemeMode.system => 'System',
+      AppThemeMode.light => 'Light',
+      AppThemeMode.dark => 'Dark',
+      AppThemeMode.amoled => 'AMOLED',
+    };
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.brightness_6_outlined, color: colorScheme.onSurfaceVariant),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Theme'),
+                Text(
+                  themeLabel,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SegmentedButton<AppThemeMode>(
+                  segments: const [
+                    ButtonSegment(
+                      value: AppThemeMode.system,
+                      icon: Icon(Icons.settings_brightness_outlined, size: 18),
+                    ),
+                    ButtonSegment(
+                      value: AppThemeMode.light,
+                      icon: Icon(Icons.light_mode_outlined, size: 18),
+                    ),
+                    ButtonSegment(
+                      value: AppThemeMode.dark,
+                      icon: Icon(Icons.dark_mode_outlined, size: 18),
+                    ),
+                    ButtonSegment(
+                      value: AppThemeMode.amoled,
+                      icon: Icon(Icons.brightness_1_outlined, size: 18),
+                    ),
+                  ],
+                  selected: {settings.appThemeMode},
+                  onSelectionChanged: (s) => settings.setThemeMode(s.first),
+                  showSelectedIcon: false,
+                  style: ButtonStyle(
+                    visualDensity: VisualDensity.compact,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
-        selected: {settings.appThemeMode},
-        onSelectionChanged: (s) => settings.setThemeMode(s.first),
-        showSelectedIcon: false,
-        style: ButtonStyle(
-          visualDensity: VisualDensity.compact,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
       ),
     );
   }
@@ -198,36 +228,59 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _hintLimitTile(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.lightbulb_outline),
-      title: const Text('Hints'),
-      subtitle: Text(settings.hintLimit.description),
-      trailing: SegmentedButton<HintLimit>(
-        segments: const [
-          ButtonSegment(
-            value: HintLimit.disabled,
-            icon: Icon(Icons.block, size: 18),
-          ),
-          ButtonSegment(
-            value: HintLimit.nudgeOnly,
-            icon: Icon(Icons.lightbulb_outline, size: 18),
-          ),
-          ButtonSegment(
-            value: HintLimit.upToStrategy,
-            icon: Icon(Icons.psychology_outlined, size: 18),
-          ),
-          ButtonSegment(
-            value: HintLimit.all,
-            icon: Icon(Icons.check_circle_outline, size: 18),
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.lightbulb_outline, color: colorScheme.onSurfaceVariant),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Hints'),
+                Text(
+                  settings.hintLimit.description,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SegmentedButton<HintLimit>(
+                  segments: const [
+                    ButtonSegment(
+                      value: HintLimit.disabled,
+                      icon: Icon(Icons.block, size: 18),
+                    ),
+                    ButtonSegment(
+                      value: HintLimit.nudgeOnly,
+                      icon: Icon(Icons.lightbulb_outline, size: 18),
+                    ),
+                    ButtonSegment(
+                      value: HintLimit.upToStrategy,
+                      icon: Icon(Icons.psychology_outlined, size: 18),
+                    ),
+                    ButtonSegment(
+                      value: HintLimit.all,
+                      icon: Icon(Icons.check_circle_outline, size: 18),
+                    ),
+                  ],
+                  selected: {settings.hintLimit},
+                  onSelectionChanged: (s) => settings.setHintLimit(s.first),
+                  showSelectedIcon: false,
+                  style: ButtonStyle(
+                    visualDensity: VisualDensity.compact,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
-        selected: {settings.hintLimit},
-        onSelectionChanged: (s) => settings.setHintLimit(s.first),
-        showSelectedIcon: false,
-        style: ButtonStyle(
-          visualDensity: VisualDensity.compact,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
       ),
     );
   }
