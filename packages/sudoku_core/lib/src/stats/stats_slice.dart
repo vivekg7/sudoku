@@ -100,6 +100,18 @@ class StatsSlice {
     return counts;
   }
 
+  /// Total mistakes across all games.
+  int get totalMistakes =>
+      games.fold<int>(0, (sum, g) => sum + g.mistakeCount);
+
+  /// Average mistakes per completed game.
+  double get averageMistakes {
+    final completed = games.where((g) => g.completed).toList();
+    if (completed.isEmpty) return 0.0;
+    final total = completed.fold<int>(0, (sum, g) => sum + g.mistakeCount);
+    return total / completed.length;
+  }
+
   double get noHintRate {
     final completed = games.where((g) => g.completed).toList();
     if (completed.isEmpty) return 0.0;

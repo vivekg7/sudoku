@@ -24,6 +24,7 @@ class GameState extends ChangeNotifier {
   int _hintLayer = 0; // 0 = none, 1 = nudge, 2 = strategy, 3 = answer
   final Map<HintLevel, int> _hintCounts = {};
   final Map<StrategyType, int> _hintStrategyCounts = {};
+  int _mistakeCount = 0;
 
   /// Maximum hint layer allowed (0 = disabled, 1 = nudge, 2 = strategy, 3 = all).
   int maxHintLayer = 3;
@@ -60,6 +61,7 @@ class GameState extends ChangeNotifier {
   Map<StrategyType, int> get hintStrategyCounts =>
       Map.unmodifiable(_hintStrategyCounts);
   int get totalHints => _hintCounts.values.fold(0, (s, c) => s + c);
+  int get mistakeCount => _mistakeCount;
 
   /// Whether the solved state has been shown to the user.
   bool get isSolvedNotified => _isSolvedNotified;
@@ -80,6 +82,7 @@ class GameState extends ChangeNotifier {
     _hintLayer = 0;
     _hintCounts.clear();
     _hintStrategyCounts.clear();
+    _mistakeCount = 0;
     _error = null;
     notifyListeners();
 
@@ -123,6 +126,7 @@ class GameState extends ChangeNotifier {
     _hintLayer = 0;
     _hintCounts.clear();
     _hintStrategyCounts.clear();
+    _mistakeCount = 0;
     _stopwatch.start();
     _startTimer();
     notifyListeners();
@@ -257,6 +261,11 @@ class GameState extends ChangeNotifier {
       newCandidates: CandidateSet(),
     ));
     cell.setValue(value);
+
+    // Count mistakes: check if the placed value conflicts with any peer.
+    if (conflicts.contains((row, col))) {
+      _mistakeCount++;
+    }
 
     if (_puzzle!.isSolved) {
       _stopwatch.stop();
@@ -489,6 +498,7 @@ class GameState extends ChangeNotifier {
         notesEnabled: notesEnabled,
         showTimer: showTimer,
         boardLayout: boardLayout,
+        mistakeCount: _mistakeCount,
       );
 
   @override

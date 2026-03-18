@@ -42,6 +42,9 @@ class GameStats {
   /// Board layout name (e.g. 'circular', 'classic').
   final String boardLayout;
 
+  /// Number of conflicting placements made during the game.
+  final int mistakeCount;
+
   const GameStats({
     required this.id,
     required this.difficulty,
@@ -55,6 +58,7 @@ class GameStats {
     this.notesEnabled = true,
     this.showTimer = true,
     this.boardLayout = 'circular',
+    this.mistakeCount = 0,
   });
 
   /// Total number of hints taken across all layers.
@@ -81,6 +85,7 @@ class GameStats {
         'notesEnabled': notesEnabled,
         'showTimer': showTimer,
         'boardLayout': boardLayout,
+        'mistakeCount': mistakeCount,
       };
 
   factory GameStats.fromJson(Map<String, dynamic> json) => GameStats(
@@ -104,5 +109,6 @@ class GameStats {
         notesEnabled: (json['notesEnabled'] as bool?) ?? true,
         showTimer: (json['showTimer'] as bool?) ?? true,
         boardLayout: (json['boardLayout'] as String?) ?? 'circular',
+        mistakeCount: (json['mistakeCount'] as int?) ?? 0,
       );
 }

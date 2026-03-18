@@ -132,6 +132,8 @@ class _LeaderboardEntry extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           _hintChip(context),
+          const SizedBox(width: 4),
+          _mistakeChip(context),
         ],
       ),
     );
@@ -182,6 +184,25 @@ class _LeaderboardEntry extends StatelessWidget {
   ];
 
   String _formatDate(DateTime d) => '${_months[d.month - 1]} ${d.day}';
+
+  Widget _mistakeChip(BuildContext context) {
+    if (game.mistakeCount == 0) return const SizedBox.shrink();
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        '${game.mistakeCount}',
+        style: TextStyle(
+          fontSize: 11,
+          color: colorScheme.onErrorContainer,
+        ),
+      ),
+    );
+  }
 
   Widget _hintChip(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;

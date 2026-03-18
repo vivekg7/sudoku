@@ -23,6 +23,11 @@ class StatsOverviewCard extends StatelessWidget {
           'No-hint rate',
           '${(slice.noHintRate * 100).toStringAsFixed(0)}%',
         ),
+        StatRow('Total mistakes', '${slice.totalMistakes}'),
+        StatRow(
+          'Avg mistakes/game',
+          slice.averageMistakes.toStringAsFixed(1),
+        ),
       ],
     );
   }
