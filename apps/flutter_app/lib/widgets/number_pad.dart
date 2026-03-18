@@ -241,6 +241,66 @@ class NumberPad extends StatelessWidget {
     );
   }
 
+  Widget _hintBadge(BuildContext context) {
+    final totalHints = gameState.totalHints;
+    if (totalHints == 0) return const SizedBox.shrink();
+    final colorScheme = Theme.of(context).colorScheme;
+    return Positioned(
+      top: -2,
+      right: -2,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+        constraints: const BoxConstraints(minWidth: 16),
+        decoration: BoxDecoration(
+          color: colorScheme.primary,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          '$totalHints',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onPrimary,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _hintActionWithBadge(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            IconButton.outlined(
+              icon: const Icon(Icons.lightbulb_outline),
+              onPressed: null,
+              color: colorScheme.onSurfaceVariant,
+              disabledColor:
+                  colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+              focusNode:
+                  FocusNode(skipTraversal: true, canRequestFocus: false),
+            ),
+            _hintBadge(context),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Hint',
+          style: TextStyle(
+            fontSize: 11,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _hintButton(BuildContext context) {
     // Disable the hold button while a hint is showing at a non-max layer
     // (advancing is done through "More" in the hint panel).
@@ -248,12 +308,7 @@ class NumberPad extends StatelessWidget {
         gameState.hintLayer >= gameState.maxHintLayer;
 
     if (!canRequestNew) {
-      return _actionButton(
-        context,
-        icon: Icons.lightbulb_outline,
-        label: 'Hint',
-        onPressed: null,
-      );
+      return _hintActionWithBadge(context);
     }
 
     final colorScheme = Theme.of(context).colorScheme;
@@ -268,6 +323,7 @@ class NumberPad extends StatelessWidget {
           builder: (context, progress) {
             return Stack(
               alignment: Alignment.center,
+              clipBehavior: Clip.none,
               children: [
                 AbsorbPointer(
                   child: IconButton.outlined(
@@ -289,6 +345,7 @@ class NumberPad extends StatelessWidget {
                       backgroundColor: Colors.transparent,
                     ),
                   ),
+                _hintBadge(context),
               ],
             );
           },

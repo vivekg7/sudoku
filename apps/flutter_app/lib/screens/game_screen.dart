@@ -113,6 +113,9 @@ class _GameScreenState extends State<GameScreen> {
               ),
               actions: [
                 if (_gameState.puzzle != null) ...[
+                  if (widget.settings.assistToggles.showConflicts &&
+                      _gameState.mistakeCount > 0)
+                    _mistakeDisplay(),
                   if (widget.settings.showTimer) ...[
                     _timerDisplay(),
                     _pauseButton(),
@@ -130,6 +133,31 @@ class _GameScreenState extends State<GameScreen> {
                         : _gameView(),
           );
         },
+      ),
+    );
+  }
+
+  Widget _mistakeDisplay() {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.close_rounded, size: 14, color: colorScheme.error),
+            const SizedBox(width: 2),
+            Text(
+              '${_gameState.mistakeCount}',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.error,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
