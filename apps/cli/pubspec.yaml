@@ -13,5 +13,5 @@ dependencies:
     path: ../../packages/sudoku_core
 
 dev_dependencies:
-  lints: ^6.0.0
-  test: ^1.25.6
+  lints: ^6.1.0
+  test: ^1.30.0
