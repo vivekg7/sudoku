@@ -37,19 +37,26 @@ class _StrategyWalkthroughScreenState
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    // Accumulate highlights from all steps up to current
-    final highlightCells = <(int, int)>{};
-    final highlightCandidates = <(int, int, int)>{};
-    final eliminateCandidates = <(int, int, int)>{};
+    // Permanent state (accumulates across all steps up to current)
     final placeCells = <(int, int, int)>{};
+    final blockedCells = <(int, int)>{};
+    final removedCandidates = <(int, int, int)>{};
 
     for (var i = 0; i < _step; i++) {
       final step = _guide.steps[i];
-      highlightCells.addAll(step.highlightCells);
-      highlightCandidates.addAll(step.highlightCandidates);
-      eliminateCandidates.addAll(step.eliminateCandidates);
       placeCells.addAll(step.placeCells);
+      blockedCells.addAll(step.blockedCells);
+      // Candidates eliminated in previous steps are removed from the board
+      if (i < _step - 1) {
+        removedCandidates.addAll(step.eliminateCandidates);
+      }
     }
+
+    // Visual annotations (current step only)
+    final currentStep = _step > 0 ? _guide.steps[_step - 1] : null;
+    final highlightCells = currentStep?.highlightCells ?? const {};
+    final highlightCandidates = currentStep?.highlightCandidates ?? const {};
+    final eliminateCandidates = currentStep?.eliminateCandidates ?? const {};
 
     // Current caption
     final caption = _step == 0
@@ -75,6 +82,8 @@ class _StrategyWalkthroughScreenState
                       highlightCandidates: highlightCandidates,
                       eliminateCandidates: eliminateCandidates,
                       placeCells: placeCells,
+                      blockedCells: blockedCells,
+                      removedCandidates: removedCandidates,
                     ),
                   ),
                 ),

@@ -25,6 +25,12 @@ class WalkthroughBoardWidget extends StatelessWidget {
   /// Digits being placed — (row, col, digit).
   final Set<(int, int, int)> placeCells;
 
+  /// Cells marked as blocked (red/error background).
+  final Set<(int, int)> blockedCells;
+
+  /// Candidates removed in previous steps (hidden from rendering).
+  final Set<(int, int, int)> removedCandidates;
+
   const WalkthroughBoardWidget({
     super.key,
     required this.board,
@@ -33,24 +39,90 @@ class WalkthroughBoardWidget extends StatelessWidget {
     this.highlightCandidates = const {},
     this.eliminateCandidates = const {},
     this.placeCells = const {},
+    this.blockedCells = const {},
+    this.removedCandidates = const {},
   });
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1.0,
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 9,
-        ),
-        itemCount: 81,
-        itemBuilder: (context, index) {
-          final row = index ~/ 9;
-          final col = index % 9;
-          return _buildCell(context, row, col);
-        },
-      ),
+    final labelStyle = TextStyle(
+      fontSize: 10,
+      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    const labelSize = 16.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate grid size: square that fits in available space minus labels
+        final maxGridW = constraints.maxWidth - labelSize;
+        final maxGridH = constraints.maxHeight - labelSize;
+        final gridSize = maxGridW < maxGridH ? maxGridW : maxGridH;
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Column numbers
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(width: labelSize),
+                SizedBox(
+                  width: gridSize,
+                  height: labelSize,
+                  child: Row(
+                    children: [
+                      for (int c = 1; c <= 9; c++)
+                        Expanded(
+                          child: Center(
+                            child: Text('$c', style: labelStyle),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            // Row numbers + grid
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: labelSize,
+                  height: gridSize,
+                  child: Column(
+                    children: [
+                      for (int r = 1; r <= 9; r++)
+                        Expanded(
+                          child: Center(
+                            child: Text('$r', style: labelStyle),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: gridSize,
+                  height: gridSize,
+                  child: GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 9,
+                    ),
+                    itemCount: 81,
+                    itemBuilder: (context, index) {
+                      final row = index ~/ 9;
+                      final col = index % 9;
+                      return _buildCell(context, row, col);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -72,6 +144,8 @@ class WalkthroughBoardWidget extends StatelessWidget {
     Color bgColor;
     if (isStepPlacement) {
       bgColor = sudokuColors.answerBg;
+    } else if (blockedCells.contains((row, col))) {
+      bgColor = sudokuColors.conflict;
     } else if (highlightCells.contains((row, col))) {
       bgColor = colorScheme.primaryContainer.withValues(alpha: 0.5);
     } else {
@@ -178,6 +252,9 @@ class WalkthroughBoardWidget extends StatelessWidget {
     SudokuColors sudokuColors,
   ) {
     if (!cellCandidates.contains(digit)) return const SizedBox.shrink();
+    if (removedCandidates.contains((row, col, digit))) {
+      return const SizedBox.shrink();
+    }
 
     final isEliminated = eliminateCandidates.contains((row, col, digit));
     final isHighlighted = highlightCandidates.contains((row, col, digit));

@@ -51,11 +51,15 @@ class GuideStep {
   /// Digits being placed at this step — (row, col, digit).
   final Set<(int, int, int)> placeCells;
 
+  /// Cells to mark as blocked/eliminated (red background).
+  final Set<(int, int)> blockedCells;
+
   const GuideStep({
     required this.caption,
     this.highlightCells = const {},
     this.highlightCandidates = const {},
     this.eliminateCandidates = const {},
     this.placeCells = const {},
+    this.blockedCells = const {},
   });
 }
