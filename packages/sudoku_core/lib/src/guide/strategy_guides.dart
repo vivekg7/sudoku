@@ -18,6 +18,12 @@ final List<StrategyGuide> _allGuides = [
   _boxLineReductionGuide,
   _nakedPairGuide,
   _hiddenPairGuide,
+  _nakedTripleGuide,
+  _hiddenTripleGuide,
+  _nakedQuadGuide,
+  _hiddenQuadGuide,
+  _xWingGuide,
+  _swordfishGuide,
 ];
 
 // ---------------------------------------------------------------------------
@@ -606,6 +612,577 @@ final _hiddenPairGuide = StrategyGuide(
       caption: 'That\'s a Hidden Pair: two digits "hidden" among other '
           'candidates, but they only appear in these two cells. '
           'The pair locks in and everything else gets removed.',
+    ),
+  ],
+);
+
+// ===========================================================================
+// MEDIUM
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Naked Triple
+// ---------------------------------------------------------------------------
+//
+// In row 4, cells (4,0), (4,1), and (4,7) together contain only
+// candidates {2, 5, 8}. These 3 digits are locked into those 3 cells,
+// so eliminate 2, 5, 8 from the other empty cells in row 4.
+//
+// Row 4: _, _, 7, _, 3, _, 9, _, 1
+// Empty: (4,0), (4,1), (4,3), (4,5), (4,7) — missing: 2, 4, 5, 6, 8
+// Candidates:
+//   (4,0): {2, 5}        — triple cell
+//   (4,1): {5, 8}        — triple cell
+//   (4,3): {2, 4, 5, 6}  — has 2, 5 to eliminate
+//   (4,5): {4, 6, 8}     — has 8 to eliminate
+//   (4,7): {2, 8}        — triple cell
+
+final _nakedTripleGuide = StrategyGuide(
+  strategy: StrategyType.nakedTriple,
+  difficulty: Difficulty.medium,
+  intro: 'Three cells in a house whose combined candidates contain exactly '
+      'three digits — those digits can be removed from other cells.',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 7, 0, 3, 0, 9, 0, 1], // row 4: 5 empty cells
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    // The triple: cells with subsets of {2, 5, 8}
+    4 * 9 + 0: {2, 5},          // naked triple cell
+    4 * 9 + 1: {5, 8},          // naked triple cell
+    4 * 9 + 7: {2, 8},          // naked triple cell
+    // Other empty cells in row 4 with overlapping candidates
+    4 * 9 + 3: {2, 4, 5, 6},    // has 2, 5 — will be eliminated
+    4 * 9 + 5: {4, 6, 8},       // has 8 — will be eliminated
+  }),
+  steps: [
+    GuideStep(
+      caption: 'Look at row 5. Five cells are empty.',
+      highlightCells: {(4, 0), (4, 1), (4, 3), (4, 5), (4, 7)},
+    ),
+    GuideStep(
+      caption: 'Three of them have very few candidates: '
+          '{2, 5}, {5, 8}, and {2, 8}. '
+          'All drawn from the same three digits: 2, 5, and 8.',
+      highlightCells: {(4, 0), (4, 1), (4, 7)},
+      highlightCandidates: {
+        (4, 0, 2), (4, 0, 5),
+        (4, 1, 5), (4, 1, 8),
+        (4, 7, 2), (4, 7, 8),
+      },
+    ),
+    GuideStep(
+      caption: 'Three cells, three digits — a Naked Triple. '
+          '2, 5, and 8 must go in these cells, one per cell.',
+      highlightCells: {(4, 0), (4, 1), (4, 7)},
+      highlightCandidates: {
+        (4, 0, 2), (4, 0, 5),
+        (4, 1, 5), (4, 1, 8),
+        (4, 7, 2), (4, 7, 8),
+      },
+    ),
+    GuideStep(
+      caption: 'The other empty cells in this row also have some of '
+          'these digits as candidates. Since the triple has '
+          'claimed 2, 5, 8, they need to go.',
+      highlightCells: {(4, 0), (4, 1), (4, 7), (4, 3), (4, 5)},
+      highlightCandidates: {
+        (4, 0, 2), (4, 0, 5),
+        (4, 1, 5), (4, 1, 8),
+        (4, 7, 2), (4, 7, 8),
+        (4, 3, 2), (4, 3, 5),
+        (4, 5, 8),
+      },
+    ),
+    GuideStep(
+      caption: 'Eliminate 2, 5, and 8 from the other cells in this row.',
+      highlightCells: {(4, 0), (4, 1), (4, 7)},
+      highlightCandidates: {
+        (4, 0, 2), (4, 0, 5),
+        (4, 1, 5), (4, 1, 8),
+        (4, 7, 2), (4, 7, 8),
+      },
+      eliminateCandidates: {(4, 3, 2), (4, 3, 5), (4, 5, 8)},
+    ),
+    GuideStep(
+      caption: 'Naked Triple: same idea as Naked Pair, one size up. '
+          "Each cell doesn't need all three digits — "
+          'the combined set just has to be exactly three.',
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Hidden Triple
+// ---------------------------------------------------------------------------
+//
+// In row 5, candidates 1, 4, and 9 appear only in cells (5,0), (5,3),
+// and (5,7). Those cells also have other candidates, but since 1, 4, 9
+// can only go in those three cells, the extras are eliminated.
+//
+// Row 5: _, _, 3, _, 8, _, 7, _, 5
+// Empty: (5,0), (5,1), (5,3), (5,5), (5,7) — missing: 1, 2, 4, 6, 9
+// Candidates:
+//   (5,0): {1, 2, 4}  — has 1, 4
+//   (5,1): {2, 6}     — no 1, 4, or 9
+//   (5,3): {1, 2, 9}  — has 1, 9
+//   (5,5): {2, 6}     — no 1, 4, or 9
+//   (5,7): {4, 6, 9}  — has 4, 9
+// 1, 4, 9 only appear in (5,0), (5,3), (5,7) → Hidden Triple.
+
+final _hiddenTripleGuide = StrategyGuide(
+  strategy: StrategyType.hiddenTriple,
+  difficulty: Difficulty.medium,
+  intro: 'Three candidates that appear in exactly the same three cells — '
+      'all other candidates can be removed from those cells.',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 3, 0, 8, 0, 7, 0, 5], // row 5: 5 empty cells
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    5 * 9 + 0: {1, 2, 4},       // has 1, 4 ← hidden triple
+    5 * 9 + 1: {2, 6},          // no 1, 4, or 9
+    5 * 9 + 3: {1, 2, 9},       // has 1, 9 ← hidden triple
+    5 * 9 + 5: {2, 6},          // no 1, 4, or 9
+    5 * 9 + 7: {4, 6, 9},       // has 4, 9 ← hidden triple
+  }),
+  steps: [
+    GuideStep(
+      caption: 'Look at row 6. Five cells are empty '
+          'with various candidates.',
+      highlightCells: {(5, 0), (5, 1), (5, 3), (5, 5), (5, 7)},
+    ),
+    GuideStep(
+      caption: 'Where can 1 go in this row? '
+          'Only two of the five cells.',
+      highlightCells: {(5, 0), (5, 3)},
+      highlightCandidates: {(5, 0, 1), (5, 3, 1)},
+    ),
+    GuideStep(
+      caption: 'Where can 9 go? Only two cells — '
+          'and one of them overlaps with 1.',
+      highlightCells: {(5, 3), (5, 7)},
+      highlightCandidates: {(5, 3, 9), (5, 7, 9)},
+    ),
+    GuideStep(
+      caption: 'Where can 4 go? Again only two cells. '
+          'Together, 1, 4, and 9 only appear in these three cells. '
+          "That's a Hidden Triple.",
+      highlightCells: {(5, 0), (5, 3), (5, 7)},
+      highlightCandidates: {
+        (5, 0, 1), (5, 0, 4),
+        (5, 3, 1), (5, 3, 9),
+        (5, 7, 4), (5, 7, 9),
+      },
+    ),
+    GuideStep(
+      caption: 'Since 1, 4, 9 must go in these three cells, '
+          'eliminate every other candidate from them.',
+      highlightCells: {(5, 0), (5, 3), (5, 7)},
+      highlightCandidates: {
+        (5, 0, 1), (5, 0, 4),
+        (5, 3, 1), (5, 3, 9),
+        (5, 7, 4), (5, 7, 9),
+      },
+      eliminateCandidates: {(5, 0, 2), (5, 3, 2), (5, 7, 6)},
+    ),
+    GuideStep(
+      caption: 'Hidden Triple: three digits hidden among other '
+          'candidates, but confined to exactly three cells. '
+          'Same idea as Hidden Pair, one size up.',
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Naked Quad
+// ---------------------------------------------------------------------------
+//
+// In row 7, 4 cells together contain only candidates {2, 4, 6, 9}.
+// Row 7: _, _, 7, _, _, 8, _, _, 1
+// Empty: (7,0), (7,1), (7,3), (7,4), (7,6), (7,7) — missing: 2,3,4,5,6,9
+// Candidates:
+//   (7,0): {2, 4}       — quad cell
+//   (7,1): {4, 6, 9}    — quad cell
+//   (7,3): {3, 4, 5, 6} — has 4, 6 to eliminate
+//   (7,4): {3, 5, 9}    — has 9 to eliminate
+//   (7,6): {2, 9}       — quad cell
+//   (7,7): {2, 6}       — quad cell
+
+final _nakedQuadGuide = StrategyGuide(
+  strategy: StrategyType.nakedQuad,
+  difficulty: Difficulty.medium,
+  intro: 'Four cells in a house whose combined candidates contain exactly '
+      'four digits — those digits can be removed from other cells.',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 7, 0, 0, 8, 0, 0, 1], // row 7: 6 empty cells
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    // The quad: cells with subsets of {2, 4, 6, 9}
+    7 * 9 + 0: {2, 4},          // quad cell
+    7 * 9 + 1: {4, 6, 9},       // quad cell
+    7 * 9 + 6: {2, 9},          // quad cell
+    7 * 9 + 7: {2, 6},          // quad cell
+    // Other empty cells in row 7 with overlapping candidates
+    7 * 9 + 3: {3, 4, 5, 6},    // has 4, 6 — will be eliminated
+    7 * 9 + 4: {3, 5, 9},       // has 9 — will be eliminated
+  }),
+  steps: [
+    GuideStep(
+      caption: 'Look at row 8. Six cells are empty.',
+      highlightCells: {(7, 0), (7, 1), (7, 3), (7, 4), (7, 6), (7, 7)},
+    ),
+    GuideStep(
+      caption: 'Four of them have candidates drawn only from '
+          '{2, 4, 6, 9}: cells with {2, 4}, {4, 6, 9}, '
+          '{2, 9}, and {2, 6}.',
+      highlightCells: {(7, 0), (7, 1), (7, 6), (7, 7)},
+      highlightCandidates: {
+        (7, 0, 2), (7, 0, 4),
+        (7, 1, 4), (7, 1, 6), (7, 1, 9),
+        (7, 6, 2), (7, 6, 9),
+        (7, 7, 2), (7, 7, 6),
+      },
+    ),
+    GuideStep(
+      caption: 'Four cells, four digits — a Naked Quad. '
+          '2, 4, 6, 9 are locked into these four cells.',
+      highlightCells: {(7, 0), (7, 1), (7, 6), (7, 7)},
+      highlightCandidates: {
+        (7, 0, 2), (7, 0, 4),
+        (7, 1, 4), (7, 1, 6), (7, 1, 9),
+        (7, 6, 2), (7, 6, 9),
+        (7, 7, 2), (7, 7, 6),
+      },
+    ),
+    GuideStep(
+      caption: 'The other two empty cells also have some of '
+          'these digits. Since the quad has claimed them, '
+          'they need to go.',
+      highlightCells: {(7, 0), (7, 1), (7, 6), (7, 7), (7, 3), (7, 4)},
+      highlightCandidates: {
+        (7, 0, 2), (7, 0, 4),
+        (7, 1, 4), (7, 1, 6), (7, 1, 9),
+        (7, 6, 2), (7, 6, 9),
+        (7, 7, 2), (7, 7, 6),
+        (7, 3, 4), (7, 3, 6),
+        (7, 4, 9),
+      },
+    ),
+    GuideStep(
+      caption: 'Eliminate 4, 6, and 9 from the other cells in this row.',
+      highlightCells: {(7, 0), (7, 1), (7, 6), (7, 7)},
+      highlightCandidates: {
+        (7, 0, 2), (7, 0, 4),
+        (7, 1, 4), (7, 1, 6), (7, 1, 9),
+        (7, 6, 2), (7, 6, 9),
+        (7, 7, 2), (7, 7, 6),
+      },
+      eliminateCandidates: {(7, 3, 4), (7, 3, 6), (7, 4, 9)},
+    ),
+    GuideStep(
+      caption: 'Naked Quad: same logic as Naked Pair and Triple, '
+          'just bigger. Four cells claim four digits.',
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Hidden Quad
+// ---------------------------------------------------------------------------
+//
+// In row 2, candidates 1, 3, 7, 8 appear only in cells (2,0), (2,2),
+// (2,4), (2,7). Those cells have other candidates too, which get removed.
+//
+// Row 2: _, _, _, 6, _, _, 9, _, 5
+// Empty: (2,0), (2,1), (2,2), (2,4), (2,5), (2,7) — missing: 1,2,3,4,7,8
+// Candidates:
+//   (2,0): {1, 2, 3}     — has 1, 3 (quad)
+//   (2,1): {2, 4}         — no quad digits
+//   (2,2): {3, 4, 7, 8}  — has 3, 7, 8 (quad)
+//   (2,4): {1, 4, 8}     — has 1, 8 (quad)
+//   (2,5): {2, 4}         — no quad digits
+//   (2,7): {4, 7, 8}     — has 7, 8 (quad)
+// Digits 1, 3, 7, 8 only appear in the 4 quad cells.
+
+final _hiddenQuadGuide = StrategyGuide(
+  strategy: StrategyType.hiddenQuad,
+  difficulty: Difficulty.medium,
+  intro: 'Four candidates that appear in exactly four cells — all other '
+      'candidates can be removed from those cells.',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 6, 0, 0, 9, 0, 5], // row 2: 6 empty cells
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    2 * 9 + 0: {1, 2, 3},       // has 1, 3 ← hidden quad
+    2 * 9 + 1: {2, 4},          // no quad digits
+    2 * 9 + 2: {3, 4, 7, 8},    // has 3, 7, 8 ← hidden quad
+    2 * 9 + 4: {1, 4, 8},       // has 1, 8 ← hidden quad
+    2 * 9 + 5: {2, 4},          // no quad digits
+    2 * 9 + 7: {4, 7, 8},       // has 7, 8 ← hidden quad
+  }),
+  steps: [
+    GuideStep(
+      caption: 'Look at row 3. Six cells are empty '
+          'with various candidates.',
+      highlightCells: {(2, 0), (2, 1), (2, 2), (2, 4), (2, 5), (2, 7)},
+    ),
+    GuideStep(
+      caption: 'Where can 1 go? Only two cells. '
+          'Where can 3 go? Also only two cells.',
+      highlightCells: {(2, 0), (2, 2), (2, 4)},
+      highlightCandidates: {(2, 0, 1), (2, 4, 1), (2, 0, 3), (2, 2, 3)},
+    ),
+    GuideStep(
+      caption: 'Where can 7 go? Two cells. And 8? Three cells. '
+          'Together, 1, 3, 7, 8 only appear in these four cells.',
+      highlightCells: {(2, 0), (2, 2), (2, 4), (2, 7)},
+      highlightCandidates: {
+        (2, 0, 1), (2, 0, 3),
+        (2, 2, 3), (2, 2, 7), (2, 2, 8),
+        (2, 4, 1), (2, 4, 8),
+        (2, 7, 7), (2, 7, 8),
+      },
+    ),
+    GuideStep(
+      caption: 'Four digits, four cells — a Hidden Quad. '
+          'These digits are locked into these cells.',
+      highlightCells: {(2, 0), (2, 2), (2, 4), (2, 7)},
+      highlightCandidates: {
+        (2, 0, 1), (2, 0, 3),
+        (2, 2, 3), (2, 2, 7), (2, 2, 8),
+        (2, 4, 1), (2, 4, 8),
+        (2, 7, 7), (2, 7, 8),
+      },
+    ),
+    GuideStep(
+      caption: 'Eliminate every other candidate from those four cells.',
+      highlightCells: {(2, 0), (2, 2), (2, 4), (2, 7)},
+      highlightCandidates: {
+        (2, 0, 1), (2, 0, 3),
+        (2, 2, 3), (2, 2, 7), (2, 2, 8),
+        (2, 4, 1), (2, 4, 8),
+        (2, 7, 7), (2, 7, 8),
+      },
+      eliminateCandidates: {(2, 0, 2), (2, 2, 4), (2, 4, 4), (2, 7, 4)},
+    ),
+    GuideStep(
+      caption: 'Hidden Quad: four digits confined to four cells, '
+          'hidden among other candidates. '
+          'Rare, but the same logic as Hidden Pair and Triple.',
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// X-Wing
+// ---------------------------------------------------------------------------
+//
+// Candidate 4 appears in exactly 2 columns (col 2 and col 7) in both
+// row 1 and row 6. This forms a rectangle — 4 must go in two
+// diagonally opposite corners. So 4 can be eliminated from cols 2
+// and 7 in all other rows.
+//
+// No 4 is placed in cols 2 or 7, so the X-Wing is the only way
+// to make these eliminations.
+
+final _xWingGuide = StrategyGuide(
+  strategy: StrategyType.xWing,
+  difficulty: Difficulty.medium,
+  intro: 'A candidate appears in exactly two positions in two different '
+      'rows (or columns), forming a rectangle — it can be eliminated '
+      'from the rest of those columns (or rows).',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    // Row 1: candidate 4 only in cols 2 and 7
+    1 * 9 + 2: {3, 4, 6},
+    1 * 9 + 7: {4, 5, 9},
+    // Row 6: candidate 4 only in cols 2 and 7
+    6 * 9 + 2: {1, 4, 8},
+    6 * 9 + 7: {2, 4, 7},
+    // Other cells in cols 2 and 7 with candidate 4 (to be eliminated)
+    0 * 9 + 2: {4, 5, 7},       // will be eliminated
+    3 * 9 + 2: {2, 4, 9},       // will be eliminated
+    4 * 9 + 7: {4, 6, 8},       // will be eliminated
+    8 * 9 + 7: {1, 4, 3},       // will be eliminated
+  }),
+  steps: [
+    GuideStep(
+      caption: 'Look at candidate 4. In row 2, '
+          'it can only go in two cells: column 3 and column 8.',
+      highlightCells: {(1, 2), (1, 7)},
+      highlightCandidates: {(1, 2, 4), (1, 7, 4)},
+    ),
+    GuideStep(
+      caption: 'Now check row 7. Candidate 4 can also only go '
+          'in column 3 and column 8 — the same two columns.',
+      highlightCells: {(1, 2), (1, 7), (6, 2), (6, 7)},
+      highlightCandidates: {(1, 2, 4), (1, 7, 4), (6, 2, 4), (6, 7, 4)},
+    ),
+    GuideStep(
+      caption: 'These four cells form a rectangle. '
+          '4 must go in two of them — either the top-left and '
+          'bottom-right, or top-right and bottom-left.',
+      highlightCells: {(1, 2), (1, 7), (6, 2), (6, 7)},
+      highlightCandidates: {(1, 2, 4), (1, 7, 4), (6, 2, 4), (6, 7, 4)},
+    ),
+    GuideStep(
+      caption: 'Either way, columns 3 and 8 each get exactly one 4 '
+          'from these two rows. No other cell in those columns '
+          'can have 4.',
+      highlightCells: {
+        (1, 2), (1, 7), (6, 2), (6, 7),
+        (0, 2), (3, 2), (4, 7), (8, 7),
+      },
+      highlightCandidates: {
+        (1, 2, 4), (1, 7, 4), (6, 2, 4), (6, 7, 4),
+        (0, 2, 4), (3, 2, 4), (4, 7, 4), (8, 7, 4),
+      },
+    ),
+    GuideStep(
+      caption: 'Eliminate 4 from columns 3 and 8 outside the X-Wing.',
+      highlightCells: {(1, 2), (1, 7), (6, 2), (6, 7)},
+      highlightCandidates: {(1, 2, 4), (1, 7, 4), (6, 2, 4), (6, 7, 4)},
+      eliminateCandidates: {(0, 2, 4), (3, 2, 4), (4, 7, 4), (8, 7, 4)},
+    ),
+    GuideStep(
+      caption: "That's an X-Wing: two rows, two columns, one candidate, "
+          'four cells forming a rectangle. '
+          'Named after the shape the pattern makes.',
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Swordfish
+// ---------------------------------------------------------------------------
+//
+// Candidate 6 appears in exactly cols {1, 4, 7} across rows 0, 3, and 8.
+// Each row has 6 in 2-3 of those columns, and collectively they cover
+// exactly 3 columns. So 6 can be eliminated from cols 1, 4, 7 in all
+// other rows.
+
+final _swordfishGuide = StrategyGuide(
+  strategy: StrategyType.swordfish,
+  difficulty: Difficulty.medium,
+  intro: 'Like an X-Wing but with three rows and three columns — '
+      'a candidate confined to the same three columns across three rows '
+      'can be eliminated from those columns in other rows.',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    // Row 0: candidate 6 in cols 1 and 4
+    0 * 9 + 1: {2, 6, 8},
+    0 * 9 + 4: {3, 6, 7},
+    // Row 3: candidate 6 in cols 4 and 7
+    3 * 9 + 4: {1, 6, 5},
+    3 * 9 + 7: {6, 8, 9},
+    // Row 8: candidate 6 in cols 1 and 7
+    8 * 9 + 1: {1, 6, 3},
+    8 * 9 + 7: {5, 6, 7},
+    // Other cells in cols 1, 4, 7 with candidate 6 (to be eliminated)
+    2 * 9 + 1: {4, 6, 9},       // will be eliminated
+    5 * 9 + 4: {2, 6, 8},       // will be eliminated
+    6 * 9 + 7: {3, 6, 5},       // will be eliminated
+  }),
+  steps: [
+    GuideStep(
+      caption: 'Look at candidate 6. In row 1, '
+          'it can only go in columns 2 and 5.',
+      highlightCells: {(0, 1), (0, 4)},
+      highlightCandidates: {(0, 1, 6), (0, 4, 6)},
+    ),
+    GuideStep(
+      caption: 'In row 4, candidate 6 can only go in columns 5 and 8.',
+      highlightCells: {(0, 1), (0, 4), (3, 4), (3, 7)},
+      highlightCandidates: {(0, 1, 6), (0, 4, 6), (3, 4, 6), (3, 7, 6)},
+    ),
+    GuideStep(
+      caption: 'In row 9, candidate 6 can only go in columns 2 and 8. '
+          'Three rows, and they collectively use just three columns: '
+          '2, 5, and 8.',
+      highlightCells: {(0, 1), (0, 4), (3, 4), (3, 7), (8, 1), (8, 7)},
+      highlightCandidates: {
+        (0, 1, 6), (0, 4, 6),
+        (3, 4, 6), (3, 7, 6),
+        (8, 1, 6), (8, 7, 6),
+      },
+    ),
+    GuideStep(
+      caption: 'This is a Swordfish. Each of the three columns must '
+          'get exactly one 6 from these three rows. '
+          'So no other row can have 6 in those columns.',
+      highlightCells: {(0, 1), (0, 4), (3, 4), (3, 7), (8, 1), (8, 7)},
+      highlightCandidates: {
+        (0, 1, 6), (0, 4, 6),
+        (3, 4, 6), (3, 7, 6),
+        (8, 1, 6), (8, 7, 6),
+      },
+    ),
+    GuideStep(
+      caption: 'Eliminate 6 from columns 2, 5, and 8 outside '
+          'the Swordfish rows.',
+      highlightCells: {(0, 1), (0, 4), (3, 4), (3, 7), (8, 1), (8, 7)},
+      highlightCandidates: {
+        (0, 1, 6), (0, 4, 6),
+        (3, 4, 6), (3, 7, 6),
+        (8, 1, 6), (8, 7, 6),
+      },
+      eliminateCandidates: {(2, 1, 6), (5, 4, 6), (6, 7, 6)},
+    ),
+    GuideStep(
+      caption: 'Swordfish: an X-Wing scaled up to three rows and '
+          'three columns. Not every row needs all three columns — '
+          'just that the set of columns used is exactly three.',
     ),
   ],
 );
