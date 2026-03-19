@@ -54,6 +54,12 @@ class GuideStep {
   /// Cells to mark as blocked/eliminated (red background).
   final Set<(int, int)> blockedCells;
 
+  /// Cells colored with color A (e.g., blue for Simple Coloring chains).
+  final Set<(int, int)> colorACells;
+
+  /// Cells colored with color B (e.g., amber for Simple Coloring chains).
+  final Set<(int, int)> colorBCells;
+
   const GuideStep({
     required this.caption,
     this.highlightCells = const {},
@@ -61,5 +67,7 @@ class GuideStep {
     this.eliminateCandidates = const {},
     this.placeCells = const {},
     this.blockedCells = const {},
+    this.colorACells = const {},
+    this.colorBCells = const {},
   });
 }

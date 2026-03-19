@@ -57,6 +57,8 @@ class _StrategyWalkthroughScreenState
     final highlightCells = currentStep?.highlightCells ?? const {};
     final highlightCandidates = currentStep?.highlightCandidates ?? const {};
     final eliminateCandidates = currentStep?.eliminateCandidates ?? const {};
+    final colorACells = currentStep?.colorACells ?? const {};
+    final colorBCells = currentStep?.colorBCells ?? const {};
 
     // Current caption
     final caption = _step == 0
@@ -84,6 +86,8 @@ class _StrategyWalkthroughScreenState
                       placeCells: placeCells,
                       blockedCells: blockedCells,
                       removedCandidates: removedCandidates,
+                      colorACells: colorACells,
+                      colorBCells: colorBCells,
                     ),
                   ),
                 ),

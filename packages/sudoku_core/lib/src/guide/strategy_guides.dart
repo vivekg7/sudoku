@@ -31,6 +31,10 @@ final List<StrategyGuide> _allGuides = [
   _uniqueRectangleType2Guide,
   _uniqueRectangleType3Guide,
   _uniqueRectangleType4Guide,
+  _simpleColouringGuide,
+  _xChainGuide,
+  _xyChainGuide,
+  _aicGuide,
 ];
 
 // ---------------------------------------------------------------------------
@@ -1814,6 +1818,374 @@ final _uniqueRectangleType4Guide = StrategyGuide(
       caption: 'Unique Rectangle Type 4: one candidate is locked '
           'in the roof — the other gets eliminated to prevent '
           'the deadly pattern.',
+    ),
+  ],
+);
+
+// ===========================================================================
+// EXPERT
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Simple Coloring
+// ---------------------------------------------------------------------------
+//
+// Candidate 7 forms conjugate pairs (exactly 2 cells per house):
+//   Box 0: (0,2) ↔ (2,0) — conjugate pair
+//   Col 0: (2,0) ↔ (6,0) — conjugate pair
+//   Row 6: (6,0) ↔ (6,8) — conjugate pair
+//
+// Color A (blue): (0,2), (6,0)
+// Color B (amber): (2,0), (6,8)
+//
+// Target (0,8): sees (0,2) [color A] via row 0 and (6,8) [color B]
+// via col 8. It sees both colors → eliminate 7.
+// Target is NOT in any conjugate pair house (box 0, col 0, row 6).
+
+final _simpleColouringGuide = StrategyGuide(
+  strategy: StrategyType.simpleColouring,
+  difficulty: Difficulty.expert,
+  intro: 'Color conjugate pairs of a candidate with two alternating '
+      'colors — cells seeing both colors can\'t have that candidate.',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    // Chain nodes for candidate 7:
+    0 * 9 + 2: {3, 7, 9},       // color A (blue)
+    2 * 9 + 0: {2, 7, 8},       // color B (amber)
+    6 * 9 + 0: {1, 5, 7},       // color A (blue)
+    6 * 9 + 8: {4, 6, 7},       // color B (amber)
+    // Extra 7s to prevent row 0 and col 8 from being conjugate pairs
+    0 * 9 + 5: {5, 7, 8},       // 7 in row 0 → not a conjugate pair
+    3 * 9 + 8: {2, 7, 9},       // 7 in col 8 → not a conjugate pair
+    // Target: sees color A (0,2) via row 0, color B (6,8) via col 8
+    0 * 9 + 8: {1, 4, 7},       // will be eliminated
+  }),
+  steps: [
+    GuideStep(
+      caption: 'Focus on candidate 7. In some houses, 7 can only go '
+          'in exactly two cells — these are conjugate pairs. '
+          'One must be true, the other false.',
+      highlightCandidates: {(0, 2, 7), (2, 0, 7)},
+    ),
+    GuideStep(
+      caption: 'Start coloring: in box 1, these two cells form a '
+          'conjugate pair for 7. Give them alternating colors.',
+      colorACells: {(0, 2)},
+      colorBCells: {(2, 0)},
+      highlightCandidates: {(0, 2, 7), (2, 0, 7)},
+    ),
+    GuideStep(
+      caption: 'Extend the chain. The amber cell links to another '
+          'conjugate pair in column 1 — alternating to blue.',
+      colorACells: {(0, 2), (6, 0)},
+      colorBCells: {(2, 0)},
+      highlightCandidates: {(0, 2, 7), (2, 0, 7), (6, 0, 7)},
+    ),
+    GuideStep(
+      caption: 'Continue along row 7 to another conjugate pair — '
+          'alternating back to amber.',
+      colorACells: {(0, 2), (6, 0)},
+      colorBCells: {(2, 0), (6, 8)},
+      highlightCandidates: {(0, 2, 7), (2, 0, 7), (6, 0, 7), (6, 8, 7)},
+    ),
+    GuideStep(
+      caption: 'Now look at this cell. It sees a blue cell in its row '
+          'and an amber cell in its column. One of those colors must '
+          'be 7 — either way, this cell can\'t be 7.',
+      colorACells: {(0, 2), (6, 0)},
+      colorBCells: {(2, 0), (6, 8)},
+      highlightCells: {(0, 8)},
+      highlightCandidates: {(0, 8, 7), (0, 2, 7), (6, 8, 7)},
+    ),
+    GuideStep(
+      caption: 'Eliminate 7 from this cell — it sees both colors.',
+      colorACells: {(0, 2), (6, 0)},
+      colorBCells: {(2, 0), (6, 8)},
+      eliminateCandidates: {(0, 8, 7)},
+    ),
+    GuideStep(
+      caption: 'Simple Coloring: build a chain of conjugate pairs, '
+          'alternate two colors, and eliminate the candidate from '
+          'any cell that can see both colors.',
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// X-Chain
+// ---------------------------------------------------------------------------
+//
+// A chain of conjugate pairs for candidate 2, even length (4 nodes):
+//   Row 0: (0,1) ↔ (0,7)
+//   Col 7: (0,7) ↔ (5,7)
+//   Row 5: (5,7) ↔ (5,2)
+//
+// Chain: (0,1) — (0,7) — (5,7) — (5,2)
+// Both endpoints (0,1) and (5,2) have the same parity.
+// Target (3,1) sees (0,1) via col 1 and (5,2) via box 3.
+// Target is NOT in any chain house (row 0, col 7, row 5).
+
+final _xChainGuide = StrategyGuide(
+  strategy: StrategyType.xChain,
+  difficulty: Difficulty.expert,
+  intro: 'A chain of conjugate pairs for one candidate — cells seeing '
+      'both endpoints of an even-length chain can\'t have that candidate.',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    // Chain nodes for candidate 2:
+    0 * 9 + 1: {2, 5, 8},       // endpoint A
+    0 * 9 + 7: {2, 4, 9},       // link
+    5 * 9 + 7: {2, 3, 6},       // link
+    5 * 9 + 2: {1, 2, 7},       // endpoint B
+    // Extra 2s to prevent col 1 and box 3 from being conjugate pairs
+    6 * 9 + 1: {2, 3, 8},       // 2 in col 1
+    4 * 9 + 0: {2, 6, 9},       // 2 in box 3
+    // Target: sees (0,1) via col 1 and (5,2) via box 3
+    3 * 9 + 1: {2, 6, 9},       // will be eliminated
+  }),
+  steps: [
+    GuideStep(
+      caption: 'Focus on candidate 2. In row 1, it appears in '
+          'only two cells — a conjugate pair. '
+          'If one has 2, the other doesn\'t.',
+      highlightCells: {(0, 1), (0, 7)},
+      highlightCandidates: {(0, 1, 2), (0, 7, 2)},
+    ),
+    GuideStep(
+      caption: 'From the second cell, follow another conjugate pair '
+          'down column 8.',
+      highlightCells: {(0, 1), (0, 7), (5, 7)},
+      highlightCandidates: {(0, 1, 2), (0, 7, 2), (5, 7, 2)},
+    ),
+    GuideStep(
+      caption: 'Then another pair along row 6. '
+          'The chain has 4 nodes and 3 links — even length.',
+      highlightCells: {(0, 1), (0, 7), (5, 7), (5, 2)},
+      highlightCandidates: {(0, 1, 2), (0, 7, 2), (5, 7, 2), (5, 2, 2)},
+    ),
+    GuideStep(
+      caption: 'The two endpoints have the same parity — one of them '
+          'must be 2. Any cell seeing both endpoints can\'t have 2.',
+      highlightCells: {(0, 1), (5, 2), (3, 1)},
+      highlightCandidates: {(0, 1, 2), (5, 2, 2), (3, 1, 2)},
+    ),
+    GuideStep(
+      caption: 'This cell shares a column with one endpoint '
+          'and a box with the other. Eliminate 2.',
+      highlightCells: {(0, 1), (5, 2)},
+      highlightCandidates: {(0, 1, 2), (5, 2, 2)},
+      eliminateCandidates: {(3, 1, 2)},
+    ),
+    GuideStep(
+      caption: 'X-Chain: follow conjugate pairs for one digit, '
+          'building a chain. If the chain has even length, '
+          'eliminate the digit from cells seeing both ends.',
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// XY-Chain
+// ---------------------------------------------------------------------------
+//
+// A chain of bi-value cells:
+//   (0,0)={3,8} → (0,5)={8,5} → (4,5)={5,1} → (4,2)={1,3}
+// Shared: consecutive cells share one candidate.
+// Free value at start: 3. Free value at end: 3. They match!
+// Eliminate 3 from cells seeing both endpoints.
+// (4,0) sees (0,0) via col 0 and (4,2) via row 4.
+
+final _xyChainGuide = StrategyGuide(
+  strategy: StrategyType.xyChain,
+  difficulty: Difficulty.expert,
+  intro: 'A chain of bi-value cells where consecutive cells share one '
+      'candidate — the unshared candidate at both ends can be eliminated '
+      'from cells seeing both endpoints.',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    // Chain of bi-value cells:
+    0 * 9 + 0: {3, 8},          // endpoint A, free = 3
+    0 * 9 + 5: {5, 8},          // shares 8 with prev
+    4 * 9 + 5: {1, 5},          // shares 5 with prev
+    4 * 9 + 2: {1, 3},          // shares 1 with prev, free = 3
+    // Target: sees both endpoints
+    4 * 9 + 0: {3, 6, 7},       // will be eliminated
+  }),
+  steps: [
+    GuideStep(
+      caption: 'Find a chain of bi-value cells (cells with exactly '
+          'two candidates). Start here: {3, 8}.',
+      highlightCells: {(0, 0)},
+      highlightCandidates: {(0, 0, 3), (0, 0, 8)},
+    ),
+    GuideStep(
+      caption: 'A peer cell has {8, 5} — it shares 8 with the first. '
+          'Link them. The chain continues through shared candidates.',
+      highlightCells: {(0, 0), (0, 5)},
+      highlightCandidates: {(0, 0, 3), (0, 0, 8), (0, 5, 8), (0, 5, 5)},
+    ),
+    GuideStep(
+      caption: 'Next: {5, 1} shares 5. Then: {1, 3} shares 1. '
+          'Four cells form a chain.',
+      highlightCells: {(0, 0), (0, 5), (4, 5), (4, 2)},
+      highlightCandidates: {
+        (0, 0, 3), (0, 0, 8),
+        (0, 5, 8), (0, 5, 5),
+        (4, 5, 5), (4, 5, 1),
+        (4, 2, 1), (4, 2, 3),
+      },
+    ),
+    GuideStep(
+      caption: 'The "free" candidate (the one not shared with the next '
+          'cell) is 3 at both ends. If the first cell is 3, great. '
+          'If it\'s 8, the chain forces 3 to the last cell. '
+          'Either way, 3 is at one end.',
+      highlightCells: {(0, 0), (4, 2)},
+      highlightCandidates: {(0, 0, 3), (4, 2, 3)},
+    ),
+    GuideStep(
+      caption: 'Any cell seeing both endpoints can\'t have 3. '
+          'This cell shares a column with the first and a row '
+          'with the last.',
+      highlightCells: {(0, 0), (4, 2), (4, 0)},
+      highlightCandidates: {(0, 0, 3), (4, 2, 3), (4, 0, 3)},
+    ),
+    GuideStep(
+      caption: 'Eliminate 3 from that cell.',
+      highlightCells: {(0, 0), (4, 2)},
+      highlightCandidates: {(0, 0, 3), (4, 2, 3)},
+      eliminateCandidates: {(4, 0, 3)},
+    ),
+    GuideStep(
+      caption: 'XY-Chain: a chain of bi-value cells linked by shared '
+          'candidates. When the free value matches at both ends, '
+          'eliminate it from cells seeing both endpoints.',
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Alternating Inference Chain (AIC)
+// ---------------------------------------------------------------------------
+//
+// An AIC alternates strong and weak links between (cell, candidate) nodes.
+// Strong link: if one is false, the other must be true.
+// Weak link: if one is true, the other must be false.
+//
+// Chain for candidate 5:
+//   (1,3)=5 —strong[col 3]— (7,3)=5
+//   (7,3)=5 —weak[row 7]—   (7,6)=5
+//   (7,6)=5 —strong[box 8]— (8,8)=5
+//
+// Endpoints: (1,3) and (8,8). Both reached via strong links.
+// One of them must be 5. Target (1,8) sees both → eliminate 5.
+// Extra 5s in row 1, row 7, and col 8 prevent simpler chains.
+
+final _aicGuide = StrategyGuide(
+  strategy: StrategyType.alternatingInferenceChain,
+  difficulty: Difficulty.expert,
+  intro: 'A chain of alternating strong and weak links — when both '
+      'endpoints point to the same candidate, eliminate it from '
+      'cells seeing both ends.',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    // Chain nodes for candidate 5:
+    1 * 9 + 3: {2, 5, 8},       // endpoint A (strong link via col 3)
+    7 * 9 + 3: {1, 5, 7},       // link
+    7 * 9 + 6: {3, 5, 9},       // link (weak from row 7)
+    8 * 9 + 8: {4, 5, 6},       // endpoint B (strong link via box 8)
+    // Extra 5s to prevent simpler conjugate pairs
+    7 * 9 + 1: {5, 6, 8},       // 5 in row 7 → not conjugate pair
+    1 * 9 + 6: {1, 4, 5},       // 5 in row 1 → not conjugate pair
+    4 * 9 + 8: {2, 5, 7},       // 5 in col 8 → not conjugate pair
+    // Target: sees (1,3) via row 1 and (8,8) via col 8
+    1 * 9 + 8: {5, 6, 9},       // will be eliminated
+  }),
+  steps: [
+    GuideStep(
+      caption: 'AIC uses alternating strong and weak links. '
+          'A strong link means: if one is false, the other must be true. '
+          'Start with candidate 5 in column 4.',
+      highlightCells: {(1, 3), (7, 3)},
+      highlightCandidates: {(1, 3, 5), (7, 3, 5)},
+    ),
+    GuideStep(
+      caption: 'These two cells are the only places for 5 in column 4 — '
+          'a strong link. One of them must be 5.',
+      highlightCells: {(1, 3), (7, 3)},
+      highlightCandidates: {(1, 3, 5), (7, 3, 5)},
+    ),
+    GuideStep(
+      caption: 'From the second cell, a weak link across row 8. '
+          'Multiple cells have 5 in this row, so it\'s not a '
+          'strong link — just peers with the same candidate.',
+      highlightCells: {(1, 3), (7, 3), (7, 6)},
+      highlightCandidates: {(1, 3, 5), (7, 3, 5), (7, 6, 5)},
+    ),
+    GuideStep(
+      caption: 'Then a strong link within box 9 — only two cells '
+          'have 5 there. The chain: strong → weak → strong.',
+      highlightCells: {(1, 3), (7, 3), (7, 6), (8, 8)},
+      highlightCandidates: {(1, 3, 5), (7, 3, 5), (7, 6, 5), (8, 8, 5)},
+    ),
+    GuideStep(
+      caption: 'Both endpoints are reached via strong links — '
+          'one of them must be 5. Any cell seeing both '
+          'endpoints can\'t have 5.',
+      highlightCells: {(1, 3), (8, 8), (1, 8)},
+      highlightCandidates: {(1, 3, 5), (8, 8, 5), (1, 8, 5)},
+    ),
+    GuideStep(
+      caption: 'This cell shares a row with one endpoint '
+          'and a column with the other. Eliminate 5.',
+      highlightCells: {(1, 3), (8, 8)},
+      highlightCandidates: {(1, 3, 5), (8, 8, 5)},
+      eliminateCandidates: {(1, 8, 5)},
+    ),
+    GuideStep(
+      caption: 'AIC: the most general chain technique. Alternate '
+          'strong and weak links — when both ends agree on a '
+          'candidate, eliminate it from their common peers.',
     ),
   ],
 );

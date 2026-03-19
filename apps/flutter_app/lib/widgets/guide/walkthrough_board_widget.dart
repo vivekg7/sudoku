@@ -31,6 +31,12 @@ class WalkthroughBoardWidget extends StatelessWidget {
   /// Candidates removed in previous steps (hidden from rendering).
   final Set<(int, int, int)> removedCandidates;
 
+  /// Cells colored with color A (blue).
+  final Set<(int, int)> colorACells;
+
+  /// Cells colored with color B (amber).
+  final Set<(int, int)> colorBCells;
+
   const WalkthroughBoardWidget({
     super.key,
     required this.board,
@@ -40,6 +46,8 @@ class WalkthroughBoardWidget extends StatelessWidget {
     this.eliminateCandidates = const {},
     this.placeCells = const {},
     this.blockedCells = const {},
+    this.colorACells = const {},
+    this.colorBCells = const {},
     this.removedCandidates = const {},
   });
 
@@ -146,6 +154,10 @@ class WalkthroughBoardWidget extends StatelessWidget {
       bgColor = sudokuColors.answerBg;
     } else if (blockedCells.contains((row, col))) {
       bgColor = sudokuColors.conflict;
+    } else if (colorACells.contains((row, col))) {
+      bgColor = sudokuColors.strategyBg;
+    } else if (colorBCells.contains((row, col))) {
+      bgColor = sudokuColors.nudgeBg;
     } else if (highlightCells.contains((row, col))) {
       bgColor = colorScheme.primaryContainer.withValues(alpha: 0.5);
     } else {
