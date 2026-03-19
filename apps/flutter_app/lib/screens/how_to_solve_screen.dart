@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/guide/guide_grid_widget.dart';
+import 'strategy_guide_screen.dart';
 
 class HowToSolveScreen extends StatelessWidget {
   const HowToSolveScreen({super.key});
@@ -143,22 +144,41 @@ class HowToSolveScreen extends StatelessWidget {
                 const SizedBox(height: 32),
 
                 // --- Closing ---
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(12),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const StrategyGuideScreen(),
+                    ),
                   ),
-                  child: Text(
-                    "That's all you need to get started. As you play harder "
-                    'puzzles, you\'ll discover more advanced techniques — '
-                    'the hint system will introduce them to you along the way.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontStyle: FontStyle.italic,
-                      color: colorScheme.onSurfaceVariant,
-                      height: 1.5,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "That's all you need to get started. "
+                            'As you play harder puzzles, the hint system '
+                            'will introduce more advanced techniques. '
+                            'Want to study them? Check out the Strategy Guide.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontStyle: FontStyle.italic,
+                              color: colorScheme.onSurfaceVariant,
+                              height: 1.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.chevron_right,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ],
                     ),
                   ),
                 ),

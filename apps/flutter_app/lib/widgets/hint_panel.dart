@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
+import '../screens/strategy_walkthrough_screen.dart';
 import '../state/game_state.dart';
 import '../theme/app_theme.dart';
 import 'hold_button.dart';
@@ -59,10 +60,7 @@ class HintPanel extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  text,
-                  style: const TextStyle(fontSize: 13, height: 1.3),
-                ),
+                _buildHintText(context, text, level),
               ],
             ),
           ),
@@ -109,6 +107,55 @@ class HintPanel extends StatelessWidget {
         HintLevel.strategy => sc.strategyAccent,
         HintLevel.answer => sc.answerAccent,
       };
+
+  Widget _buildHintText(BuildContext context, String text, HintLevel level) {
+    // At strategy level, make the strategy name tappable if a guide exists.
+    if (level == HintLevel.strategy) {
+      final strategy = gameState.currentHint?.step.strategy;
+      if (strategy != null && strategyGuides.containsKey(strategy)) {
+        final name = strategy.label;
+        final nameIndex = text.indexOf(name);
+        if (nameIndex >= 0) {
+          final before = text.substring(0, nameIndex);
+          final after = text.substring(nameIndex + name.length);
+          return Text.rich(
+            TextSpan(
+              style: const TextStyle(fontSize: 13, height: 1.3),
+              children: [
+                if (before.isNotEmpty) TextSpan(text: before),
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.baseline,
+                  baseline: TextBaseline.alphabetic,
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => StrategyWalkthroughScreen(
+                          strategy: strategy,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 13,
+                        height: 1.3,
+                        color: Theme.of(context).colorScheme.primary,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                if (after.isNotEmpty) TextSpan(text: after),
+              ],
+            ),
+          );
+        }
+      }
+    }
+
+    return Text(text, style: const TextStyle(fontSize: 13, height: 1.3));
+  }
 
   Widget _moreButton(BuildContext context) {
     final cooldown = gameState.hintCooldownRemaining;

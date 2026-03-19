@@ -7,6 +7,7 @@ import '../services/storage_service.dart';
 import 'game_screen.dart';
 import 'how_to_solve_screen.dart';
 import 'pdf_export_screen.dart';
+import 'strategy_guide_screen.dart';
 import 'saved_games_screen.dart';
 import 'scan_screen.dart';
 import 'settings_screen.dart';
@@ -96,6 +97,12 @@ class HomeScreen extends StatelessWidget {
                     ),
                     _navButton(
                       context,
+                      icon: Icons.menu_book_outlined,
+                      label: 'Strategies',
+                      onPressed: () => _openStrategyGuide(context),
+                    ),
+                    _navButton(
+                      context,
                       icon: Icons.settings,
                       label: 'Settings',
                       onPressed: () => _openSettings(context),
@@ -153,6 +160,12 @@ class HomeScreen extends StatelessWidget {
   void _openHowToSolve(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const HowToSolveScreen()),
+    );
+  }
+
+  void _openStrategyGuide(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const StrategyGuideScreen()),
     );
   }
 
