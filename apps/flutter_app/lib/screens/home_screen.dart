@@ -5,6 +5,7 @@ import '../services/settings_service.dart';
 import '../widgets/app_logo.dart';
 import '../services/storage_service.dart';
 import 'game_screen.dart';
+import 'how_to_solve_screen.dart';
 import 'pdf_export_screen.dart';
 import 'saved_games_screen.dart';
 import 'scan_screen.dart';
@@ -58,47 +59,48 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 10),
                 ],
                 const SizedBox(height: 24),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _navButton(
-                        context,
-                        icon: Icons.save_outlined,
-                        label: 'Saved',
-                        onPressed: () => _openSavedGames(context),
-                      ),
-                      const SizedBox(width: 16),
-                      _navButton(
-                        context,
-                        icon: Icons.bar_chart,
-                        label: 'Stats',
-                        onPressed: () => _openStats(context),
-                      ),
-                      const SizedBox(width: 16),
-                      _navButton(
-                        context,
-                        icon: Icons.picture_as_pdf,
-                        label: 'PDF',
-                        onPressed: () => _openPdfExport(context),
-                      ),
-                      const SizedBox(width: 16),
-                      _navButton(
-                        context,
-                        icon: Icons.qr_code_scanner,
-                        label: 'Scan',
-                        onPressed: () => _openScan(context),
-                      ),
-                      const SizedBox(width: 16),
-                      _navButton(
-                        context,
-                        icon: Icons.settings,
-                        label: 'Settings',
-                        onPressed: () => _openSettings(context),
-                      ),
-                    ],
-                  ),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 16,
+                  runSpacing: 12,
+                  children: [
+                    _navButton(
+                      context,
+                      icon: Icons.save_outlined,
+                      label: 'Saved',
+                      onPressed: () => _openSavedGames(context),
+                    ),
+                    _navButton(
+                      context,
+                      icon: Icons.bar_chart,
+                      label: 'Stats',
+                      onPressed: () => _openStats(context),
+                    ),
+                    _navButton(
+                      context,
+                      icon: Icons.picture_as_pdf,
+                      label: 'PDF',
+                      onPressed: () => _openPdfExport(context),
+                    ),
+                    _navButton(
+                      context,
+                      icon: Icons.qr_code_scanner,
+                      label: 'Scan',
+                      onPressed: () => _openScan(context),
+                    ),
+                    _navButton(
+                      context,
+                      icon: Icons.school_outlined,
+                      label: 'Learn',
+                      onPressed: () => _openHowToSolve(context),
+                    ),
+                    _navButton(
+                      context,
+                      icon: Icons.settings,
+                      label: 'Settings',
+                      onPressed: () => _openSettings(context),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -145,6 +147,12 @@ class HomeScreen extends StatelessWidget {
           settings: settings,
         ),
       ),
+    );
+  }
+
+  void _openHowToSolve(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const HowToSolveScreen()),
     );
   }
 

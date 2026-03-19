@@ -81,7 +81,6 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 - Practice mode for specific strategies (e.g., "give me puzzles that require X-Wing").
 - Puzzle difficulty rating for user-imported puzzles.
 - Localisation / multi-language support.
-- **How to Solve Sudoku** — An in-app guide that teaches players how to approach and solve Sudoku puzzles from scratch.
 - **Interactive Strategy Guide** — Walkthroughs for every solving strategy with interactive examples the player can step through.
 - **Difficulty & Strategy Reference** — An in-app screen explaining all difficulty levels and which strategies are needed to solve each one.
 
@@ -93,6 +92,7 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 - **Inspirational quotes** — 90 hand-picked quotes across 3 tiers (Light, Medium, Deep) displayed on the puzzle screen as a subtle banner. Each puzzle gets one quote bound at generation time via a seed-based weighted distribution — lighter quotes favour easier puzzles, deeper quotes favour harder ones, but any quote can appear at any difficulty. The quote ID is stored in the puzzle state so it persists across sessions. Togglable in settings. Full design rationale in [docs/PLAN_QUOTES.md](docs/PLAN_QUOTES.md).
 - **Board layout selection** — Two board layouts selectable in settings: Circular (default, circular cells with tick-mark grid lines and no outer border) and Classic (traditional rectangular grid with full borders). Layout picker uses a bottom sheet with visual preview cards.
 - **Animation & transition polish** — Smooth, intentional animations throughout gameplay: cell background colour transitions (200ms), value placement scale+fade (150ms), hint panel entrance/exit with AnimatedSize (300ms) and level colour crossfade (250ms), puzzle solved celebration with board scale pulse and accent overlay (700ms), board fade-in on new game (400ms), conflict flash pulse on error cells (300ms), number pad active button scale (150ms) and completed button fade (150ms), pencil mode toggle scale (150ms), and pause screen entrance with fade+scale (300ms). All animations use `easeOutCubic` curves and are togglable in Settings > Appearance (enabled by default). When disabled, all `Duration.zero` — identical to pre-animation behaviour.
+- **How to Solve Sudoku** — A beginner-friendly scrollable guide accessible from the home screen ("Learn" button). Covers what Sudoku is, the one rule, why there's no guessing, elimination thinking, scanning, and tips for when stuck (including hint system usage). Includes static grid illustrations (9×9, 3×3, single row) built with a lightweight `GuideGridWidget`. Home screen nav buttons use `Wrap` for responsive layout on narrow screens. Full design rationale in [docs/PLAN_HOW_TO_GUIDE.md](docs/PLAN_HOW_TO_GUIDE.md).
 
 ---
 
