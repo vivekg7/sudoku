@@ -720,21 +720,43 @@ class _StepBoardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Build the board state at this step by replaying all prior placements.
-    final boardValues = puzzle.initialBoard.toValues();
+    // Replay the solve up to this step to get accurate board + candidates.
+    final board = puzzle.initialBoard.clone();
+    computeCandidates(board);
 
-    // Apply all placements from previous steps
+    // Apply all prior steps (placements + eliminations).
     for (var i = 0; i < stepIndex; i++) {
-      for (final p in allSteps[i].placements) {
-        boardValues[p.row][p.col] = p.value;
+      final s = allSteps[i];
+      for (final p in s.placements) {
+        final cell = board.getCell(p.row, p.col);
+        cell.setValue(p.value);
+        cell.setCandidates(CandidateSet());
+        for (final peer in board.peers(p.row, p.col)) {
+          peer.removeCandidate(p.value);
+        }
+      }
+      for (final e in s.eliminations) {
+        board.getCell(e.row, e.col).removeCandidate(e.value);
       }
     }
 
-    // Build empty candidate sets (we don't track full candidates here,
-    // but we show involved cells and eliminations from the current step).
-    final candidates = List.generate(81, (_) => <int>{});
+    // Extract board values and candidates for rendering.
+    // Only show candidates for strategies that work on eliminations
+    // (not singles — those are found by scanning, not by reading notes).
+    const noCandidateStrategies = {
+      StrategyType.hiddenSingle,
+      StrategyType.nakedSingle,
+    };
+    final showCandidates = !noCandidateStrategies.contains(step.strategy);
+    final boardValues = board.toValues();
+    final candidates = List.generate(81, (index) {
+      if (!showCandidates) return <int>{};
+      final r = index ~/ 9;
+      final c = index % 9;
+      return board.getCell(r, c).candidates.toSet();
+    });
 
-    // Highlights for the current step
+    // Highlights for the current step.
     final highlightCells = step.involvedCells
         .map((c) => (c.row, c.col))
         .toSet();
