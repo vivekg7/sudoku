@@ -35,6 +35,9 @@ final List<StrategyGuide> _allGuides = [
   _xChainGuide,
   _xyChainGuide,
   _aicGuide,
+  _forcingChainGuide,
+  _almostLockedSetGuide,
+  _sueDeCoqGuide,
 ];
 
 // ---------------------------------------------------------------------------
@@ -2186,6 +2189,356 @@ final _aicGuide = StrategyGuide(
       caption: 'AIC: the most general chain technique. Alternate '
           'strong and weak links — when both ends agree on a '
           'candidate, eliminate it from their common peers.',
+    ),
+  ],
+);
+
+// ===========================================================================
+// MASTER
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Forcing Chain
+// ---------------------------------------------------------------------------
+//
+// Cell (4,4) has candidates {3, 7}.
+// If (4,4)=3 → propagation forces (4,8)=9 (via naked singles in row 4)
+// If (4,4)=7 → propagation forces (4,8)=9 (via different path)
+// Both branches agree: (4,8) must be 9.
+//
+// Row 4: _, 2, 6, 1, _, 8, 5, 4, _
+// Empty: (4,0), (4,4), (4,8) — missing: 3, 7, 9
+// (4,0) has {3, 9}, (4,4) has {3, 7}, (4,8) has {7, 9}
+// If (4,4)=3 → (4,0) loses 3 → (4,0)=9 → (4,8) loses 9... wait.
+// Let me reconsider.
+//
+// Actually simpler: (4,4) has {3,7}. (4,0) has {7,9}. (4,8) has {3,9}.
+// If (4,4)=3 → 3 gone from row → (4,8) loses 3 → (4,8)=9
+// If (4,4)=7 → 7 gone from row → (4,0) loses 7 → (4,0)=9 → (4,8) loses 9 → (4,8)=9... wait, (4,8) still has {3,9}.
+// Hmm, need the chain to propagate to the same conclusion.
+//
+// If (4,4)=7 → (4,0) loses 7 → (4,0)=9 → (4,8) loses 9 → (4,8)=3
+// That's NOT the same. Let me redesign.
+//
+// Better: use a cell outside the row.
+// (4,4) has {3,7}. Pivot cell.
+// Branch 3: (4,4)=3 → some chain → forces (0,4)=6
+// Branch 7: (4,4)=7 → some chain → forces (0,4)=6
+// Both agree on (0,4)=6.
+//
+// Keep it simple — the walkthrough doesn't need full propagation,
+// just the concept. Show a bi-value cell, two branches, same result.
+
+// Pivot (4,4): {2, 8}
+//
+// Path A (2+ steps): (4,4)=2
+//   → (4,7)={2,5} loses 2 (row 4) → (4,7)=5
+//   → (7,7)={3,5} loses 5 (col 7) → (7,7)=3
+//   → (7,1)={3,6} loses 3 (row 7) → (7,1)=6 → eliminates 6 from (1,1)
+//
+// Path B (2+ steps): (4,4)=8
+//   → (1,4)={4,8} loses 8 (col 4) → (1,4)=4
+//   → (1,7)={4,6} loses 4 (row 1) → (1,7)=6 → eliminates 6 from (1,1)
+//
+// Both branches eliminate 6 from (1,1) via multi-step propagation.
+// NOT an XY-Wing: the pincers don't share a common digit (5 vs 4).
+
+final _forcingChainGuide = StrategyGuide(
+  strategy: StrategyType.forcingChain,
+  difficulty: Difficulty.master,
+  intro: 'Assume each candidate in a cell — if all assumptions lead to '
+      'the same conclusion elsewhere, that conclusion must be true.',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    4 * 9 + 4: {2, 8},          // pivot cell
+    // Path A chain: row 4 → col 7 → row 7
+    4 * 9 + 7: {2, 5},          // loses 2 → becomes 5
+    7 * 9 + 7: {3, 5},          // loses 5 → becomes 3
+    7 * 9 + 1: {3, 6},          // loses 3 → becomes 6 → col 1
+    // Path B chain: col 4 → row 1
+    1 * 9 + 4: {4, 8},          // loses 8 → becomes 4
+    1 * 9 + 7: {4, 6},          // loses 4 → becomes 6 → row 1
+    // Target: both paths place 6 where it eliminates from (1,1)
+    1 * 9 + 1: {4, 6, 9},       // 6 eliminated
+  }),
+  steps: [
+    GuideStep(
+      caption: 'This cell has two candidates: {2, 8}. '
+          "Let's try each one and follow the chain of consequences.",
+      highlightCells: {(4, 4)},
+      highlightCandidates: {(4, 4, 2), (4, 4, 8)},
+    ),
+    GuideStep(
+      caption: 'Branch 1: Assume it\'s 2. In the same row, this cell '
+          'loses 2 and becomes 5.',
+      highlightCells: {(4, 4), (4, 7)},
+      highlightCandidates: {(4, 4, 2), (4, 7, 5)},
+    ),
+    GuideStep(
+      caption: '5 propagates down the column: this cell loses 5 '
+          'and becomes 3. Then 3 propagates along the row: '
+          'this cell loses 3 and becomes 6.',
+      highlightCells: {(4, 4), (4, 7), (7, 7), (7, 1)},
+      highlightCandidates: {(4, 4, 2), (4, 7, 5), (7, 7, 3), (7, 1, 6)},
+    ),
+    GuideStep(
+      caption: 'With 6 placed in column 2, this target cell '
+          'loses 6. That\'s the end of branch 1.',
+      highlightCells: {(4, 4), (7, 1), (1, 1)},
+      highlightCandidates: {(4, 4, 2), (7, 1, 6), (1, 1, 4), (1, 1, 9)},
+    ),
+    GuideStep(
+      caption: 'Branch 2: Assume it\'s 8 instead. In the same column, '
+          'this cell loses 8 and becomes 4.',
+      highlightCells: {(4, 4), (1, 4)},
+      highlightCandidates: {(4, 4, 8), (1, 4, 4)},
+    ),
+    GuideStep(
+      caption: '4 propagates along the row: this cell loses 4 '
+          'and becomes 6.',
+      highlightCells: {(4, 4), (1, 4), (1, 7)},
+      highlightCandidates: {(4, 4, 8), (1, 4, 4), (1, 7, 6)},
+    ),
+    GuideStep(
+      caption: 'With 6 in row 2, the same target cell loses 6 again — '
+          'through a completely different path.',
+      highlightCells: {(4, 4), (1, 7), (1, 1)},
+      highlightCandidates: {(4, 4, 8), (1, 7, 6), (1, 1, 4), (1, 1, 9)},
+    ),
+    GuideStep(
+      caption: 'Both branches eliminate 6 from the same cell. Eliminate 6.',
+      highlightCells: {(4, 4)},
+      eliminateCandidates: {(1, 1, 6)},
+    ),
+    GuideStep(
+      caption: 'Forcing Chain: try each candidate, propagate using '
+          'naked singles, and compare. If every branch agrees on '
+          'the same result — it must be true. This goes beyond '
+          'simpler chain techniques because each branch involves '
+          'multiple steps of propagation.',
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Almost Locked Set (ALS-XZ)
+// ---------------------------------------------------------------------------
+//
+// ALS A: cells (0,0) and (0,1) with candidates {2,5,8} and {5,7,8}
+//   → 2 cells, 4 candidates (2,5,7,8) = N+2... that's too many.
+//   → Need N cells with N+1 candidates.
+//   → 2 cells with 3 candidates total: e.g., {2,5} and {5,8} → union {2,5,8}, 3 candidates, 2 cells ✓
+//
+// ALS A: (1,0)={2,5}, (1,1)={5,8} in row 1 — 2 cells, 3 candidates {2,5,8}
+// ALS B: (6,0)={2,4}, (6,1)={4,8} in row 6 — 2 cells, 3 candidates {2,4,8}
+//
+// Restricted common X=2: appears in (1,0) of A and (6,0) of B.
+// Both in col 0 — they see each other. X is restricted ✓.
+// Common candidate Z=8: appears in (1,1) of A and (6,1) of B.
+//
+// Eliminate Z=8 from cells seeing all Z-holders: cells seeing both
+// (1,1) and (6,1). They share col 1.
+// Target: (3,1) has 8, sees both via col 1.
+
+final _almostLockedSetGuide = StrategyGuide(
+  strategy: StrategyType.almostLockedSet,
+  difficulty: Difficulty.master,
+  intro: 'Two groups of cells, each "almost locked" (N cells with N+1 '
+      'candidates), sharing two common digits — one digit can be '
+      'eliminated from cells seeing both groups.',
+  board: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    // ALS A (row 1): 2 cells, 3 candidates {2, 5, 8}
+    1 * 9 + 0: {2, 5},
+    1 * 9 + 1: {5, 8},
+    // ALS B (row 6): 2 cells, 3 candidates {2, 4, 8}
+    6 * 9 + 0: {2, 4},
+    6 * 9 + 1: {4, 8},
+    // Target: sees Z=8 holders (1,1) and (6,1) via col 1
+    3 * 9 + 1: {1, 8, 9},       // will be eliminated
+  }),
+  steps: [
+    GuideStep(
+      caption: 'An Almost Locked Set (ALS) is a group of N cells '
+          'with N+1 candidates. Here are two such groups.',
+      highlightCells: {(1, 0), (1, 1), (6, 0), (6, 1)},
+    ),
+    GuideStep(
+      caption: 'ALS A: two cells in row 2 with candidates '
+          '{2, 5} and {5, 8} — three candidates total in two cells. '
+          'If you fixed any one candidate, the rest would be locked.',
+      colorACells: {(1, 0), (1, 1)},
+      highlightCandidates: {(1, 0, 2), (1, 0, 5), (1, 1, 5), (1, 1, 8)},
+    ),
+    GuideStep(
+      caption: 'ALS B: two cells in row 7 with candidates '
+          '{2, 4} and {4, 8} — three candidates in two cells.',
+      colorACells: {(1, 0), (1, 1)},
+      colorBCells: {(6, 0), (6, 1)},
+      highlightCandidates: {(6, 0, 2), (6, 0, 4), (6, 1, 4), (6, 1, 8)},
+    ),
+    GuideStep(
+      caption: 'The two groups share candidate 2 via column 1 — '
+          'cells that can see each other. This is the '
+          '"restricted common" (X). They also share candidate 8 '
+          'via column 2 — this is Z.',
+      colorACells: {(1, 0), (1, 1)},
+      colorBCells: {(6, 0), (6, 1)},
+      highlightCandidates: {
+        (1, 0, 2), (6, 0, 2), (1, 1, 8), (6, 1, 8),
+      },
+    ),
+    GuideStep(
+      caption: 'Because X=2 is restricted (the groups see each other '
+          'on 2), at most one group can contain 2. This forces '
+          'Z=8 into one of the groups. So 8 must be in one '
+          'of the Z-holders.',
+      colorACells: {(1, 0), (1, 1)},
+      colorBCells: {(6, 0), (6, 1)},
+      highlightCandidates: {(1, 1, 8), (6, 1, 8)},
+    ),
+    GuideStep(
+      caption: 'Any cell seeing all Z-holders can\'t have 8. '
+          'This cell shares a column with both.',
+      colorACells: {(1, 0), (1, 1)},
+      colorBCells: {(6, 0), (6, 1)},
+      highlightCells: {(3, 1)},
+      highlightCandidates: {(1, 1, 8), (6, 1, 8), (3, 1, 8)},
+    ),
+    GuideStep(
+      caption: 'Eliminate 8 from that cell.',
+      colorACells: {(1, 0), (1, 1)},
+      colorBCells: {(6, 0), (6, 1)},
+      eliminateCandidates: {(3, 1, 8)},
+    ),
+    GuideStep(
+      caption: 'ALS-XZ: two almost locked sets share a restricted '
+          'common (X) and another common (Z). Z gets eliminated '
+          'from cells seeing all Z-holders in both groups.',
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Sue de Coq
+// ---------------------------------------------------------------------------
+//
+// Box-line intersection: box 0, row 0.
+// (0,2)=7 is filled, so intersection has 2 empty cells: (0,0) and (0,1).
+// Together they have candidates {3, 5, 6, 8} — 2 cells, 4 candidates (N+2).
+//
+// Partition of the 2 "extra" candidates:
+//   lineOnly = {5}: appears in rest of row 0 but NOT rest of box 0.
+//   boxOnly = {8}: appears in rest of box 0 but NOT rest of row 0.
+//   shared = {3, 6}: appear in BOTH rest of row and rest of box.
+//
+// Eliminate: 5 from rest of row 0. 8 from rest of box 0.
+// After: (0,0) must be 5 (only cell with 5 in intersection),
+//        (0,1) must be 8 (only cell with 8). No contradiction.
+
+final _sueDeCoqGuide = StrategyGuide(
+  strategy: StrategyType.sueDeCoq,
+  difficulty: Difficulty.master,
+  intro: 'A box-line intersection with extra candidates that split — '
+      'some locked to the row, others to the box.',
+  board: [
+    [0, 0, 7, 0, 0, 0, 0, 0, 0], // (0,2)=7 → intersection is 2 cells
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  candidates: _candidates({
+    // Intersection cells: box 0 ∩ row 0 (cols 0-1, since (0,2)=7)
+    0 * 9 + 0: {3, 5, 6},       // intersection — has lineOnly 5
+    0 * 9 + 1: {3, 6, 8},       // intersection — has boxOnly 8
+    // Rest of row 0: has 5 (lineOnly), 3, 6 (shared), NOT 8
+    0 * 9 + 4: {2, 3, 5},       // has 5 — will be eliminated
+    0 * 9 + 6: {4, 5, 6},       // has 5 — will be eliminated
+    // Rest of box 0: has 8 (boxOnly), 3, 6 (shared), NOT 5
+    1 * 9 + 0: {3, 8, 9},       // has 8 — will be eliminated
+    2 * 9 + 1: {6, 8},          // has 8 — will be eliminated
+  }),
+  steps: [
+    GuideStep(
+      caption: 'Look at where box 1 meets row 1 — two empty cells '
+          'in the intersection. Together they have four candidates: '
+          '{3, 5, 6, 8}. Two cells, four candidates — two more '
+          'than the cells can hold.',
+      highlightCells: {(0, 0), (0, 1)},
+      highlightCandidates: {
+        (0, 0, 3), (0, 0, 5), (0, 0, 6),
+        (0, 1, 3), (0, 1, 6), (0, 1, 8),
+      },
+    ),
+    GuideStep(
+      caption: 'Look at where each candidate appears outside the '
+          'intersection. 5 appears in the rest of the row '
+          'but NOT the rest of the box — it\'s "line-only."',
+      highlightCells: {(0, 0), (0, 1), (0, 4), (0, 6)},
+      highlightCandidates: {
+        (0, 0, 5), (0, 4, 5), (0, 6, 5),
+      },
+    ),
+    GuideStep(
+      caption: '8 appears in the rest of the box but NOT the rest '
+          'of the row — it\'s "box-only."',
+      highlightCells: {(0, 0), (0, 1), (1, 0), (2, 1)},
+      highlightCandidates: {
+        (0, 1, 8), (1, 0, 8), (2, 1, 8),
+      },
+    ),
+    GuideStep(
+      caption: '3 and 6 appear in both — they\'re shared and can go '
+          'anywhere. But the extras (5 and 8) split cleanly: '
+          '5 belongs to the row, 8 belongs to the box. '
+          "That's a Sue de Coq.",
+      highlightCells: {(0, 0), (0, 1)},
+      highlightCandidates: {
+        (0, 0, 3), (0, 0, 5), (0, 0, 6),
+        (0, 1, 3), (0, 1, 6), (0, 1, 8),
+      },
+    ),
+    GuideStep(
+      caption: 'Since the intersection must supply 5 to the row '
+          '(no other source), eliminate 5 from the rest of the row.',
+      highlightCells: {(0, 0), (0, 1)},
+      eliminateCandidates: {(0, 4, 5), (0, 6, 5)},
+    ),
+    GuideStep(
+      caption: 'And since it must supply 8 to the box, '
+          'eliminate 8 from the rest of the box.',
+      highlightCells: {(0, 0), (0, 1)},
+      eliminateCandidates: {(1, 0, 8), (2, 1, 8)},
+    ),
+    GuideStep(
+      caption: 'Sue de Coq: a box-line intersection with extra '
+          'candidates that split — one locked to the row, '
+          'one to the box. One of the rarest strategies.',
     ),
   ],
 );
