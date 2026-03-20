@@ -46,16 +46,30 @@ class HomeScreen extends StatelessWidget {
                 for (final difficulty in Difficulty.values) ...[
                   SizedBox(
                     width: 220,
-                    child: FilledButton.tonal(
-                      onPressed: () => _startGame(context, difficulty),
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: Text(
-                        difficulty.label,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
+                    child: Builder(builder: (context) {
+                      final colorScheme = Theme.of(context).colorScheme;
+                      // 0.0 (Beginner) to 1.0 (Master)
+                      final t = difficulty.index /
+                          (Difficulty.values.length - 1);
+                      final bg = Color.lerp(
+                        colorScheme.secondaryContainer,
+                        colorScheme.primary.withValues(alpha: 0.10),
+                        t,
+                      )!;
+                      return FilledButton.tonal(
+                        onPressed: () => _startGame(context, difficulty),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: bg,
+                          foregroundColor: colorScheme.onSurface,
+                          padding:
+                              const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: Text(
+                          difficulty.label,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      );
+                    }),
                   ),
                   const SizedBox(height: 10),
                 ],
