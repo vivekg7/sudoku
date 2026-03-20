@@ -4,7 +4,7 @@ import '../../theme/app_theme.dart';
 
 /// A read-only 9×9 Sudoku board for strategy walkthroughs.
 ///
-/// Uses the same layout as the game board (classic style) — GridView with
+/// Uses the same layout as the game board (classic style) - GridView with
 /// per-cell borders and FittedBox for scaling digits and candidates.
 class WalkthroughBoardWidget extends StatelessWidget {
   /// 9×9 grid of placed digits (0 = empty).
@@ -16,13 +16,13 @@ class WalkthroughBoardWidget extends StatelessWidget {
   /// Cells to highlight with accent color.
   final Set<(int, int)> highlightCells;
 
-  /// Candidates to accent — (row, col, digit).
+  /// Candidates to accent - (row, col, digit).
   final Set<(int, int, int)> highlightCandidates;
 
-  /// Candidates being eliminated — (row, col, digit).
+  /// Candidates being eliminated - (row, col, digit).
   final Set<(int, int, int)> eliminateCandidates;
 
-  /// Digits being placed — (row, col, digit).
+  /// Digits being placed - (row, col, digit).
   final Set<(int, int, int)> placeCells;
 
   /// Cells marked as blocked (red/error background).
@@ -164,7 +164,7 @@ class WalkthroughBoardWidget extends StatelessWidget {
       bgColor = colorScheme.surface;
     }
 
-    // Cell border — same style as classic game board
+    // Cell border - same style as classic game board
     final thinColor =
         isDark ? colorScheme.outlineVariant : const Color(0xFFBDBDBD);
     final thickColor =

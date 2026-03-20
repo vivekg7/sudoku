@@ -13,7 +13,7 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 // A cell where all candidates except one have been eliminated by its
 // row, column, and box. The remaining candidate must be the answer.
 //
-// Target cell: (4, 4) -- centre of the grid.
+// Target cell: (4, 4) - centre of the grid.
 // We need 8 different digits visible in its row, column, and box,
 // leaving only one candidate.
 //
@@ -26,7 +26,7 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 final nakedSingleGuide = StrategyGuide(
   strategy: StrategyType.nakedSingle,
   difficulty: Difficulty.beginner,
-  intro: 'A cell with only one possible candidate left — all others are '
+  intro: 'A cell with only one possible candidate left - all others are '
       'eliminated by its row, column, and box.',
   board: [
     [0, 0, 0, 0, 2, 0, 0, 0, 0], // row 0: 2 in col 4
@@ -39,7 +39,7 @@ final nakedSingleGuide = StrategyGuide(
     [0, 0, 0, 0, 0, 0, 0, 0, 0], // row 7
     [0, 0, 0, 0, 8, 0, 0, 0, 0], // row 8: 8 in col 4
   ],
-  candidates: _candidates({}), // No candidates needed -- elimination by scanning
+  candidates: _candidates({}), // No candidates needed - elimination by scanning
   steps: [
     // Step 1: Focus on the cell
     GuideStep(
@@ -79,7 +79,7 @@ final nakedSingleGuide = StrategyGuide(
     // Step 6: Place it
     GuideStep(
       caption: 'Place 7. When every digit but one is ruled out, '
-          "that's a Naked Single — the answer is right there "
+          "that's a Naked Single - the answer is right there "
           'in plain sight.',
       placeCells: {(4, 4, 7)},
     ),

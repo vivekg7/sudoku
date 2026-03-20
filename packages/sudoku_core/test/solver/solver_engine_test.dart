@@ -56,7 +56,7 @@ void main() {
     });
 
     test('returns isSolved=false for an invalid/unsolvable puzzle', () {
-      // Two 9s in the same row — unsolvable.
+      // Two 9s in the same row - unsolvable.
       final board = Board.fromString(
         '990000000'
         '000000000'

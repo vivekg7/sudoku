@@ -4,7 +4,7 @@ import '../strategy.dart';
 import '../strategy_type.dart';
 import '../strategy_utils.dart';
 
-/// X-Wing, Swordfish, Jellyfish — generalized "fish" pattern.
+/// X-Wing, Swordfish, Jellyfish - generalized "fish" pattern.
 ///
 /// For a candidate value, if N rows each contain that candidate in exactly
 /// the same N columns (or vice versa), the candidate can be eliminated from

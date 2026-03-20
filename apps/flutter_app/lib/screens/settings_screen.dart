@@ -445,7 +445,7 @@ class SettingsScreen extends StatelessWidget {
           Text(
             'This app teaches you how to think, not just gives you answers. '
             'Every puzzle is generated on the fly with real solving strategies '
-            '— from naked singles to forcing chains.',
+            ' - from naked singles to forcing chains.',
           ),
           SizedBox(height: 12),
           Text(

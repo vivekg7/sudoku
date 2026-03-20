@@ -57,7 +57,7 @@ class PdfService {
     void Function(int completed)? onProgress,
   ) async {
     if (count <= 1) {
-      // Single puzzle — no benefit from parallelism.
+      // Single puzzle - no benefit from parallelism.
       final result = await compute(
         _generatePuzzlesWithHints,
         _GenParams(count, difficulty, 0),

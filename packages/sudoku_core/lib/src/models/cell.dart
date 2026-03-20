@@ -5,17 +5,17 @@ class Cell {
   final int row;
   final int col;
 
-  /// The 3x3 box index (0–8), derived from row and col.
+  /// The 3x3 box index (0-8), derived from row and col.
   int get box => (row ~/ 3) * 3 + col ~/ 3;
 
-  /// The current value (1–9), or 0 if empty.
+  /// The current value (1-9), or 0 if empty.
   int _value;
   int get value => _value;
 
   /// Whether this cell was part of the original puzzle (cannot be modified).
   final bool isGiven;
 
-  /// Candidate pencil marks — possible values the player is considering.
+  /// Candidate pencil marks - possible values the player is considering.
   final CandidateSet _candidates;
   CandidateSet get candidates => _candidates;
 

@@ -11,8 +11,8 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 // ---------------------------------------------------------------------------
 //
 // Pivot cell (4,4) has candidates {2, 5, 8}.
-// Pincer 1: (4,3) has {2, 5} -- same row and same box as pivot.
-// Pincer 2: (3,4) has {5, 8} -- same column and same box as pivot.
+// Pincer 1: (4,3) has {2, 5} - same row and same box as pivot.
+// Pincer 2: (3,4) has {5, 8} - same column and same box as pivot.
 // All three share candidate 5. Eliminate 5 from cells seeing all three.
 // Since all three are in box 4, eliminate 5 from other cells in box 4
 // that have candidate 5.
@@ -20,7 +20,7 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 final xyzWingGuide = StrategyGuide(
   strategy: StrategyType.xyzWing,
   difficulty: Difficulty.hard,
-  intro: 'Like XY-Wing, but the pivot has three candidates — the shared '
+  intro: 'Like XY-Wing, but the pivot has three candidates - the shared '
       'candidate is eliminated from cells that see all three cells.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -36,9 +36,9 @@ final xyzWingGuide = StrategyGuide(
   candidates: _candidates({
     // Pivot: (4,4) with {2, 5, 8}
     4 * 9 + 4: {2, 5, 8},
-    // Pincer 1: (4,3) with {2, 5} -- same row + box as pivot
+    // Pincer 1: (4,3) with {2, 5} - same row + box as pivot
     4 * 9 + 3: {2, 5},
-    // Pincer 2: (3,4) with {5, 8} -- same col + box as pivot
+    // Pincer 2: (3,4) with {5, 8} - same col + box as pivot
     3 * 9 + 4: {5, 8},
     // All three are in box 4 -> eliminate 5 from other box 4 cells
     3 * 9 + 3: {1, 5, 9},       // will be eliminated
@@ -53,13 +53,13 @@ final xyzWingGuide = StrategyGuide(
       highlightCandidates: {(4, 4, 2), (4, 4, 5), (4, 4, 8)},
     ),
     GuideStep(
-      caption: 'Next to it, a cell with {2, 5} — shares 2 and 5 '
+      caption: 'Next to it, a cell with {2, 5} - shares 2 and 5 '
           'with the pivot. That\'s pincer 1.',
       highlightCells: {(4, 4), (4, 3)},
       highlightCandidates: {(4, 4, 2), (4, 4, 5), (4, 3, 2), (4, 3, 5)},
     ),
     GuideStep(
-      caption: 'Above the pivot, a cell with {5, 8} — shares 5 and 8. '
+      caption: 'Above the pivot, a cell with {5, 8} - shares 5 and 8. '
           'That\'s pincer 2. All three cells share candidate 5.',
       highlightCells: {(4, 4), (4, 3), (3, 4)},
       highlightCandidates: {
@@ -95,8 +95,8 @@ final xyzWingGuide = StrategyGuide(
     GuideStep(
       caption: 'XYZ-Wing: like XY-Wing but the pivot has three '
           'candidates. The shared digit must be in one of the three '
-          'cells — eliminating it from their common peers. '
-          'The three cells don\'t have to be in the same box — '
+          'cells - eliminating it from their common peers. '
+          'The three cells don\'t have to be in the same box - '
           'this example just happens to work that way.',
     ),
   ],

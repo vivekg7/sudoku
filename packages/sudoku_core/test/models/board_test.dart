@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 const _solvedFlat =
     '534678912672195348198342567859761423426853791713924856961537284287419635345286179';
 
-// A valid puzzle (unsolved) — some cells zeroed out.
+// A valid puzzle (unsolved) - some cells zeroed out.
 const _puzzleFlat =
     '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
 
@@ -153,7 +153,7 @@ void main() {
     test('clone produces independent copy', () {
       final board = Board.fromString(_puzzleFlat);
       final copy = board.clone();
-      // Modify copy on an empty cell — original should be unchanged
+      // Modify copy on an empty cell - original should be unchanged
       copy.getCell(0, 2).setValue(4);
       expect(board.getCell(0, 2).isEmpty, true);
       expect(copy.getCell(0, 2).value, 4);

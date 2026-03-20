@@ -33,7 +33,7 @@ class GuideCell {
 
 /// A lightweight grid widget for illustrative Sudoku diagrams in the guide.
 ///
-/// Not a reuse of BoardWidget — this is purpose-built for small, static
+/// Not a reuse of BoardWidget - this is purpose-built for small, static
 /// illustrations with highlighting, annotations, and crossed-out digits.
 class GuideGridWidget extends StatelessWidget {
   /// 2D list of cells, rows × cols.

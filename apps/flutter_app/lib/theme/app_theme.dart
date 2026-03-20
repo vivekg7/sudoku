@@ -5,17 +5,17 @@ import 'package:flutter/material.dart';
 /// Access via `Theme.of(context).extension<SudokuColors>()!`.
 @immutable
 class SudokuColors extends ThemeExtension<SudokuColors> {
-  // Hint panel — nudge level
+  // Hint panel - nudge level
   final Color nudgeBg;
   final Color nudgeBorder;
   final Color nudgeAccent;
 
-  // Hint panel — strategy level
+  // Hint panel - strategy level
   final Color strategyBg;
   final Color strategyBorder;
   final Color strategyAccent;
 
-  // Hint panel — answer level
+  // Hint panel - answer level
   final Color answerBg;
   final Color answerBorder;
   final Color answerAccent;
@@ -81,7 +81,7 @@ class SudokuColors extends ThemeExtension<SudokuColors> {
     answerBg: Color(0xFF15301A),
     answerBorder: Color(0xFF66BB6A),
     answerAccent: Color(0xFF81C784),
-    // Cell highlights — opaque equivalents of previous alpha-blended colors
+    // Cell highlights - opaque equivalents of previous alpha-blended colors
     hintPlacement: Color(0xFF1A3A1C),
     hintInvolved: Color(0xFF3D2200),
     conflictSelected: Color(0xFF4A1414),

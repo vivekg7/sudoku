@@ -21,7 +21,7 @@ final xyChainGuide = StrategyGuide(
   strategy: StrategyType.xyChain,
   difficulty: Difficulty.expert,
   intro: 'A chain of bi-value cells where consecutive cells share one '
-      'candidate — the unshared candidate at both ends can be eliminated '
+      'candidate - the unshared candidate at both ends can be eliminated '
       'from cells seeing both endpoints.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -51,7 +51,7 @@ final xyChainGuide = StrategyGuide(
       highlightCandidates: {(0, 0, 3), (0, 0, 8)},
     ),
     GuideStep(
-      caption: 'A peer cell has {8, 5} — it shares 8 with the first. '
+      caption: 'A peer cell has {8, 5} - it shares 8 with the first. '
           'Link them. The chain continues through shared candidates.',
       highlightCells: {(0, 0), (0, 5)},
       highlightCandidates: {(0, 0, 3), (0, 0, 8), (0, 5, 8), (0, 5, 5)},

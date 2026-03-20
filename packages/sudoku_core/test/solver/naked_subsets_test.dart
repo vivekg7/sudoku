@@ -40,7 +40,7 @@ void main() {
 
     test('returns null when no naked pair exists', () {
       final board = Board.empty();
-      // All empty cells with full candidates — no pair.
+      // All empty cells with full candidates - no pair.
       for (var c = 0; c < 9; c++) {
         board.getCell(0, c).setCandidates(CandidateSet.of([1, 2, 3, 4, 5, 6, 7, 8, 9]));
       }
@@ -67,7 +67,7 @@ void main() {
       board.getCell(0, 5).setCandidates(CandidateSet.of([3, 7]));
       board.getCell(0, 6).setCandidates(CandidateSet.of([3, 9]));
       board.getCell(0, 7).setCandidates(CandidateSet.of([7, 9]));
-      // Cell 8 has overlap — should get eliminations.
+      // Cell 8 has overlap - should get eliminations.
       board.getCell(0, 8).setCandidates(CandidateSet.of([3, 7, 8]));
 
       final step = strategy.apply(board);
@@ -87,12 +87,12 @@ void main() {
 
       board.getCell(0, 0).setValue(5);
 
-      // Cells 1–4 form a naked quad {1, 2, 3, 4}.
+      // Cells 1-4 form a naked quad {1, 2, 3, 4}.
       board.getCell(0, 1).setCandidates(CandidateSet.of([1, 2]));
       board.getCell(0, 2).setCandidates(CandidateSet.of([2, 3]));
       board.getCell(0, 3).setCandidates(CandidateSet.of([3, 4]));
       board.getCell(0, 4).setCandidates(CandidateSet.of([1, 4]));
-      // Cells 5–8 have overlap.
+      // Cells 5-8 have overlap.
       board.getCell(0, 5).setCandidates(CandidateSet.of([1, 6, 7]));
       board.getCell(0, 6).setCandidates(CandidateSet.of([2, 8]));
       board.getCell(0, 7).setCandidates(CandidateSet.of([3, 9]));

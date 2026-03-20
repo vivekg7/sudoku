@@ -326,7 +326,7 @@ class Game {
       _hintLayer = 0;
 
       if (_currentHint == null) {
-        print('No hint available — the board may be in an invalid state.');
+        print('No hint available - the board may be in an invalid state.');
         return;
       }
     }
@@ -384,7 +384,7 @@ class Game {
   void _printBoard() {
     // Clear screen for a cleaner experience.
     print('\x1B[2J\x1B[H');
-    print('Sudoku — ${puzzle.difficulty.label}    Time: ${_timer.formatted}'
+    print('Sudoku - ${puzzle.difficulty.label}    Time: ${_timer.formatted}'
         '    Empty: ${puzzle.emptyCellCount}');
     if (puzzle.quoteId != null) {
       final quote = QuoteRepository.instance.getById(puzzle.quoteId!);

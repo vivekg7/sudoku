@@ -42,7 +42,7 @@ enum HintLimit {
   const HintLimit(this.maxLayer, this.label, this.description);
 }
 
-/// Individual visual-aid toggles — replaces the old tiered AssistLevel.
+/// Individual visual-aid toggles - replaces the old tiered AssistLevel.
 class AssistToggles {
   final bool highlightRelated;
   final bool highlightSameDigit;
@@ -136,7 +136,7 @@ enum BoardLayout {
   const BoardLayout(this.label, this.description);
 }
 
-/// App theme mode — extends Flutter's ThemeMode with AMOLED support.
+/// App theme mode - extends Flutter's ThemeMode with AMOLED support.
 enum AppThemeMode {
   system,
   light,
@@ -277,7 +277,7 @@ class SettingsService extends ChangeNotifier {
       );
       _animationsEnabled = json['animationsEnabled'] as bool? ?? true;
     } catch (_) {
-      // Ignore corrupt settings — defaults are fine.
+      // Ignore corrupt settings - defaults are fine.
     }
   }
 

@@ -2,7 +2,7 @@ import '../models/board.dart';
 import '../models/difficulty.dart';
 import '../models/puzzle.dart';
 
-/// An entry in the puzzle store — a saved or bookmarked puzzle.
+/// An entry in the puzzle store - a saved or bookmarked puzzle.
 class PuzzleEntry {
   /// Unique identifier.
   final String id;

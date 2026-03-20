@@ -3,7 +3,7 @@ import '../solve_step.dart';
 import '../strategy.dart';
 import '../strategy_type.dart';
 
-/// A cell with only one candidate — that must be its value.
+/// A cell with only one candidate - that must be its value.
 class NakedSingle extends Strategy {
   @override
   SolveStep? apply(Board board) {

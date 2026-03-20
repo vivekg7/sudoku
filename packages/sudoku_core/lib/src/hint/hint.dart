@@ -2,7 +2,7 @@ import '../solver/solve_step.dart';
 
 /// The level of detail a hint reveals.
 enum HintLevel {
-  /// A vague nudge — region and digit only.
+  /// A vague nudge - region and digit only.
   /// e.g., "Look for 3 in box 4"
   nudge,
 

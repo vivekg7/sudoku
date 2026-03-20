@@ -20,7 +20,7 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 // Both branches agree: (4,8) must be 9.
 //
 // Row 4: _, 2, 6, 1, _, 8, 5, 4, _
-// Empty: (4,0), (4,4), (4,8) -- missing: 3, 7, 9
+// Empty: (4,0), (4,4), (4,8) - missing: 3, 7, 9
 // (4,0) has {3, 9}, (4,4) has {3, 7}, (4,8) has {7, 9}
 // If (4,4)=3 -> (4,0) loses 3 -> (4,0)=9 -> (4,8) loses 9... wait.
 // Let me reconsider.
@@ -39,7 +39,7 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 // Branch 7: (4,4)=7 -> some chain -> forces (0,4)=6
 // Both agree on (0,4)=6.
 //
-// Keep it simple -- the walkthrough doesn't need full propagation,
+// Keep it simple - the walkthrough doesn't need full propagation,
 // just the concept. Show a bi-value cell, two branches, same result.
 
 // Pivot (4,4): {2, 8}
@@ -59,7 +59,7 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 final forcingChainGuide = StrategyGuide(
   strategy: StrategyType.forcingChain,
   difficulty: Difficulty.master,
-  intro: 'Assume each candidate in a cell — if all assumptions lead to '
+  intro: 'Assume each candidate in a cell - if all assumptions lead to '
       'the same conclusion elsewhere, that conclusion must be true.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -123,7 +123,7 @@ final forcingChainGuide = StrategyGuide(
       highlightCandidates: {(4, 4, 8), (1, 4, 4), (1, 7, 6)},
     ),
     GuideStep(
-      caption: 'With 6 in row 2, the same target cell loses 6 again — '
+      caption: 'With 6 in row 2, the same target cell loses 6 again - '
           'through a completely different path.',
       highlightCells: {(4, 4), (1, 7), (1, 1)},
       highlightCandidates: {(4, 4, 8), (1, 7, 6), (1, 1, 4), (1, 1, 9)},
@@ -136,7 +136,7 @@ final forcingChainGuide = StrategyGuide(
     GuideStep(
       caption: 'Forcing Chain: try each candidate, propagate using '
           'naked singles, and compare. If every branch agrees on '
-          'the same result — it must be true. This goes beyond '
+          'the same result - it must be true. This goes beyond '
           'simpler chain techniques because each branch involves '
           'multiple steps of propagation.',
     ),

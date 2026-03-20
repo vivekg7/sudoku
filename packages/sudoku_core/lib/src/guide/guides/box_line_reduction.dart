@@ -10,7 +10,7 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 // Box/Line Reduction
 // ---------------------------------------------------------------------------
 //
-// Candidate 6 in row 6 appears only in cols 0 and 1 -- both in box 6
+// Candidate 6 in row 6 appears only in cols 0 and 1 - both in box 6
 // (rows 6-8, cols 0-2). So 6 can be eliminated from the rest of box 6.
 //
 // Why does 6 only appear in cols 0-1 of row 6? Fill the other cells
@@ -37,7 +37,7 @@ final boxLineReductionGuide = StrategyGuide(
     // Row 6: only cols 0 and 1 are empty, both have candidate 6
     6 * 9 + 0: {6, 7},          // has 6 <- box/line
     6 * 9 + 1: {6, 7},          // has 6 <- box/line
-    // Rest of box 6 -- cells with candidate 6 to be eliminated
+    // Rest of box 6 - cells with candidate 6 to be eliminated
     7 * 9 + 0: {1, 6, 8},       // will be eliminated
     7 * 9 + 1: {2, 4, 9},
     7 * 9 + 2: {4, 6, 8},       // will be eliminated
@@ -47,7 +47,7 @@ final boxLineReductionGuide = StrategyGuide(
   }),
   steps: [
     GuideStep(
-      caption: 'Look at row 7. Most cells are filled — '
+      caption: 'Look at row 7. Most cells are filled - '
           'only two are empty, both in the bottom-left box.',
       highlightCells: {(6, 0), (6, 1)},
     ),

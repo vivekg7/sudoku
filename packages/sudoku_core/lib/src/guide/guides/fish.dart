@@ -11,7 +11,7 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 // ---------------------------------------------------------------------------
 //
 // Candidate 4 appears in exactly 2 columns (col 2 and col 7) in both
-// row 1 and row 6. This forms a rectangle -- 4 must go in two
+// row 1 and row 6. This forms a rectangle - 4 must go in two
 // diagonally opposite corners. So 4 can be eliminated from cols 2
 // and 7 in all other rows.
 //
@@ -22,7 +22,7 @@ final xWingGuide = StrategyGuide(
   strategy: StrategyType.xWing,
   difficulty: Difficulty.medium,
   intro: 'A candidate appears in exactly two positions in two different '
-      'rows (or columns), forming a rectangle — it can be eliminated '
+      'rows (or columns), forming a rectangle - it can be eliminated '
       'from the rest of those columns (or rows).',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -57,13 +57,13 @@ final xWingGuide = StrategyGuide(
     ),
     GuideStep(
       caption: 'Now check row 7. Candidate 4 can also only go '
-          'in column 3 and column 8 — the same two columns.',
+          'in column 3 and column 8 - the same two columns.',
       highlightCells: {(1, 2), (1, 7), (6, 2), (6, 7)},
       highlightCandidates: {(1, 2, 4), (1, 7, 4), (6, 2, 4), (6, 7, 4)},
     ),
     GuideStep(
       caption: 'These four cells form a rectangle. '
-          '4 must go in two of them — either the top-left and '
+          '4 must go in two of them - either the top-left and '
           'bottom-right, or top-right and bottom-left.',
       highlightCells: {(1, 2), (1, 7), (6, 2), (6, 7)},
       highlightCandidates: {(1, 2, 4), (1, 7, 4), (6, 2, 4), (6, 7, 4)},
@@ -107,7 +107,7 @@ final xWingGuide = StrategyGuide(
 final swordfishGuide = StrategyGuide(
   strategy: StrategyType.swordfish,
   difficulty: Difficulty.medium,
-  intro: 'Like an X-Wing but with three rows and three columns — '
+  intro: 'Like an X-Wing but with three rows and three columns - '
       'a candidate confined to the same three columns across three rows '
       'can be eliminated from those columns in other rows.',
   board: [
@@ -183,7 +183,7 @@ final swordfishGuide = StrategyGuide(
     ),
     GuideStep(
       caption: 'Swordfish: an X-Wing scaled up to three rows and '
-          'three columns. Not every row needs all three columns — '
+          'three columns. Not every row needs all three columns - '
           'just that the set of columns used is exactly three.',
     ),
   ],
@@ -205,7 +205,7 @@ final swordfishGuide = StrategyGuide(
 final jellyfishGuide = StrategyGuide(
   strategy: StrategyType.jellyfish,
   difficulty: Difficulty.hard,
-  intro: 'Like Swordfish but with four rows and four columns — a candidate '
+  intro: 'Like Swordfish but with four rows and four columns - a candidate '
       'confined to four columns across four rows can be eliminated '
       'from those columns in other rows.',
   board: [

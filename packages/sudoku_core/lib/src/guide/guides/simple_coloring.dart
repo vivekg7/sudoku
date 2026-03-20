@@ -15,9 +15,9 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 // ---------------------------------------------------------------------------
 //
 // Candidate 7 forms conjugate pairs (exactly 2 cells per house):
-//   Box 0: (0,2) <-> (2,0) -- conjugate pair
-//   Col 0: (2,0) <-> (6,0) -- conjugate pair
-//   Row 6: (6,0) <-> (6,8) -- conjugate pair
+//   Box 0: (0,2) <-> (2,0) - conjugate pair
+//   Col 0: (2,0) <-> (6,0) - conjugate pair
+//   Row 6: (6,0) <-> (6,8) - conjugate pair
 //
 // Color A (blue): (0,2), (6,0)
 // Color B (amber): (2,0), (6,8)
@@ -30,7 +30,7 @@ final simpleColoringGuide = StrategyGuide(
   strategy: StrategyType.simpleColoring,
   difficulty: Difficulty.expert,
   intro: 'Color conjugate pairs of a candidate with two alternating '
-      'colors — cells seeing both colors can\'t have that candidate.',
+      'colors - cells seeing both colors can\'t have that candidate.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -57,7 +57,7 @@ final simpleColoringGuide = StrategyGuide(
   steps: [
     GuideStep(
       caption: 'Focus on candidate 7. In some houses, 7 can only go '
-          'in exactly two cells — these are conjugate pairs. '
+          'in exactly two cells - these are conjugate pairs. '
           'One must be true, the other false.',
       highlightCandidates: {(0, 2, 7), (2, 0, 7)},
     ),
@@ -70,13 +70,13 @@ final simpleColoringGuide = StrategyGuide(
     ),
     GuideStep(
       caption: 'Extend the chain. The amber cell links to another '
-          'conjugate pair in column 1 — alternating to blue.',
+          'conjugate pair in column 1 - alternating to blue.',
       colorACells: {(0, 2), (6, 0)},
       colorBCells: {(2, 0)},
       highlightCandidates: {(0, 2, 7), (2, 0, 7), (6, 0, 7)},
     ),
     GuideStep(
-      caption: 'Continue along row 7 to another conjugate pair — '
+      caption: 'Continue along row 7 to another conjugate pair - '
           'alternating back to amber.',
       colorACells: {(0, 2), (6, 0)},
       colorBCells: {(2, 0), (6, 8)},
@@ -85,14 +85,14 @@ final simpleColoringGuide = StrategyGuide(
     GuideStep(
       caption: 'Now look at this cell. It sees a blue cell in its row '
           'and an amber cell in its column. One of those colors must '
-          'be 7 — either way, this cell can\'t be 7.',
+          'be 7 - either way, this cell can\'t be 7.',
       colorACells: {(0, 2), (6, 0)},
       colorBCells: {(2, 0), (6, 8)},
       highlightCells: {(0, 8)},
       highlightCandidates: {(0, 8, 7), (0, 2, 7), (6, 8, 7)},
     ),
     GuideStep(
-      caption: 'Eliminate 7 from this cell — it sees both colors.',
+      caption: 'Eliminate 7 from this cell - it sees both colors.',
       colorACells: {(0, 2), (6, 0)},
       colorBCells: {(2, 0), (6, 8)},
       eliminateCandidates: {(0, 8, 7)},

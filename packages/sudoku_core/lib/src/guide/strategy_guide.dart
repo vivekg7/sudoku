@@ -42,13 +42,13 @@ class GuideStep {
   /// Cells to highlight (the pattern being shown).
   final Set<(int, int)> highlightCells;
 
-  /// Specific candidates to accent — (row, col, digit).
+  /// Specific candidates to accent - (row, col, digit).
   final Set<(int, int, int)> highlightCandidates;
 
-  /// Candidates being eliminated at this step — (row, col, digit).
+  /// Candidates being eliminated at this step - (row, col, digit).
   final Set<(int, int, int)> eliminateCandidates;
 
-  /// Digits being placed at this step — (row, col, digit).
+  /// Digits being placed at this step - (row, col, digit).
   final Set<(int, int, int)> placeCells;
 
   /// Cells to mark as blocked/eliminated (red background).

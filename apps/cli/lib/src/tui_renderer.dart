@@ -105,7 +105,7 @@ class TuiRenderer {
   void _renderBoard(StringBuffer buf, RenderState state) {
     final selectedValue = state.board.getCell(state.cursorRow, state.cursorCol).value;
 
-    // Column headers — 4 chars prefix (3 label + 1 border), 3 chars per cell, 1 char per separator
+    // Column headers - 4 chars prefix (3 label + 1 border), 3 chars per cell, 1 char per separator
     buf.write('${Ansi.fgGray}    ');
     for (var c = 0; c < 9; c++) {
       if (c > 0) buf.write(' ');
@@ -205,7 +205,7 @@ class TuiRenderer {
   void _renderBoardWithCandidates(StringBuffer buf, RenderState state) {
     final selectedValue = state.board.getCell(state.cursorRow, state.cursorCol).value;
 
-    // Column headers — 6 chars prefix (5 label + 1 border), 5 chars per cell, 1 char per separator
+    // Column headers - 6 chars prefix (5 label + 1 border), 5 chars per cell, 1 char per separator
     buf.write('${Ansi.fgGray}      ');
     for (var c = 0; c < 9; c++) {
       if (c > 0) buf.write(' ');

@@ -1,10 +1,10 @@
 import 'dart:collection';
 
-/// A set of Sudoku candidate values (1–9) backed by a bitmask.
+/// A set of Sudoku candidate values (1-9) backed by a bitmask.
 ///
-/// Bit `i` being set means value `i` is a candidate. Only bits 1–9 are used.
+/// Bit `i` being set means value `i` is a candidate. Only bits 1-9 are used.
 /// All set operations (union, intersection, contains, length) are single
-/// bitwise ops — no heap allocation, no hashing.
+/// bitwise ops - no heap allocation, no hashing.
 class CandidateSet extends IterableBase<int> {
   int _bits;
 

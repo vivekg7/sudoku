@@ -15,7 +15,7 @@ void main() {
       // Intersection cells: (0,0) and (0,1) with 4 total candidates.
       board.getCell(0, 0).setCandidates(CandidateSet.of([1, 2, 3]));
       board.getCell(0, 1).setCandidates(CandidateSet.of([1, 2, 4]));
-      // Union: {1,2,3,4} — 4 candidates for 2 cells (N=2, N+2=4). ✓
+      // Union: {1,2,3,4} - 4 candidates for 2 cells (N=2, N+2=4). ✓
 
       // Rest of row 0 (outside box 0): cols 3-8.
       board.getCell(0, 3).setCandidates(CandidateSet.of([3, 5]));

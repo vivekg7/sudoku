@@ -26,7 +26,7 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 final aicGuide = StrategyGuide(
   strategy: StrategyType.alternatingInferenceChain,
   difficulty: Difficulty.expert,
-  intro: 'A chain of alternating strong and weak links — when both '
+  intro: 'A chain of alternating strong and weak links - when both '
       'endpoints point to the same candidate, eliminate it from '
       'cells seeing both ends.',
   board: [
@@ -62,7 +62,7 @@ final aicGuide = StrategyGuide(
       highlightCandidates: {(1, 3, 5), (7, 3, 5)},
     ),
     GuideStep(
-      caption: 'These two cells are the only places for 5 in column 4 — '
+      caption: 'These two cells are the only places for 5 in column 4 - '
           'a strong link. One of them must be 5.',
       highlightCells: {(1, 3), (7, 3)},
       highlightCandidates: {(1, 3, 5), (7, 3, 5)},
@@ -70,18 +70,18 @@ final aicGuide = StrategyGuide(
     GuideStep(
       caption: 'From the second cell, a weak link across row 8. '
           'Multiple cells have 5 in this row, so it\'s not a '
-          'strong link — just peers with the same candidate.',
+          'strong link - just peers with the same candidate.',
       highlightCells: {(1, 3), (7, 3), (7, 6)},
       highlightCandidates: {(1, 3, 5), (7, 3, 5), (7, 6, 5)},
     ),
     GuideStep(
-      caption: 'Then a strong link within box 9 — only two cells '
+      caption: 'Then a strong link within box 9 - only two cells '
           'have 5 there. The chain: strong \u2192 weak \u2192 strong.',
       highlightCells: {(1, 3), (7, 3), (7, 6), (8, 8)},
       highlightCandidates: {(1, 3, 5), (7, 3, 5), (7, 6, 5), (8, 8, 5)},
     ),
     GuideStep(
-      caption: 'Both endpoints are reached via strong links — '
+      caption: 'Both endpoints are reached via strong links - '
           'one of them must be 5. Any cell seeing both '
           'endpoints can\'t have 5.',
       highlightCells: {(1, 3), (8, 8), (1, 8)},
@@ -96,7 +96,7 @@ final aicGuide = StrategyGuide(
     ),
     GuideStep(
       caption: 'AIC: the most general chain technique. Alternate '
-          'strong and weak links — when both ends agree on a '
+          'strong and weak links - when both ends agree on a '
           'candidate, eliminate it from their common peers.',
     ),
   ],

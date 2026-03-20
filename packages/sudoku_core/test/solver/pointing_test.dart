@@ -21,7 +21,7 @@ void main() {
       board.getCell(2, 1).setCandidates(CandidateSet.of([6, 9])); // no 5
       board.getCell(2, 2).setCandidates(CandidateSet.of([7, 9])); // no 5
 
-      // Rest of row 0 outside box 0 — some have 5.
+      // Rest of row 0 outside box 0 - some have 5.
       board.getCell(0, 3).setCandidates(CandidateSet.of([5, 8]));
       board.getCell(0, 4).setCandidates(CandidateSet.of([3, 9]));
       board.getCell(0, 5).setCandidates(CandidateSet.of([5, 9]));
@@ -79,7 +79,7 @@ void main() {
 
     test('returns null when no pointing pattern exists', () {
       final board = Board.empty();
-      // Candidate 5 spread across multiple rows in box 0 — no pointing.
+      // Candidate 5 spread across multiple rows in box 0 - no pointing.
       board.getCell(0, 0).setCandidates(CandidateSet.of([5, 6]));
       board.getCell(1, 1).setCandidates(CandidateSet.of([5, 7]));
       board.getCell(2, 2).setCandidates(CandidateSet.of([5, 8]));

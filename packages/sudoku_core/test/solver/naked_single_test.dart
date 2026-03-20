@@ -31,7 +31,7 @@ void main() {
     });
 
     test('returns null when no naked single exists', () {
-      // A puzzle with many empty cells — no naked singles at start.
+      // A puzzle with many empty cells - no naked singles at start.
       final board = boardWithCandidates(
         '000000000'
         '000000000'

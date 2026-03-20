@@ -78,7 +78,7 @@ void main() {
     test('finds row-based Swordfish', () {
       final board = Board.empty();
 
-      // Value 7 in rows 0, 3, 6 — each has 7 in at most 3 columns from {1, 4, 7}.
+      // Value 7 in rows 0, 3, 6 - each has 7 in at most 3 columns from {1, 4, 7}.
       board.getCell(0, 1).setCandidates(CandidateSet.of([7, 2]));
       board.getCell(0, 4).setCandidates(CandidateSet.of([7, 3]));
       board.getCell(3, 4).setCandidates(CandidateSet.of([7, 5]));

@@ -11,16 +11,16 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 // ---------------------------------------------------------------------------
 //
 // Four cells forming a rectangle spanning 2 boxes:
-//   Floor: (0,1)={4,9}, (0,4)={4,9} -- both bi-value
-//   Roof:  (2,1)={4,9}, (2,4)={4,7,9} -- one bi-value, one with extras
+//   Floor: (0,1)={4,9}, (0,4)={4,9} - both bi-value
+//   Roof:  (2,1)={4,9}, (2,4)={4,7,9} - one bi-value, one with extras
 // If (2,4) were also {4,9}, the puzzle would have two solutions
 // (swap 4 and 9). To avoid the deadly pattern, (2,4) must NOT be
-// just {4,9} -- so 4 and 9 can be eliminated from it.
+// just {4,9} - so 4 and 9 can be eliminated from it.
 
 final uniqueRectangleType1Guide = StrategyGuide(
   strategy: StrategyType.uniqueRectangleType1,
   difficulty: Difficulty.hard,
-  intro: 'Four cells form a rectangle with the same two candidates — '
+  intro: 'Four cells form a rectangle with the same two candidates - '
       'one cell must break the pattern to keep the puzzle unique.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -66,7 +66,7 @@ final uniqueRectangleType1Guide = StrategyGuide(
     ),
     GuideStep(
       caption: 'So this cell must NOT end up as just {4, 9}. '
-          'It has an extra candidate — 7 — which must be its value. '
+          'It has an extra candidate - 7 - which must be its value. '
           'Eliminate 4 and 9 from it.',
       highlightCells: {(2, 4)},
       highlightCandidates: {(2, 4, 7)},
@@ -74,7 +74,7 @@ final uniqueRectangleType1Guide = StrategyGuide(
     ),
     GuideStep(
       caption: 'Unique Rectangle Type 1: three bi-value cells form '
-          'a deadly pattern — the fourth must break it by using '
+          'a deadly pattern - the fourth must break it by using '
           'its extra candidate.',
     ),
   ],
@@ -85,14 +85,14 @@ final uniqueRectangleType1Guide = StrategyGuide(
 // ---------------------------------------------------------------------------
 //
 // Floor: (1,2)={3,6}, (1,7)={3,6}
-// Roof:  (5,2)={3,5,6}, (5,7)={3,5,6} -- both have same extra: 5
+// Roof:  (5,2)={3,5,6}, (5,7)={3,5,6} - both have same extra: 5
 // To break the deadly pattern, 5 must go in one of the roof cells.
 // Eliminate 5 from any cell that sees both roof cells.
 
 final uniqueRectangleType2Guide = StrategyGuide(
   strategy: StrategyType.uniqueRectangleType2,
   difficulty: Difficulty.hard,
-  intro: 'Both roof cells have the same extra candidate — it must go in '
+  intro: 'Both roof cells have the same extra candidate - it must go in '
       'one of them, so eliminate it from their common peers.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -109,7 +109,7 @@ final uniqueRectangleType2Guide = StrategyGuide(
     // Floor cells: both {3, 6}
     1 * 9 + 2: {3, 6},
     1 * 9 + 7: {3, 6},
-    // Roof cells: both {3, 5, 6} -- same extra candidate 5
+    // Roof cells: both {3, 5, 6} - same extra candidate 5
     5 * 9 + 2: {3, 5, 6},
     5 * 9 + 7: {3, 5, 6},
     // Cells seeing both roof cells (same row) with candidate 5
@@ -127,7 +127,7 @@ final uniqueRectangleType2Guide = StrategyGuide(
       },
     ),
     GuideStep(
-      caption: 'The two roof cells (bottom) both have {3, 5, 6} — '
+      caption: 'The two roof cells (bottom) both have {3, 5, 6} - '
           'the same extra candidate: 5.',
       highlightCells: {(1, 2), (1, 7), (5, 2), (5, 7)},
       highlightCandidates: {
@@ -150,7 +150,7 @@ final uniqueRectangleType2Guide = StrategyGuide(
     ),
     GuideStep(
       caption: 'Unique Rectangle Type 2: both roof cells share '
-          'the same extra digit — it\'s "trapped" in the roof, '
+          'the same extra digit - it\'s "trapped" in the roof, '
           'eliminating it from their common peers.',
     ),
   ],
@@ -163,7 +163,7 @@ final uniqueRectangleType2Guide = StrategyGuide(
 // Floor: (0,3)={2,8}, (0,6)={2,8}
 // Roof:  (3,3)={2,6,8}, (3,6)={2,4,8}
 // Extras in roof: 6 and 4. Together with another cell in row 3 that
-// has {4,6}, they form a naked pair on {4,6} -- eliminating 4 and 6
+// has {4,6}, they form a naked pair on {4,6} - eliminating 4 and 6
 // from other cells in row 3.
 
 final uniqueRectangleType3Guide = StrategyGuide(
@@ -189,11 +189,11 @@ final uniqueRectangleType3Guide = StrategyGuide(
     // Roof: extras are 6 and 4
     3 * 9 + 3: {2, 6, 8},
     3 * 9 + 6: {2, 4, 8},
-    // Another cell in row 3 with {4, 6} -- forms naked pair with extras
+    // Another cell in row 3 with {4, 6} - forms naked pair with extras
     3 * 9 + 1: {4, 6},
     // Cells in row 3 with 4 or 6 to eliminate
-    3 * 9 + 5: {1, 4, 7},       // has 4 -- will be eliminated
-    3 * 9 + 8: {3, 6, 9},       // has 6 -- will be eliminated
+    3 * 9 + 5: {1, 4, 7},       // has 4 - will be eliminated
+    3 * 9 + 8: {3, 6, 9},       // has 6 - will be eliminated
   }),
   steps: [
     GuideStep(
@@ -249,13 +249,13 @@ final uniqueRectangleType3Guide = StrategyGuide(
 // Roof:  (4,0)={3,5,9}, (4,3)={5,7,9}
 // In row 4, candidate 5 appears only in the two roof cells (among the
 // cells of this row). So 5 is locked in the roof. To break the deadly
-// pattern, the roof can't both be {5,9} -- so 9 must be eliminated
+// pattern, the roof can't both be {5,9} - so 9 must be eliminated
 // from both roof cells.
 
 final uniqueRectangleType4Guide = StrategyGuide(
   strategy: StrategyType.uniqueRectangleType4,
   difficulty: Difficulty.hard,
-  intro: 'One of the rectangle\'s candidates is locked in the roof cells — '
+  intro: 'One of the rectangle\'s candidates is locked in the roof cells - '
       'the other candidate can be eliminated from both roof cells.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -275,7 +275,7 @@ final uniqueRectangleType4Guide = StrategyGuide(
     // Roof: both have 5 and 9 plus extras
     4 * 9 + 0: {3, 5, 9},
     4 * 9 + 3: {5, 7, 9},
-    // Other cells in row 4 -- none have candidate 5
+    // Other cells in row 4 - none have candidate 5
     // (5 is locked in the roof cells for this row)
     4 * 9 + 1: {1, 3, 7},
     4 * 9 + 2: {1, 7, 8},
@@ -305,13 +305,13 @@ final uniqueRectangleType4Guide = StrategyGuide(
     ),
     GuideStep(
       caption: 'In row 5, candidate 5 appears only in the two roof '
-          'cells — nowhere else. So 5 is locked in the roof.',
+          'cells - nowhere else. So 5 is locked in the roof.',
       highlightCells: {(4, 0), (4, 3)},
       highlightCandidates: {(4, 0, 5), (4, 3, 5)},
     ),
     GuideStep(
       caption: 'Since 5 must go in one of the roof cells, they can\'t '
-          'both end up as {5, 9} — that would create a deadly pattern. '
+          'both end up as {5, 9} - that would create a deadly pattern. '
           'So 9 must be eliminated from both roof cells.',
       highlightCells: {(4, 0), (4, 3)},
       highlightCandidates: {(4, 0, 5), (4, 3, 5)},
@@ -319,7 +319,7 @@ final uniqueRectangleType4Guide = StrategyGuide(
     ),
     GuideStep(
       caption: 'Unique Rectangle Type 4: one candidate is locked '
-          'in the roof — the other gets eliminated to prevent '
+          'in the roof - the other gets eliminated to prevent '
           'the deadly pattern.',
     ),
   ],

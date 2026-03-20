@@ -40,7 +40,7 @@ void main() {
       );
       computeCandidates(board);
 
-      // All cells are filled — no candidates anywhere.
+      // All cells are filled - no candidates anywhere.
       for (var r = 0; r < 9; r++) {
         for (var c = 0; c < 9; c++) {
           expect(board.getCell(r, c).candidates, isEmpty);

@@ -75,7 +75,7 @@ class HiddenSubset extends Strategy {
 
       if (cells.length != size) continue;
 
-      // Found a hidden subset — eliminate other candidates from these cells.
+      // Found a hidden subset - eliminate other candidates from these cells.
       final valueSet = valueCombo.toSet();
       final eliminations = <Elimination>[];
       for (final cell in cells) {

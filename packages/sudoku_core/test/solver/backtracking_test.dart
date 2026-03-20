@@ -77,8 +77,8 @@ void main() {
           '426853791'
           '713924856'
           '961537284'
-          '287419630' // (7,8) missing — should be 5
-          '345286070'; // (8,6) missing — should be 1, (8,8) missing — should be 9
+          '287419630' // (7,8) missing - should be 5
+          '345286070'; // (8,6) missing - should be 1, (8,8) missing - should be 9
       final board = boardWithCandidates(flat);
       // Force (7,8) to an invalid value to create contradiction.
       board.getCell(7, 8).setValue(1); // conflicts: 1 already in col 8 at (4,8)

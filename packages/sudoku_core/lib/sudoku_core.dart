@@ -1,4 +1,4 @@
-/// Core Sudoku logic — models, solver, generator, hints.
+/// Core Sudoku logic - models, solver, generator, hints.
 library;
 
 export 'src/generator/generator.dart';

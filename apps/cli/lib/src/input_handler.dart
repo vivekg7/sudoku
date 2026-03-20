@@ -60,7 +60,7 @@ class InputHandler {
               _controller.add(ArrowKey(Direction.right));
             case 0x44: // D = Left
               _controller.add(ArrowKey(Direction.left));
-            case 0x33: // '3' — possibly Delete (ESC [ 3 ~)
+            case 0x33: // '3' - possibly Delete (ESC [ 3 ~)
               if (i + 3 < bytes.length && bytes[i + 3] == 0x7E) {
                 _controller.add(BackspaceKey());
                 i += 4;
@@ -87,7 +87,7 @@ class InputHandler {
       }
 
       if (byte == 0x03) {
-        // Ctrl+C — treat as quit
+        // Ctrl+C - treat as quit
         _controller.add(CharKey('q'));
         i++;
         continue;

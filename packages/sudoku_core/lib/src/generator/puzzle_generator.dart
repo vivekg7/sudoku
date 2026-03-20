@@ -59,7 +59,7 @@ class PuzzleGenerator {
   Board? _generateFullBoard() {
     final board = Board.empty();
 
-    // Fill diagonal boxes first — they don't constrain each other.
+    // Fill diagonal boxes first - they don't constrain each other.
     for (var box = 0; box < 9; box += 4) {
       _fillBox(board, box);
     }
@@ -68,7 +68,7 @@ class PuzzleGenerator {
     return _fillRemaining(board) ? board : null;
   }
 
-  /// Fills a single 3x3 box with a random permutation of 1–9.
+  /// Fills a single 3x3 box with a random permutation of 1-9.
   void _fillBox(Board board, int box) {
     final startRow = (box ~/ 3) * 3;
     final startCol = (box % 3) * 3;
@@ -207,7 +207,7 @@ class PuzzleGenerator {
       final solutions = Backtracking.countSolutions(testBoard, limit: 2);
 
       if (solutions != 1) {
-        // Restore — removing these breaks uniqueness.
+        // Restore - removing these breaks uniqueness.
         for (var i = 0; i < pair.length; i++) {
           board.getCell(pair[i].row, pair[i].col).setValue(saved[i]);
         }
@@ -215,7 +215,7 @@ class PuzzleGenerator {
       }
 
       // O5: Skip the expensive solve when givens are still well above the
-      // target range — the puzzle is almost certainly easier than target.
+      // target range - the puzzle is almost certainly easier than target.
       final givensAfter = currentGivens - pair.length;
       if (givensAfter > givenRange.max) continue;
 
@@ -233,7 +233,7 @@ class PuzzleGenerator {
         bestBoard = board.clone();
         bestResult = result;
       } else if (result.difficulty.index > target.index) {
-        // Overshot — this removal made it too hard. Restore.
+        // Overshot - this removal made it too hard. Restore.
         for (var i = 0; i < pair.length; i++) {
           board.getCell(pair[i].row, pair[i].col).setValue(saved[i]);
         }

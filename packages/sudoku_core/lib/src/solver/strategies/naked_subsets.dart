@@ -61,7 +61,7 @@ class NakedSubset extends Strategy {
 
       if (union.length != size) continue;
 
-      // Found a naked subset — check if there are eliminations.
+      // Found a naked subset - check if there are eliminations.
       final eliminations = <Elimination>[];
       for (final cell in emptyCells) {
         if (combo.contains(cell)) continue;

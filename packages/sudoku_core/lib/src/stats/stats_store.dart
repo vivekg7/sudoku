@@ -23,7 +23,7 @@ class StatsStore {
   /// Number of completed games.
   int get completedGames => _games.where((g) => g.completed).length;
 
-  /// Completion rate as a fraction (0.0–1.0).
+  /// Completion rate as a fraction (0.0-1.0).
   double get completionRate =>
       _games.isEmpty ? 0.0 : completedGames / totalGames;
 

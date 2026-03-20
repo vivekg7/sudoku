@@ -62,12 +62,12 @@ final hiddenSingleGuide = StrategyGuide(
     [0, 0, 0, 0, 0, 7, 0, 0, 0], // row 7: 7 in col 5
     [0, 0, 0, 0, 0, 0, 0, 0, 0], // row 8
   ],
-  candidates: _candidates({}), // No candidates needed -- scanning strategy
+  candidates: _candidates({}), // No candidates needed - scanning strategy
   steps: [
     // Step 1: Focus on the row
     GuideStep(
       caption: "Let's find where 7 goes in row 4. "
-          "Some cells are already filled — focus on the empty ones.",
+          "Some cells are already filled - focus on the empty ones.",
       highlightCells: {(3, 0), (3, 4), (3, 5), (3, 7)},
     ),
 
@@ -98,7 +98,7 @@ final hiddenSingleGuide = StrategyGuide(
     // Step 5: Only one cell left
     GuideStep(
       caption: 'Only one empty cell in this row can still hold 7. '
-          "That's a Hidden Single — 7 has nowhere else to go.",
+          "That's a Hidden Single - 7 has nowhere else to go.",
       highlightCells: {(3, 4)},
     ),
 

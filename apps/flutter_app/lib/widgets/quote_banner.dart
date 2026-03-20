@@ -17,7 +17,7 @@ class QuoteBanner extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       child: Text(
-        '"${quote.text}" — ${quote.author}',
+        '"${quote.text}" - ${quote.author}',
         textAlign: TextAlign.center,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,

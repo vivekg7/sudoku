@@ -37,7 +37,7 @@ class StatsCard extends StatelessWidget {
   }
 }
 
-/// A label–value row used inside stats cards.
+/// A label-value row used inside stats cards.
 class StatRow extends StatelessWidget {
   final String label;
   final String value;

@@ -12,20 +12,20 @@ void main() {
       // ALS B: 1 cell with 2 candidates.
       // They must not overlap, share restricted common X, and common Z.
 
-      // ALS A at (0,0): {1,2} — in row 0.
+      // ALS A at (0,0): {1,2} - in row 0.
       board.getCell(0, 0).setCandidates(CandidateSet.of([1, 2]));
 
-      // ALS B at (0,8): {1,3} — in row 0.
+      // ALS B at (0,8): {1,3} - in row 0.
       board.getCell(0, 8).setCandidates(CandidateSet.of([1, 3]));
 
       // Common candidates: CandidateSet.of([1}. Need at least 2 common candidates for X and Z.
       // Let me use bigger ALS.
 
-      // ALS A: cells (0,0) and (0,1) with candidates {1,2,3} — 2 cells, 3 candidates.
+      // ALS A: cells (0,0) and (0,1) with candidates {1,2,3} - 2 cells, 3 candidates.
       board.getCell(0, 0).setCandidates(CandidateSet.of([1, 2]));
       board.getCell(0, 1).setCandidates(CandidateSet.of([2, 3]));
 
-      // ALS B: cell (2,0) with candidates {1,3} — 1 cell, 2 candidates.
+      // ALS B: cell (2,0) with candidates {1,3} - 1 cell, 2 candidates.
       // In same column as (0,0).
       board.getCell(2, 0).setCandidates(CandidateSet.of([1, 3]));
 

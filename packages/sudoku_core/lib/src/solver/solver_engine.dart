@@ -17,7 +17,7 @@ class Solver {
   /// Strategies ordered from easiest to hardest.
   ///
   /// Hidden singles come before naked singles because humans find them
-  /// easier — you scan a house for where a digit can go rather than
+  /// easier - you scan a house for where a digit can go rather than
   /// eliminating all but one candidate from a cell.
   static final List<({StrategyType type, Strategy strategy})> _strategies = [
     // Beginner: hidden singles are easiest for humans
@@ -55,7 +55,7 @@ class Solver {
 
   /// Solves the puzzle step-by-step, returning the full solve path.
   ///
-  /// The board is cloned internally — the original is not modified.
+  /// The board is cloned internally - the original is not modified.
   /// If [useBacktracking] is true (default), backtracking is used as a
   /// last resort when no logical strategy applies.
   SolveResult solve(Board board, {bool useBacktracking = true}) {
@@ -91,7 +91,7 @@ class Solver {
         continue;
       }
 
-      // No logical strategy found — try backtracking as fallback.
+      // No logical strategy found - try backtracking as fallback.
       if (useBacktracking) {
         final btStep = _backtracking.apply(work);
         if (btStep != null) {
@@ -101,7 +101,7 @@ class Solver {
         }
       }
 
-      // Stuck — puzzle cannot be solved.
+      // Stuck - puzzle cannot be solved.
       break;
     }
 
@@ -120,7 +120,7 @@ class Solver {
   /// Returns the next logical step for the current board state, or `null`
   /// if no strategy applies.
   ///
-  /// This is the entry point for the hint system — it finds what the player
+  /// This is the entry point for the hint system - it finds what the player
   /// should do next without solving the entire puzzle.
   ///
   /// Candidates must already be computed on [board].
@@ -162,7 +162,7 @@ class Solver {
   /// Higher weight = harder for a human. These weights are calibrated
   /// to reflect human experience, not computational complexity.
   /// Hidden singles are the easiest for humans (scan a house), while
-  /// naked singles require full candidate elimination — harder to spot.
+  /// naked singles require full candidate elimination - harder to spot.
   static const Map<StrategyType, int> _strategyWeight = {
     StrategyType.hiddenSingle: 1,
     StrategyType.nakedSingle: 2,
@@ -222,11 +222,11 @@ class Solver {
       if (w > 2) advancedScore += w;
     }
 
-    // 3. Adjust for given count — fewer givens means harder scanning.
+    // 3. Adjust for given count - fewer givens means harder scanning.
     //    Baseline: 36 givens is "neutral". Each given below adds difficulty.
     final givenPenalty = (36 - givenCount).clamp(0, 20);
 
-    // 4. Step count penalty — more steps = more work.
+    // 4. Step count penalty - more steps = more work.
     final stepPenalty = (steps.length - 30).clamp(0, 20);
 
     // 5. Combine into a final score.
@@ -244,7 +244,7 @@ class Solver {
 
   /// Maps a single strategy type to a difficulty level.
   ///
-  /// This is a simplified classification — [classifyPuzzle] gives a more
+  /// This is a simplified classification - [classifyPuzzle] gives a more
   /// accurate human-calibrated result by considering the full solve context.
   static Difficulty classifyDifficulty(StrategyType strategy) {
     final weight = _strategyWeight[strategy] ?? 0;

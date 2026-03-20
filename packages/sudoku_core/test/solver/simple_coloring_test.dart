@@ -21,7 +21,7 @@ void main() {
       board.getCell(6, 8).setCandidates(CandidateSet.of([3, 4]));
 
       // Coloring: (0,0)=C0, (0,8)=C1, (6,0)=C1, (6,8)=C0
-      // Cell (3,0) has candidate 3 — sees (0,0) in col 0 (C0)
+      // Cell (3,0) has candidate 3 - sees (0,0) in col 0 (C0)
       //   and sees (6,0) in col 0 (C1) → sees both colors → eliminate 3.
       board.getCell(3, 0).setCandidates(CandidateSet.of([3, 6]));
 
@@ -51,7 +51,7 @@ void main() {
 
       // Chain: (0,0)=C0 → (0,3)=C1 → (3,3)=C0 → (3,0)=C1
       // But (0,0) and (3,0) are in same column = peers.
-      // (0,0)=C0 and (3,0)=C1 — different colors, no clash here.
+      // (0,0)=C0 and (3,0)=C1 - different colors, no clash here.
       // For a clash: (0,0)=C0 and (3,3)=C0, they share box 0? No, (3,3) is box 4.
       // Let me make a triangle clash instead.
 
@@ -72,7 +72,7 @@ void main() {
       board.getCell(3, 0).setCandidates(CandidateSet.of([5, 7, 6]));
 
       // Chain for 7: (0,0)=C0 → (0,4)=C1 → (3,4)=C0 → (3,0)=C1
-      // (0,0) and (3,0) are in col 0 — conjugate pair if only 2 cells have 7.
+      // (0,0) and (3,0) are in col 0 - conjugate pair if only 2 cells have 7.
       // (3,0)=C1, but col 0 link makes (0,0)=C0 and (3,0)=C1 which is fine (no clash).
       // 4 nodes in a cycle = even, so coloring is consistent.
 

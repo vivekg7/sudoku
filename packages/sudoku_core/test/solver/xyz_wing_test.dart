@@ -9,10 +9,10 @@ void main() {
       final board = Board.empty();
 
       // Pivot at R1C1 (0,0) with {3, 5, 7}.
-      // Pincer 1 at R1C2 (0,1) with {3, 7} — shares row and box with pivot.
-      // Pincer 2 at R2C1 (1,0) with {5, 7} — shares column and box with pivot.
+      // Pincer 1 at R1C2 (0,1) with {3, 7} - shares row and box with pivot.
+      // Pincer 2 at R2C1 (1,0) with {5, 7} - shares column and box with pivot.
       // Z = 7 (common to pivot and both pincers).
-      // A cell seeing all three: R2C2 (1,1) — same box.
+      // A cell seeing all three: R2C2 (1,1) - same box.
       board.getCell(0, 0).setCandidates(CandidateSet.of([3, 5, 7]));
       board.getCell(0, 1).setCandidates(CandidateSet.of([3, 7]));
       board.getCell(1, 0).setCandidates(CandidateSet.of([5, 7]));

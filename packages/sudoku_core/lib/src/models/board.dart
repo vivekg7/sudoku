@@ -6,7 +6,7 @@ class Board {
 
   /// Pre-computed peer indices for each cell.
   /// `_peerIndices[r][c]` is a list of (row, col) pairs for all 20 peers.
-  /// Computed once — grid geometry never changes.
+  /// Computed once - grid geometry never changes.
   static final List<List<List<(int, int)>>> _peerIndices = _buildPeerIndices();
 
   static List<List<List<(int, int)>>> _buildPeerIndices() {
@@ -87,7 +87,7 @@ class Board {
   }
 
   /// Returns all cells that share a row, column, or box with the given cell
-  /// (excluding the cell itself). Uses a pre-computed index table — no
+  /// (excluding the cell itself). Uses a pre-computed index table - no
   /// allocation on each call beyond the returned list.
   List<Cell> peers(int row, int col) {
     final indices = _peerIndices[row][col];

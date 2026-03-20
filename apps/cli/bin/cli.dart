@@ -39,7 +39,7 @@ Future<void> main(List<String> arguments) async {
   }
 
   if (args.flag('help')) {
-    print('Sudoku CLI — play sudoku in the terminal.\n');
+    print('Sudoku CLI - play sudoku in the terminal.\n');
     print('Usage: sudoku [options]\n');
     print(parser.usage);
     exit(0);
@@ -87,7 +87,7 @@ Future<void> main(List<String> arguments) async {
     final game = TuiGame(puzzle);
     await game.run();
 
-    // After TUI exits, terminal is restored — use line-based I/O for save prompt
+    // After TUI exits, terminal is restored - use line-based I/O for save prompt
     if (!puzzle.isSolved) {
       stdout.write('Save game? (y/n): ');
       final answer = stdin.readLineSync()?.trim().toLowerCase();

@@ -17,7 +17,7 @@ void main() {
       // (6,4) is bi-value {2,5}: weak link for 2 in row 6 from (6,0)[2] → (6,4)[2].
       // Then (6,4) strong internal link → (6,4)[5].
       //
-      // AIC endpoints: (6,0)[5] and (6,4)[5] — same candidate.
+      // AIC endpoints: (6,0)[5] and (6,4)[5] - same candidate.
       // (6,8) has candidate 5, sees both via row 6 → eliminate 5.
 
       board.getCell(0, 0).setCandidates(CandidateSet.of([5, 1]));

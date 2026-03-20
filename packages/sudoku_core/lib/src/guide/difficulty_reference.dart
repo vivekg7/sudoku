@@ -21,7 +21,7 @@ const List<DifficultyInfo> difficultyReference = [
     description:
         'Solvable by scanning rows, columns, and boxes for where a digit '
         'fits or which digit a cell must contain. No advanced techniques '
-        'needed — just careful observation.',
+        'needed - just careful observation.',
     strategies: [
       StrategyType.hiddenSingle,
       StrategyType.nakedSingle,
@@ -62,7 +62,7 @@ const List<DifficultyInfo> difficultyReference = [
     description:
         'Wings and unique rectangles. These patterns are harder to '
         'spot because they involve cells that aren\'t in the same '
-        'row, column, or box — you have to see diagonal and '
+        'row, column, or box - you have to see diagonal and '
         'cross-box relationships.',
     strategies: [
       StrategyType.jellyfish,

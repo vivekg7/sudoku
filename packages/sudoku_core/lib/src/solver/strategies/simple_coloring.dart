@@ -56,7 +56,7 @@ class SimpleColoring extends Strategy {
           }
         }
 
-        // Rule 2: Color clash — all cells of the bad color are false.
+        // Rule 2: Color clash - all cells of the bad color are false.
         if (hasClash) {
           final eliminations = <Elimination>[];
           final involved = <({int row, int col})>[];

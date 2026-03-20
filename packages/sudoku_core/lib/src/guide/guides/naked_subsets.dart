@@ -18,7 +18,7 @@ final nakedPairGuide = StrategyGuide(
   strategy: StrategyType.nakedPair,
   difficulty: Difficulty.easy,
   intro: 'Two cells in the same row, column, or box that share exactly the '
-      'same two candidates — those digits can be removed from other cells '
+      'same two candidates - those digits can be removed from other cells '
       'in that house.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -34,8 +34,8 @@ final nakedPairGuide = StrategyGuide(
   candidates: _candidates({
     2 * 9 + 3: {4, 8},          // naked pair cell
     2 * 9 + 6: {4, 8},          // naked pair cell
-    2 * 9 + 7: {3, 4, 6, 8},    // has 4 and 8 -- will be eliminated
-    2 * 9 + 8: {3, 6, 8},       // has 8 -- will be eliminated
+    2 * 9 + 7: {3, 4, 6, 8},    // has 4 and 8 - will be eliminated
+    2 * 9 + 8: {3, 6, 8},       // has 8 - will be eliminated
   }),
   steps: [
     GuideStep(
@@ -95,19 +95,19 @@ final nakedPairGuide = StrategyGuide(
 // so eliminate 2, 5, 8 from the other empty cells in row 4.
 //
 // Row 4: _, _, 7, _, 3, _, 9, _, 1
-// Empty: (4,0), (4,1), (4,3), (4,5), (4,7) -- missing: 2, 4, 5, 6, 8
+// Empty: (4,0), (4,1), (4,3), (4,5), (4,7) - missing: 2, 4, 5, 6, 8
 // Candidates:
-//   (4,0): {2, 5}        -- triple cell
-//   (4,1): {5, 8}        -- triple cell
-//   (4,3): {2, 4, 5, 6}  -- has 2, 5 to eliminate
-//   (4,5): {4, 6, 8}     -- has 8 to eliminate
-//   (4,7): {2, 8}        -- triple cell
+//   (4,0): {2, 5}        - triple cell
+//   (4,1): {5, 8}        - triple cell
+//   (4,3): {2, 4, 5, 6}  - has 2, 5 to eliminate
+//   (4,5): {4, 6, 8}     - has 8 to eliminate
+//   (4,7): {2, 8}        - triple cell
 
 final nakedTripleGuide = StrategyGuide(
   strategy: StrategyType.nakedTriple,
   difficulty: Difficulty.medium,
   intro: 'Three cells in a house whose combined candidates contain exactly '
-      'three digits — those digits can be removed from other cells.',
+      'three digits - those digits can be removed from other cells.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -125,8 +125,8 @@ final nakedTripleGuide = StrategyGuide(
     4 * 9 + 1: {5, 8},          // naked triple cell
     4 * 9 + 7: {2, 8},          // naked triple cell
     // Other empty cells in row 4 with overlapping candidates
-    4 * 9 + 3: {2, 4, 5, 6},    // has 2, 5 -- will be eliminated
-    4 * 9 + 5: {4, 6, 8},       // has 8 -- will be eliminated
+    4 * 9 + 3: {2, 4, 5, 6},    // has 2, 5 - will be eliminated
+    4 * 9 + 5: {4, 6, 8},       // has 8 - will be eliminated
   }),
   steps: [
     GuideStep(
@@ -145,7 +145,7 @@ final nakedTripleGuide = StrategyGuide(
       },
     ),
     GuideStep(
-      caption: 'Three cells, three digits — a Naked Triple. '
+      caption: 'Three cells, three digits - a Naked Triple. '
           '2, 5, and 8 must go in these cells, one per cell.',
       highlightCells: {(4, 0), (4, 1), (4, 7)},
       highlightCandidates: {
@@ -179,7 +179,7 @@ final nakedTripleGuide = StrategyGuide(
     ),
     GuideStep(
       caption: 'Naked Triple: same idea as Naked Pair, one size up. '
-          "Each cell doesn't need all three digits — "
+          "Each cell doesn't need all three digits - "
           'the combined set just has to be exactly three.',
     ),
   ],
@@ -191,20 +191,20 @@ final nakedTripleGuide = StrategyGuide(
 //
 // In row 7, 4 cells together contain only candidates {2, 4, 6, 9}.
 // Row 7: _, _, 7, _, _, 8, _, _, 1
-// Empty: (7,0), (7,1), (7,3), (7,4), (7,6), (7,7) -- missing: 2,3,4,5,6,9
+// Empty: (7,0), (7,1), (7,3), (7,4), (7,6), (7,7) - missing: 2,3,4,5,6,9
 // Candidates:
-//   (7,0): {2, 4}       -- quad cell
-//   (7,1): {4, 6, 9}    -- quad cell
-//   (7,3): {3, 4, 5, 6} -- has 4, 6 to eliminate
-//   (7,4): {3, 5, 9}    -- has 9 to eliminate
-//   (7,6): {2, 9}       -- quad cell
-//   (7,7): {2, 6}       -- quad cell
+//   (7,0): {2, 4}       - quad cell
+//   (7,1): {4, 6, 9}    - quad cell
+//   (7,3): {3, 4, 5, 6} - has 4, 6 to eliminate
+//   (7,4): {3, 5, 9}    - has 9 to eliminate
+//   (7,6): {2, 9}       - quad cell
+//   (7,7): {2, 6}       - quad cell
 
 final nakedQuadGuide = StrategyGuide(
   strategy: StrategyType.nakedQuad,
   difficulty: Difficulty.medium,
   intro: 'Four cells in a house whose combined candidates contain exactly '
-      'four digits — those digits can be removed from other cells.',
+      'four digits - those digits can be removed from other cells.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -223,8 +223,8 @@ final nakedQuadGuide = StrategyGuide(
     7 * 9 + 6: {2, 9},          // quad cell
     7 * 9 + 7: {2, 6},          // quad cell
     // Other empty cells in row 7 with overlapping candidates
-    7 * 9 + 3: {3, 4, 5, 6},    // has 4, 6 -- will be eliminated
-    7 * 9 + 4: {3, 5, 9},       // has 9 -- will be eliminated
+    7 * 9 + 3: {3, 4, 5, 6},    // has 4, 6 - will be eliminated
+    7 * 9 + 4: {3, 5, 9},       // has 9 - will be eliminated
   }),
   steps: [
     GuideStep(
@@ -244,7 +244,7 @@ final nakedQuadGuide = StrategyGuide(
       },
     ),
     GuideStep(
-      caption: 'Four cells, four digits — a Naked Quad. '
+      caption: 'Four cells, four digits - a Naked Quad. '
           '2, 4, 6, 9 are locked into these four cells.',
       highlightCells: {(7, 0), (7, 1), (7, 6), (7, 7)},
       highlightCandidates: {

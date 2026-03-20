@@ -7,7 +7,7 @@ import '../strategy_type.dart';
 /// Backtracking: Brute-force solver used as a last resort.
 /// Tries candidates in empty cells recursively.
 ///
-/// This is not a logical strategy — it's a fallback for validation
+/// This is not a logical strategy - it's a fallback for validation
 /// and for puzzles that require techniques beyond what's implemented.
 class Backtracking extends Strategy {
   @override
@@ -48,7 +48,7 @@ class Backtracking extends Strategy {
 
   /// Solves the board using recursive backtracking. Returns true if solvable.
   ///
-  /// Uses undo-and-restore instead of cloning — sets a value, tracks
+  /// Uses undo-and-restore instead of cloning - sets a value, tracks
   /// affected peers, recurses, then undoes on failure. On success the
   /// board is left in the solved state.
   static bool _solve(Board board) {

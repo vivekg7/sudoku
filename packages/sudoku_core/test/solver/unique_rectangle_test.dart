@@ -11,7 +11,7 @@ void main() {
     test('Type 1: eliminates UR candidates from non-bi-value roof', () {
       final board = Board.empty();
 
-      // Floor: R1C1 {3,7}, R1C4 {3,7} — row 0, boxes 0 and 1.
+      // Floor: R1C1 {3,7}, R1C4 {3,7} - row 0, boxes 0 and 1.
       // Roof: R2C1 {3,7} (bi-value), R2C4 {3,7,9} (has extra).
       // Type 1: eliminate 3 and 7 from R2C4.
       board.getCell(0, 0).setCandidates(CandidateSet.of([3, 7]));
@@ -35,7 +35,7 @@ void main() {
       final board = Board.empty();
 
       // Floor: R1C1 {3,7}, R1C4 {3,7}.
-      // Roof: R2C1 {3,7,5}, R2C4 {3,7,5} — both have extra candidate 5.
+      // Roof: R2C1 {3,7,5}, R2C4 {3,7,5} - both have extra candidate 5.
       // Eliminate 5 from cells seeing both roof cells.
       board.getCell(0, 0).setCandidates(CandidateSet.of([3, 7]));
       board.getCell(0, 3).setCandidates(CandidateSet.of([3, 7]));

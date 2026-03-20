@@ -79,9 +79,9 @@ void main() {
       final json = entry.toJson();
       final restored = PuzzleEntry.fromJson(json);
 
-      // Cell (0,0) has value 5 in initial board — should be a given.
+      // Cell (0,0) has value 5 in initial board - should be a given.
       expect(restored.puzzle.initialBoard.getCell(0, 0).isGiven, isTrue);
-      // Cell (0,2) is empty in initial board — should not be a given.
+      // Cell (0,2) is empty in initial board - should not be a given.
       expect(restored.puzzle.initialBoard.getCell(0, 2).isGiven, isFalse);
     });
   });

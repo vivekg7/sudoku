@@ -26,11 +26,11 @@ class HowToSolveScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 _body(
                   "You get a 9×9 grid, split into 9 smaller 3×3 boxes. "
-                  "Some numbers are already filled in for you — "
+                  "Some numbers are already filled in for you - "
                   "the rest are up to you. Fill every empty cell "
                   "with a number from 1 to 9, and you've solved it. "
                   "Of course, you can't just put any number anywhere "
-                  "— there's one rule to follow.",
+                  " - there's one rule to follow.",
                   colorScheme,
                 ),
 
@@ -41,7 +41,7 @@ class HowToSolveScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 _body(
                   'Each row, column, and box must have all the numbers '
-                  'from 1 to 9 — no repeats. '
+                  'from 1 to 9 - no repeats. '
                   "That's the only rule in the entire game.",
                   colorScheme,
                 ),
@@ -66,7 +66,7 @@ class HowToSolveScreen extends StatelessWidget {
                   'If you think two numbers could both fit in a cell, '
                   "it means there's more information on the board you "
                   "haven't used yet. Your job isn't to pick a number "
-                  "that might work — it's to find the one that must "
+                  "that might work - it's to find the one that must "
                   'go there.',
                   colorScheme,
                 ),
@@ -78,10 +78,10 @@ class HowToSolveScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 _body(
                   "For any empty cell, ask: \"What can't go here?\" "
-                  'Check its row — which numbers are already there? '
+                  'Check its row - which numbers are already there? '
                   'Check its column and its box too. '
                   'Cross off everything you see. If only one number '
-                  "is left — that's your answer.",
+                  "is left - that's your answer.",
                   colorScheme,
                 ),
                 const SizedBox(height: 16),
@@ -93,7 +93,7 @@ class HowToSolveScreen extends StatelessWidget {
                 _SectionHeader('Scanning'),
                 const SizedBox(height: 8),
                 _body(
-                  'Pick a number — say 7. Look around the grid: '
+                  'Pick a number - say 7. Look around the grid: '
                   'where is 7 already placed? Every 7 you find '
                   'rules out its entire row, column, and box '
                   'for placing another 7.',
@@ -126,7 +126,7 @@ class HowToSolveScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 _bulletPoint(
                   'Use the hint system. ',
-                  'The hint button needs a long press to activate — '
+                  'The hint button needs a long press to activate - '
                   "a quick tap won't do anything. It starts with "
                   'a gentle nudge about which area to look at, '
                   'and only tells you more if you ask. '
@@ -136,7 +136,7 @@ class HowToSolveScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 _bulletPoint(
                   "Don't guess. ",
-                  "There's always a logical next step — you just "
+                  "There's always a logical next step - you just "
                   "haven't found it yet. "
                   'Ask for a hint if you need a push.',
                   colorScheme,
@@ -255,7 +255,7 @@ class HowToSolveScreen extends StatelessWidget {
       child: GuideGridWidget(
         cells: cells,
         showBoxBorders: false,
-        caption: 'This row has 1–9 except 7. The empty cell must be 7.',
+        caption: 'This row has 1-9 except 7. The empty cell must be 7.',
       ),
     );
   }
@@ -284,13 +284,13 @@ class HowToSolveScreen extends StatelessWidget {
       child: GuideGridWidget(
         cells: cells,
         showBoxBorders: false,
-        caption: 'This box has 1–9 except 5. The empty cell must be 5.',
+        caption: 'This box has 1-9 except 5. The empty cell must be 5.',
       ),
     );
   }
 
   /// Section 4: Full 9×9 grid with ~8 placed digits showing elimination.
-  /// Target cell is (4,4) — centre of the grid. Its row, column, and box
+  /// Target cell is (4,4) - centre of the grid. Its row, column, and box
   /// together contain 1,2,4,5,6,7,8,9 → only 3 remains.
   Widget _buildEliminationIllustration(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -316,13 +316,13 @@ class HowToSolveScreen extends StatelessWidget {
         cellSize: 34,
         caption:
             'The centre cell sees 1, 2, 4, 5, 6, 7, 8, 9\n'
-            'in its row, column, and box — so it must be 3.',
+            'in its row, column, and box - so it must be 3.',
       ),
     );
   }
 
   /// Section 5: Full 9×9 grid showing scanning. Four 7s placed in different
-  /// boxes eliminate all but one cell in box 2 (rows 0–2, cols 3–5).
+  /// boxes eliminate all but one cell in box 2 (rows 0-2, cols 3-5).
   /// Target cell: (1,5).
   Widget _buildScanningIllustration(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -353,7 +353,7 @@ class HowToSolveScreen extends StatelessWidget {
         cellSize: 34,
         caption:
             'Scan for 7: the placed 7s eliminate their rows\n'
-            'and columns — only one spot is left in the top-middle box.',
+            'and columns - only one spot is left in the top-middle box.',
       ),
     );
   }

@@ -6,7 +6,7 @@ void main() {
     final strategy = BoxLineReduction();
 
     test('finds box/line reduction from a row', () {
-      // In row 0, candidate 5 only appears in box 0 (cols 0–2).
+      // In row 0, candidate 5 only appears in box 0 (cols 0-2).
       // Other cells in box 0 (rows 1,2) also have 5 → eliminate from them.
       final board = Board.empty();
 
@@ -66,11 +66,11 @@ void main() {
       // Fill ALL empty cells in rows 0,1,2 with candidates.
       // Spread every value across multiple boxes in each row to prevent
       // any row-based box/line reduction.
-      // Row 0: 3 in cols 0 (box 0) and 4 (box 1) — not confined to one box.
+      // Row 0: 3 in cols 0 (box 0) and 4 (box 1) - not confined to one box.
       board.getCell(0, 1).setCandidates(CandidateSet.of([4, 5]));
       board.getCell(0, 2).setCandidates(CandidateSet.of([4, 5]));
       board.getCell(0, 3).setCandidates(CandidateSet.of([6, 9]));
-      board.getCell(0, 4).setCandidates(CandidateSet.of([3, 6])); // 3 in box 1 — breaks row confinement
+      board.getCell(0, 4).setCandidates(CandidateSet.of([3, 6])); // 3 in box 1 - breaks row confinement
       board.getCell(0, 5).setCandidates(CandidateSet.of([5, 9]));
       board.getCell(0, 6).setCandidates(CandidateSet.of([4, 9]));
       board.getCell(0, 7).setCandidates(CandidateSet.of([5, 6]));
@@ -80,14 +80,14 @@ void main() {
       board.getCell(1, 2).setCandidates(CandidateSet.of([4, 8]));
       board.getCell(1, 3).setCandidates(CandidateSet.of([5, 9]));
       board.getCell(1, 4).setCandidates(CandidateSet.of([6, 9]));
-      board.getCell(1, 5).setCandidates(CandidateSet.of([3, 5])); // 3 in box 1 — breaks row confinement
+      board.getCell(1, 5).setCandidates(CandidateSet.of([3, 5])); // 3 in box 1 - breaks row confinement
       board.getCell(1, 6).setCandidates(CandidateSet.of([4, 6]));
       board.getCell(1, 7).setCandidates(CandidateSet.of([5, 8]));
       board.getCell(1, 8).setCandidates(CandidateSet.of([6, 9]));
       // Row 2: no 3 anywhere in col 0, so it's fine.
       board.getCell(2, 1).setCandidates(CandidateSet.of([3, 5])); // 3 here → will be eliminated
       board.getCell(2, 2).setCandidates(CandidateSet.of([4, 8]));
-      board.getCell(2, 3).setCandidates(CandidateSet.of([3, 9])); // 3 in box 1 — breaks row confinement
+      board.getCell(2, 3).setCandidates(CandidateSet.of([3, 9])); // 3 in box 1 - breaks row confinement
       board.getCell(2, 4).setCandidates(CandidateSet.of([5, 6]));
       board.getCell(2, 5).setCandidates(CandidateSet.of([4, 9]));
       board.getCell(2, 6).setCandidates(CandidateSet.of([5, 8]));
@@ -111,7 +111,7 @@ void main() {
 
     test('returns null when no box/line reduction exists', () {
       final board = Board.empty();
-      // Candidate spread across multiple boxes in row — no reduction.
+      // Candidate spread across multiple boxes in row - no reduction.
       board.getCell(0, 0).setCandidates(CandidateSet.of([5, 6]));
       board.getCell(0, 4).setCandidates(CandidateSet.of([5, 7]));
       board.getCell(0, 8).setCandidates(CandidateSet.of([5, 8]));

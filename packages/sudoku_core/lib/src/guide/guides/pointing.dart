@@ -14,7 +14,7 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 // Pointing Pair
 // ---------------------------------------------------------------------------
 //
-// Candidate 3 appears in box 1 (top-left) only in (0,1) and (0,2) -- both
+// Candidate 3 appears in box 1 (top-left) only in (0,1) and (0,2) - both
 // in row 0. So 3 can be eliminated from the rest of row 0 outside box 1.
 //
 // Why only those two cells in box 1?
@@ -41,17 +41,17 @@ final pointingPairGuide = StrategyGuide(
   ],
   candidates: _candidates({
     // Box 1: only (0,1) and (0,2) have candidate 3
-    0 * 9 + 0: {1, 5, 7},       // no 3 -- col 0 has 3
+    0 * 9 + 0: {1, 5, 7},       // no 3 - col 0 has 3
     0 * 9 + 1: {1, 3, 5},       // has 3 <- pointing pair
     0 * 9 + 2: {3, 5, 9},       // has 3 <- pointing pair
-    1 * 9 + 0: {5, 6, 9},       // no 3 -- col 0 has 3
-    2 * 9 + 0: {5, 6, 7},       // no 3 -- col 0 has 3
-    // Row 0 outside box 1 -- some cells have 3 (to be eliminated)
+    1 * 9 + 0: {5, 6, 9},       // no 3 - col 0 has 3
+    2 * 9 + 0: {5, 6, 7},       // no 3 - col 0 has 3
+    // Row 0 outside box 1 - some cells have 3 (to be eliminated)
     0 * 9 + 3: {2, 6, 8},
     0 * 9 + 4: {1, 4, 6},
-    0 * 9 + 5: {2, 3, 6},       // has 3 -- will be eliminated
+    0 * 9 + 5: {2, 3, 6},       // has 3 - will be eliminated
     0 * 9 + 6: {4, 8, 9},
-    0 * 9 + 7: {1, 3, 8},       // has 3 -- will be eliminated
+    0 * 9 + 7: {1, 3, 8},       // has 3 - will be eliminated
     0 * 9 + 8: {4, 5, 9},
   }),
   steps: [
@@ -62,13 +62,13 @@ final pointingPairGuide = StrategyGuide(
     ),
     GuideStep(
       caption: 'Four cells are filled, and column 1 has a 3 '
-          'further down — ruling out the rest. '
+          'further down - ruling out the rest. '
           'Only two cells can hold 3.',
       highlightCells: {(0, 1), (0, 2), (7, 0)},
       highlightCandidates: {(0, 1, 3), (0, 2, 3)},
     ),
     GuideStep(
-      caption: 'Both cells are in the same row — row 1. '
+      caption: 'Both cells are in the same row - row 1. '
           'Wherever 3 goes in this box, it will be in row 1.',
       highlightCells: {(0, 1), (0, 2)},
       highlightCandidates: {(0, 1, 3), (0, 2, 3)},
@@ -101,18 +101,18 @@ final pointingPairGuide = StrategyGuide(
 // ---------------------------------------------------------------------------
 //
 // Same concept as Pointing Pair but with 3 cells.
-// Candidate 5 appears in box 4 (centre) only in (3,3), (4,3), (5,3) --
+// Candidate 5 appears in box 4 (centre) only in (3,3), (4,3), (5,3) -
 // all in column 3. So 5 can be eliminated from col 3 outside box 4.
 //
 // Box 4 has 6 cells filled: (3,4)=8, (3,5)=2, (4,4)=1, (4,5)=9,
 // (5,4)=6, (5,5)=4. The only 3 empty cells are in col 3.
-// No 5 is placed in boxes 1, 2, 3, 7, 8, or 9 -- so the pointing
+// No 5 is placed in boxes 1, 2, 3, 7, 8, or 9 - so the pointing
 // triple is the only way to eliminate 5 from col 3 outside box 4.
 
 final pointingTripleGuide = StrategyGuide(
   strategy: StrategyType.pointingTriple,
   difficulty: Difficulty.easy,
-  intro: 'Like a Pointing Pair, but with three cells — a candidate confined '
+  intro: 'Like a Pointing Pair, but with three cells - a candidate confined '
       'to one row or column within a box eliminates it from outside.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -130,7 +130,7 @@ final pointingTripleGuide = StrategyGuide(
     3 * 9 + 3: {1, 5, 7},       // has 5 <- pointing triple
     4 * 9 + 3: {3, 5, 7},       // has 5 <- pointing triple
     5 * 9 + 3: {3, 5, 7},       // has 5 <- pointing triple
-    // Col 3 outside box 4 -- cells with candidate 5
+    // Col 3 outside box 4 - cells with candidate 5
     0 * 9 + 3: {2, 5, 6},       // will be eliminated
     1 * 9 + 3: {4, 5, 8},       // will be eliminated
     2 * 9 + 3: {1, 4, 7},
@@ -141,7 +141,7 @@ final pointingTripleGuide = StrategyGuide(
   steps: [
     GuideStep(
       caption: 'Look at the centre box. '
-          'Six cells are filled — only three are empty.',
+          'Six cells are filled - only three are empty.',
       highlightCells: {(3, 3), (4, 3), (5, 3)},
     ),
     GuideStep(
@@ -152,7 +152,7 @@ final pointingTripleGuide = StrategyGuide(
     ),
     GuideStep(
       caption: 'Wherever 5 ends up in this box, '
-          'it must be in column 4. Three cells, one column — '
+          'it must be in column 4. Three cells, one column - '
           'a Pointing Triple.',
       highlightCells: {(3, 3), (4, 3), (5, 3)},
       highlightCandidates: {(3, 3, 5), (4, 3, 5), (5, 3, 5)},
@@ -169,7 +169,7 @@ final pointingTripleGuide = StrategyGuide(
       eliminateCandidates: {(0, 3, 5), (1, 3, 5), (6, 3, 5)},
     ),
     GuideStep(
-      caption: 'A Pointing Triple works exactly like a Pointing Pair — '
+      caption: 'A Pointing Triple works exactly like a Pointing Pair - '
           'three cells instead of two, same logic.',
     ),
   ],

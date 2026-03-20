@@ -142,7 +142,7 @@ class TuiGame {
         _moveCursor(Direction.right);
       case 'n':
         _noteMode = !_noteMode;
-        _statusMessage = _noteMode ? 'Note mode ON — digits toggle candidates' : null;
+        _statusMessage = _noteMode ? 'Note mode ON - digits toggle candidates' : null;
         _redraw();
       case 'c':
         _showCandidates = !_showCandidates;

@@ -23,7 +23,7 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 final xChainGuide = StrategyGuide(
   strategy: StrategyType.xChain,
   difficulty: Difficulty.expert,
-  intro: 'A chain of conjugate pairs for one candidate — cells seeing '
+  intro: 'A chain of conjugate pairs for one candidate - cells seeing '
       'both endpoints of an even-length chain can\'t have that candidate.',
   board: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -51,7 +51,7 @@ final xChainGuide = StrategyGuide(
   steps: [
     GuideStep(
       caption: 'Focus on candidate 2. In row 1, it appears in '
-          'only two cells — a conjugate pair. '
+          'only two cells - a conjugate pair. '
           'If one has 2, the other doesn\'t.',
       highlightCells: {(0, 1), (0, 7)},
       highlightCandidates: {(0, 1, 2), (0, 7, 2)},
@@ -64,12 +64,12 @@ final xChainGuide = StrategyGuide(
     ),
     GuideStep(
       caption: 'Then another pair along row 6. '
-          'The chain has 4 nodes and 3 links — even length.',
+          'The chain has 4 nodes and 3 links - even length.',
       highlightCells: {(0, 1), (0, 7), (5, 7), (5, 2)},
       highlightCandidates: {(0, 1, 2), (0, 7, 2), (5, 7, 2), (5, 2, 2)},
     ),
     GuideStep(
-      caption: 'The two endpoints have the same parity — one of them '
+      caption: 'The two endpoints have the same parity - one of them '
           'must be 2. Any cell seeing both endpoints can\'t have 2.',
       highlightCells: {(0, 1), (5, 2), (3, 1)},
       highlightCandidates: {(0, 1, 2), (5, 2, 2), (3, 1, 2)},

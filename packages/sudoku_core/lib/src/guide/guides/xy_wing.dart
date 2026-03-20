@@ -11,20 +11,20 @@ List<Set<int>> _candidates(Map<int, Set<int>> sparse) {
 // ---------------------------------------------------------------------------
 //
 // Pivot cell (4,4) has candidates {3, 7}.
-// Pincer 1: (4,1) has {3, 5} -- shares row with pivot.
-// Pincer 2: (1,4) has {7, 5} -- shares column with pivot.
+// Pincer 1: (4,1) has {3, 5} - shares row with pivot.
+// Pincer 2: (1,4) has {7, 5} - shares column with pivot.
 // Both pincers have 5. Any cell seeing both pincers can't have 5.
 // Elimination target: (1,1) sees both pincers (same row as pincer2,
 // same col as pincer1... no wait, same BOX as pincer1 if in box 1).
 //
 // Let me redesign: pivot (4,4) {3,7}, pincer1 (4,0) {3,5} in row 4,
 // pincer2 (7,4) {7,5} in col 4.
-// Cell (7,0) sees pincer1 (col 0) and pincer2 (row 7) -- and has 5.
+// Cell (7,0) sees pincer1 (col 0) and pincer2 (row 7) - and has 5.
 
 final xyWingGuide = StrategyGuide(
   strategy: StrategyType.xyWing,
   difficulty: Difficulty.hard,
-  intro: 'A pivot cell with two candidates links to two pincer cells — '
+  intro: 'A pivot cell with two candidates links to two pincer cells - '
       'their shared candidate can be eliminated from cells that see '
       'both pincers.',
   board: [
@@ -41,16 +41,16 @@ final xyWingGuide = StrategyGuide(
   candidates: _candidates({
     // Pivot: (4,4) with {3, 7}
     4 * 9 + 4: {3, 7},
-    // Pincer 1: (4,0) with {3, 5} -- same row as pivot
+    // Pincer 1: (4,0) with {3, 5} - same row as pivot
     4 * 9 + 0: {3, 5},
-    // Pincer 2: (7,4) with {7, 5} -- same col as pivot
+    // Pincer 2: (7,4) with {7, 5} - same col as pivot
     7 * 9 + 4: {5, 7},
     // Elimination target: (7,0) sees both pincers (col 0 + row 7)
-    7 * 9 + 0: {1, 5, 8},       // has 5 -- will be eliminated
+    7 * 9 + 0: {1, 5, 8},       // has 5 - will be eliminated
   }),
   steps: [
     GuideStep(
-      caption: 'Look at the centre cell — it has only two candidates: '
+      caption: 'Look at the centre cell - it has only two candidates: '
           '{3, 7}. This is the pivot.',
       highlightCells: {(4, 4)},
       highlightCandidates: {(4, 4, 3), (4, 4, 7)},
@@ -95,7 +95,7 @@ final xyWingGuide = StrategyGuide(
     ),
     GuideStep(
       caption: 'XY-Wing: a pivot with two candidates, two pincers '
-          'that each share one candidate with the pivot — '
+          'that each share one candidate with the pivot - '
           'their common digit gets eliminated from shared peers.',
     ),
   ],

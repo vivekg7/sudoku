@@ -15,8 +15,8 @@ void computeCandidates(Board board) {
         if (peer.isFilled) usedBits |= 1 << peer.value;
       }
 
-      // Candidates = all digits 1–9 not in usedBits.
-      // Bits 1–9 all set = 0x3FE.
+      // Candidates = all digits 1-9 not in usedBits.
+      // Bits 1-9 all set = 0x3FE.
       final candidateBits = 0x3FE & ~usedBits;
       cell.setCandidates(CandidateSet(candidateBits));
     }
