@@ -149,7 +149,7 @@ class SudokuColors extends ThemeExtension<SudokuColors> {
 
 /// Builds the app [ThemeData] for the given [seedColor] and [brightness].
 ///
-/// Set [amoled] to true for a pure-black dark theme optimised for OLED screens.
+/// Set [amoled] to true for a pure-black dark theme optimized for OLED screens.
 ThemeData buildAppTheme(
   Color seedColor,
   Brightness brightness, {

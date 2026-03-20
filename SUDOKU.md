@@ -114,7 +114,7 @@ Strategies are listed in approximate order of difficulty, from easiest to hardes
 | **Simple Coloring**                   | Assign two colors to a digit's conjugate pairs — if two cells of the same color see each other, that color is false; any uncolored cell that sees both colors can have the digit eliminated.                                |
 | **X-Chain**                           | A chain of cells connected by alternating strong and weak links on a single digit — the digit can be eliminated from any cell that sees both ends of the chain.                                                             |
 | **XY-Chain**                          | A chain of bivalue cells connected by alternating strong and weak links across multiple digits — the starting and ending digits allow eliminations in cells that see both chain endpoints.                                  |
-| **Alternating Inference Chain (AIC)** | A generalised chain using strong and weak links on any candidates — if the chain starts and ends with strong links on the same candidate, that candidate can be placed or eliminated depending on what the endpoints share. |
+| **Alternating Inference Chain (AIC)** | A generalized chain using strong and weak links on any candidates — if the chain starts and ends with strong links on the same candidate, that candidate can be placed or eliminated depending on what the endpoints share. |
 | **Forcing Chain**                     | Assume a candidate is true, then assume it is false — if both assumptions lead to the same conclusion (a placement or elimination), that conclusion must be true.                                                           |
 
 ### Advanced — Set-Based

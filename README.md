@@ -12,7 +12,7 @@ A comprehensive, fully offline Sudoku app that doesn't just let you play — it 
 - **PDF Export** — Generate puzzles in bulk with optional rough work grids, solve-order hints at the back, and QR codes to open each puzzle in the app.
 - **QR Scanner** — Scan printed puzzle QR codes to play them interactively.
 - **Player Stats** — Track solve times, streaks, completion rates, and detailed hint usage to see which techniques you're mastering.
-- **Save & Bookmark** — Save in-progress puzzles, bookmark favourites, and export/import all your data as JSON.
+- **Save & Bookmark** — Save in-progress puzzles, bookmark favorites, and export/import all your data as JSON.
 - **CLI App** — A standalone command-line interface with TUI and classic modes.
 
 ## Platforms

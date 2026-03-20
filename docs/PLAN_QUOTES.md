@@ -91,5 +91,5 @@ IDs are never reused. If a quote is removed, its ID is retired. New quotes alway
 
 ## Future Considerations
 
-- **User favourites**: let the player bookmark quotes they like, viewable separately from puzzle bookmarks.
-- **Localisation**: if multi-language support is added, quotes could be translated or sourced per language.
+- **User favorites**: let the player bookmark quotes they like, viewable separately from puzzle bookmarks.
+- **Localization**: if multi-language support is added, quotes could be translated or sourced per language.

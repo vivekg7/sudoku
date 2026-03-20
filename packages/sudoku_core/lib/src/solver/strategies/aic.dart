@@ -10,7 +10,7 @@ import '../strategy_utils.dart';
 /// with strong links on the same candidate, cells seeing both
 /// endpoints can have that candidate eliminated.
 ///
-/// This is a generalised version that handles multi-candidate nodes
+/// This is a generalized version that handles multi-candidate nodes
 /// (unlike X-Chains which are single-candidate).
 class AIC extends Strategy {
   @override
