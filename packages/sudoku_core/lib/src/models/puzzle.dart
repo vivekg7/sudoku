@@ -1,3 +1,4 @@
+import '../analysis/puzzle_analysis.dart';
 import '../solver/solve_result.dart';
 import 'board.dart';
 import 'difficulty.dart';
@@ -30,6 +31,9 @@ class Puzzle {
   /// Stable ID of the quote assigned to this puzzle (see [QuoteRepository]).
   final int? quoteId;
 
+  /// How the puzzle was completed (null if still in progress).
+  CompletionType? completionType;
+
   Puzzle({
     required this.initialBoard,
     required this.solution,
@@ -37,6 +41,7 @@ class Puzzle {
     required this.difficulty,
     this.solveResult,
     this.quoteId,
+    this.completionType,
     MoveHistory? history,
     DateTime? createdAt,
   })  : history = history ?? MoveHistory(),

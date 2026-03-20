@@ -1,6 +1,7 @@
 /// Core Sudoku logic - models, solver, generator, hints.
 library;
 
+export 'src/analysis/analysis.dart';
 export 'src/generator/generator.dart';
 export 'src/guide/guide.dart';
 export 'src/hint/hints.dart';

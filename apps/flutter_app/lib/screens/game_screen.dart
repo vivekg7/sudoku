@@ -10,6 +10,7 @@ import '../widgets/hint_panel.dart';
 import '../widgets/number_pad.dart';
 import '../widgets/quote_banner.dart';
 import '../widgets/solved_dialog.dart';
+import 'analysis_screen.dart';
 
 class GameScreen extends StatefulWidget {
   final Difficulty difficulty;
@@ -120,6 +121,7 @@ class _GameScreenState extends State<GameScreen> {
                     _timerDisplay(),
                     _pauseButton(),
                   ],
+                  _analysisButton(),
                   const SizedBox(width: 8),
                 ],
               ],
@@ -198,6 +200,103 @@ class _GameScreenState extends State<GameScreen> {
               child: const Text('Try Again'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _analysisButton() {
+    return IconButton(
+      icon: const Icon(Icons.analytics_outlined),
+      onPressed: () {
+        if (_gameState.puzzle == null) return;
+        if (_gameState.isSolved) {
+          _openAnalysis();
+        } else {
+          _showAnalysisConfirmation();
+        }
+      },
+      tooltip: 'Analyze',
+    );
+  }
+
+  void _showAnalysisConfirmation() {
+    final colorScheme = Theme.of(context).colorScheme;
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.analytics_outlined,
+                size: 32,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Analyze this puzzle?',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'This will reveal the complete solution and end your '
+                'solve attempt. You won\'t be able to continue playing '
+                'this puzzle.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _gameState.analyzePuzzle();
+                        _openAnalysis();
+                      },
+                      child: const Text('Analyze'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openAnalysis() {
+    final puzzle = _gameState.puzzle;
+    if (puzzle == null || puzzle.solveResult == null) return;
+
+    final analysis = PuzzleAnalyzer.analyze(puzzle);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AnalysisScreen(
+          analysis: analysis,
+          puzzle: puzzle,
+          playerFilledCount: _gameState.playerFilledCount,
+          hintStrategyCounts: _gameState.hintStrategyCounts,
+          totalHints: _gameState.totalHints,
         ),
       ),
     );
@@ -461,6 +560,8 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _checkSolved() {
+    // Skip if puzzle was completed via analysis, not by the player.
+    if (_gameState.puzzle?.completionType == CompletionType.analyzed) return;
     if (_gameState.isSolved && !_gameState.isSolvedNotified) {
       _gameState.markSolvedNotified();
       WidgetsBinding.instance.addPostFrameCallback((_) {

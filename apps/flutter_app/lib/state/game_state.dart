@@ -392,6 +392,48 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // -- Analysis --
+
+  /// Number of cells the player filled before analysis was triggered.
+  /// Captured at the moment [analyzePuzzle] is called (before the solution
+  /// fills the remaining cells).
+  int _playerFilledCount = 0;
+  int get playerFilledCount => _playerFilledCount;
+
+  /// Fill all remaining cells with the solution and mark as analyzed.
+  ///
+  /// After calling this, the puzzle is complete and no longer interactive.
+  void analyzePuzzle() {
+    if (_puzzle == null) return;
+
+    // Snapshot the player's progress before filling.
+    _playerFilledCount = 0;
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        final initial = _puzzle!.initialBoard.getCell(r, c);
+        final current = _puzzle!.board.getCell(r, c);
+        if (!initial.isGiven && current.isFilled) _playerFilledCount++;
+      }
+    }
+
+    // Fill all empty cells with solution values.
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        final cell = _puzzle!.board.getCell(r, c);
+        if (cell.isEmpty) {
+          cell.setValue(_puzzle!.solution.getCell(r, c).value);
+        }
+      }
+    }
+
+    _puzzle!.completionType = CompletionType.analyzed;
+    _stopwatch.stop();
+    _timer?.cancel();
+    _isSolvedNotified = true; // Prevent solved celebration from firing.
+    _clearHint();
+    notifyListeners();
+  }
+
   // -- Hints --
 
   void requestHint() {
