@@ -34,7 +34,7 @@ void main() {
       final m = makeMove(0, 0, 5);
       history.push(m);
       final undone = history.undo();
-      expect(undone, m);
+      expect(undone, [m]);
       expect(history.canUndo, false);
       expect(history.canRedo, true);
     });
@@ -44,7 +44,7 @@ void main() {
       history.push(m);
       history.undo();
       final redone = history.redo();
-      expect(redone, m);
+      expect(redone, [m]);
       expect(history.canUndo, true);
       expect(history.canRedo, false);
     });
@@ -79,10 +79,10 @@ void main() {
       history.push(makeMove(0, 1, 2));
       history.push(makeMove(0, 2, 3));
 
-      expect(history.undo()!.newValue, 3);
-      expect(history.undo()!.newValue, 2);
-      expect(history.redo()!.newValue, 2);
-      expect(history.redo()!.newValue, 3);
+      expect(history.undo()!.first.newValue, 3);
+      expect(history.undo()!.first.newValue, 2);
+      expect(history.redo()!.first.newValue, 2);
+      expect(history.redo()!.first.newValue, 3);
       expect(history.canRedo, false);
     });
   });

@@ -210,31 +210,61 @@ class NumberPad extends StatelessWidget {
         ? const Duration(milliseconds: 150)
         : Duration.zero;
 
-    return AnimatedScale(
-      scale: isActive ? 1.08 : 1.0,
-      duration: duration,
-      curve: Curves.easeOutCubic,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton.outlined(
-            icon: Icon(
-              Icons.edit_outlined,
-              color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
+    return GestureDetector(
+      onLongPress: assistToggles.autoFillNotes
+          ? () => _showAutoFillDialog(context)
+          : null,
+      child: AnimatedScale(
+        scale: isActive ? 1.08 : 1.0,
+        duration: duration,
+        curve: Curves.easeOutCubic,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton.outlined(
+              icon: Icon(
+                Icons.edit_outlined,
+                color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
+              ),
+              onPressed: gameState.togglePencilMode,
+              focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
+              style: isActive
+                  ? IconButton.styleFrom(backgroundColor: colorScheme.primaryContainer)
+                  : null,
             ),
-            onPressed: gameState.togglePencilMode,
-            focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
-            style: isActive
-                ? IconButton.styleFrom(backgroundColor: colorScheme.primaryContainer)
-                : null,
+            const SizedBox(height: 2),
+            Text(
+              'Notes',
+              style: TextStyle(
+                fontSize: 11,
+                color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAutoFillDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Fill all candidate notes?'),
+        content: const Text(
+          'This will compute and fill valid candidates for every empty cell.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
           ),
-          const SizedBox(height: 2),
-          Text(
-            'Notes',
-            style: TextStyle(
-              fontSize: 11,
-              color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
-            ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              gameState.autoFillAllNotes();
+            },
+            child: const Text('Fill'),
           ),
         ],
       ),

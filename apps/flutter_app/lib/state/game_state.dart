@@ -337,11 +337,7 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void undo() {
-    if (_puzzle == null || _isPaused) return;
-    final move = _puzzle!.history.undo();
-    if (move == null) return;
-
+  void _applyUndo(Move move) {
     final cell = _puzzle!.board.getCell(move.row, move.col);
     if (move.previousValue != 0) {
       cell.setValue(move.previousValue);
@@ -354,19 +350,9 @@ class GameState extends ChangeNotifier {
     for (final (r, c, v) in move.removedPeerCandidates) {
       _puzzle!.board.getCell(r, c).addCandidate(v);
     }
-
-    _clearHint();
-
-    _selectedRow = move.row;
-    _selectedCol = move.col;
-    notifyListeners();
   }
 
-  void redo() {
-    if (_puzzle == null || _isPaused) return;
-    final move = _puzzle!.history.redo();
-    if (move == null) return;
-
+  void _applyRedo(Move move) {
     final cell = _puzzle!.board.getCell(move.row, move.col);
     if (move.newValue != 0) {
       cell.setValue(move.newValue);
@@ -379,16 +365,86 @@ class GameState extends ChangeNotifier {
     for (final (r, c, v) in move.removedPeerCandidates) {
       _puzzle!.board.getCell(r, c).removeCandidate(v);
     }
+  }
+
+  void undo() {
+    if (_puzzle == null || _isPaused) return;
+    final moves = _puzzle!.history.undo();
+    if (moves == null) return;
+
+    for (final move in moves.reversed) {
+      _applyUndo(move);
+    }
 
     _clearHint();
 
-    _selectedRow = move.row;
-    _selectedCol = move.col;
+    _selectedRow = moves.first.row;
+    _selectedCol = moves.first.col;
+    notifyListeners();
+  }
+
+  void redo() {
+    if (_puzzle == null || _isPaused) return;
+    final moves = _puzzle!.history.redo();
+    if (moves == null) return;
+
+    for (final move in moves) {
+      _applyRedo(move);
+    }
+
+    _clearHint();
+
+    _selectedRow = moves.last.row;
+    _selectedCol = moves.last.col;
 
     if (_puzzle!.isSolved) {
       _stopwatch.stop();
       _timer?.cancel();
     }
+    notifyListeners();
+  }
+
+  // -- Auto-fill notes --
+
+  /// Fill all valid candidates in every empty cell as a single undo step.
+  void autoFillAllNotes() {
+    if (_puzzle == null || _isPaused || _puzzle!.isSolved) return;
+
+    final board = _puzzle!.board;
+    final moves = <Move>[];
+
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        final cell = board.getCell(r, c);
+        if (cell.isFilled) continue;
+
+        // Compute valid candidates via peer bitmask.
+        var usedBits = 0;
+        for (final peer in board.peers(r, c)) {
+          if (peer.isFilled) usedBits |= 1 << peer.value;
+        }
+        final candidateBits = 0x3FE & ~usedBits;
+        final newCandidates = CandidateSet(candidateBits);
+        final prevCandidates = cell.candidates.copy();
+
+        if (newCandidates == prevCandidates) continue;
+
+        moves.add(Move(
+          row: r,
+          col: c,
+          type: MoveType.setCandidates,
+          previousCandidates: prevCandidates,
+          newCandidates: newCandidates,
+        ));
+
+        cell.setCandidates(newCandidates);
+      }
+    }
+
+    if (moves.isEmpty) return;
+
+    _puzzle!.history.pushAll(moves);
+    _clearHint();
     notifyListeners();
   }
 

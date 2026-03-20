@@ -323,6 +323,15 @@ class SettingsScreen extends StatelessWidget {
         onChanged: (v) =>
             settings.setAssistToggles(t.copyWith(autoRemoveCandidates: v)),
       ),
+      const Divider(),
+      SwitchListTile(
+        secondary: const Icon(Icons.note_add_outlined),
+        title: const Text('Auto-fill notes'),
+        subtitle: const Text('Long-press Notes to fill candidates'),
+        value: t.autoFillNotes,
+        onChanged: (v) =>
+            settings.setAssistToggles(t.copyWith(autoFillNotes: v)),
+      ),
     ];
   }
 

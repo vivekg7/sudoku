@@ -49,6 +49,7 @@ class AssistToggles {
   final bool showConflicts;
   final bool showRemainingCount;
   final bool autoRemoveCandidates;
+  final bool autoFillNotes;
 
   const AssistToggles({
     this.highlightRelated = true,
@@ -56,6 +57,7 @@ class AssistToggles {
     this.showConflicts = true,
     this.showRemainingCount = true,
     this.autoRemoveCandidates = false,
+    this.autoFillNotes = true,
   });
 
   static const allOn = AssistToggles();
@@ -65,6 +67,7 @@ class AssistToggles {
     showConflicts: false,
     showRemainingCount: false,
     autoRemoveCandidates: false,
+    autoFillNotes: false,
   );
 
   /// Derived label for stats: none, full, or custom.
@@ -81,6 +84,7 @@ class AssistToggles {
     bool? showConflicts,
     bool? showRemainingCount,
     bool? autoRemoveCandidates,
+    bool? autoFillNotes,
   }) =>
       AssistToggles(
         highlightRelated: highlightRelated ?? this.highlightRelated,
@@ -88,6 +92,7 @@ class AssistToggles {
         showConflicts: showConflicts ?? this.showConflicts,
         showRemainingCount: showRemainingCount ?? this.showRemainingCount,
         autoRemoveCandidates: autoRemoveCandidates ?? this.autoRemoveCandidates,
+        autoFillNotes: autoFillNotes ?? this.autoFillNotes,
       );
 
   Map<String, dynamic> toJson() => {
@@ -96,6 +101,7 @@ class AssistToggles {
         'showConflicts': showConflicts,
         'showRemainingCount': showRemainingCount,
         'autoRemoveCandidates': autoRemoveCandidates,
+        'autoFillNotes': autoFillNotes,
       };
 
   @override
@@ -106,7 +112,8 @@ class AssistToggles {
           highlightSameDigit == other.highlightSameDigit &&
           showConflicts == other.showConflicts &&
           showRemainingCount == other.showRemainingCount &&
-          autoRemoveCandidates == other.autoRemoveCandidates;
+          autoRemoveCandidates == other.autoRemoveCandidates &&
+          autoFillNotes == other.autoFillNotes;
 
   @override
   int get hashCode => Object.hash(
@@ -115,6 +122,7 @@ class AssistToggles {
         showConflicts,
         showRemainingCount,
         autoRemoveCandidates,
+        autoFillNotes,
       );
 
   factory AssistToggles.fromJson(Map<String, dynamic> json) => AssistToggles(
@@ -123,6 +131,7 @@ class AssistToggles {
         showConflicts: json['showConflicts'] as bool? ?? true,
         showRemainingCount: json['showRemainingCount'] as bool? ?? true,
         autoRemoveCandidates: json['autoRemoveCandidates'] as bool? ?? false,
+        autoFillNotes: json['autoFillNotes'] as bool? ?? true,
       );
 }
 
