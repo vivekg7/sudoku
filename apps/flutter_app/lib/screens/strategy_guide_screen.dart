@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
+import 'difficulty_reference_screen.dart';
 import 'strategy_walkthrough_screen.dart';
 
 /// Lists all strategies grouped by difficulty tier.
@@ -18,13 +19,19 @@ class StrategyGuideScreen extends StatelessWidget {
       grouped.putIfAbsent(guide.difficulty, () => []).add(guide);
     }
 
+    // +1 for the difficulty reference link at the top
+    final listItemCount = 1 + _itemCount(grouped);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Strategy Guide')),
       body: ListView.builder(
         padding: const EdgeInsets.only(bottom: 24),
-        itemCount: _itemCount(grouped),
+        itemCount: listItemCount,
         itemBuilder: (context, index) {
-          final item = _getItem(grouped, index);
+          if (index == 0) {
+            return _difficultyReferenceLink(context, colorScheme);
+          }
+          final item = _getItem(grouped, index - 1);
           if (item is Difficulty) {
             return _DifficultyHeader(difficulty: item);
           }
@@ -74,6 +81,52 @@ class StrategyGuideScreen extends StatelessWidget {
       }
     }
     throw RangeError.index(index, grouped, 'index');
+  }
+
+  Widget _difficultyReferenceLink(
+    BuildContext context,
+    ColorScheme colorScheme,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const DifficultyReferenceScreen(),
+          ),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.signal_cellular_alt,
+                size: 20,
+                color: colorScheme.primary,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Which strategies does each difficulty level require?',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _openWalkthrough(BuildContext context, StrategyType strategy) {

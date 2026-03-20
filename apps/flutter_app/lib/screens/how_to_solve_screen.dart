@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/guide/guide_grid_widget.dart';
+import 'difficulty_reference_screen.dart';
 import 'strategy_guide_screen.dart';
 
 class HowToSolveScreen extends StatelessWidget {
@@ -165,6 +166,46 @@ class HowToSolveScreen extends StatelessWidget {
                             'As you play harder puzzles, the hint system '
                             'will introduce more advanced techniques. '
                             'Want to study them? Check out the Strategy Guide.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontStyle: FontStyle.italic,
+                              color: colorScheme.onSurfaceVariant,
+                              height: 1.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.chevron_right,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // --- Difficulty levels link ---
+                GestureDetector(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const DifficultyReferenceScreen(),
+                    ),
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Curious what makes a puzzle Beginner vs Master? '
+                            'See which strategies each difficulty level requires.',
                             style: TextStyle(
                               fontSize: 14,
                               fontStyle: FontStyle.italic,
