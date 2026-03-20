@@ -20,7 +20,7 @@ The solving engine covers all known Sudoku techniques:
 - Pointing Pairs & Box/Line Reduction
 - X-Wing, Swordfish, Jellyfish
 - XY-Wing, XYZ-Wing
-- Simple Colouring, X-Chains, XY-Chains
+- Simple Coloring, X-Chains, XY-Chains
 - Unique Rectangles, ALS, Forcing Chains & more
 
 6 Difficulty Levels

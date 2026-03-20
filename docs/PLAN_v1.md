@@ -60,7 +60,7 @@ Build the step-by-step solver. Each strategy returns a `SolveStep` describing wh
 
 ## Phase 5: Solver — Advanced Strategies
 
-- [x] Simple Colouring
+- [x] Simple Coloring
 - [x] X-Chains
 - [x] XY-Chains
 - [x] Alternating Inference Chains (AIC)

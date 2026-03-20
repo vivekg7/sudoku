@@ -20,7 +20,7 @@ enum StrategyType {
   uniqueRectangleType2('Unique Rectangle Type 2'),
   uniqueRectangleType3('Unique Rectangle Type 3'),
   uniqueRectangleType4('Unique Rectangle Type 4'),
-  simpleColouring('Simple Colouring'),
+  simpleColoring('Simple Coloring'),
   xChain('X-Chain'),
   xyChain('XY-Chain'),
   alternatingInferenceChain('Alternating Inference Chain'),

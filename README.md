@@ -106,7 +106,7 @@ Difficulty is determined by the most advanced solving strategy required — not 
 | Easy     | + Pointing Pairs, Box/Line Reduction, Naked & Hidden Pairs |
 | Medium   | + Naked & Hidden Triples/Quads, X-Wing, Swordfish          |
 | Hard     | + Jellyfish, XY-Wing, XYZ-Wing, Unique Rectangles          |
-| Expert   | + Simple Colouring, X-Chains, XY-Chains, AIC               |
+| Expert   | + Simple Coloring, X-Chains, XY-Chains, AIC               |
 | Master   | + Forcing Chains, ALS, Sue de Coq                          |
 
 ## Privacy

@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ## v1.2.0 — 2026-03-18
 
 - Circular board layout (new default) with layout picker
-- AMOLED theme and 3 new accent colours
+- AMOLED theme and 3 new accent colors
 - Gameplay animations with settings toggle
 - Graduated hint friction (long-press, cooldowns, confirmation)
 - Mistake and hint counters on game screen

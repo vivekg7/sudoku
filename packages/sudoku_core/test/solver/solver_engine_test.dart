@@ -378,9 +378,9 @@ void main() {
       );
     });
 
-    test('colouring and chains are expert', () {
+    test('coloring and chains are expert', () {
       expect(
-        Solver.classifyDifficulty(StrategyType.simpleColouring),
+        Solver.classifyDifficulty(StrategyType.simpleColoring),
         Difficulty.expert,
       );
       expect(

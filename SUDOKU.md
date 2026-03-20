@@ -107,11 +107,11 @@ Strategies are listed in approximate order of difficulty, from easiest to hardes
 | **Unique Rectangle (Type 3)** | The rectangle has extra candidates that form a naked subset with other cells in the unit, allowing eliminations.                                                                                                                                                    |
 | **Unique Rectangle (Type 4)** | One of the two rectangle digits is confined to the two non-bivalue cells within their shared unit — the other rectangle digit can be eliminated from those cells.                                                                                                   |
 
-### Advanced — Colouring & Chains
+### Advanced — Coloring & Chains
 
 | Strategy                              | Description                                                                                                                                                                                                                 |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Simple Colouring**                  | Assign two colours to a digit's conjugate pairs — if two cells of the same colour see each other, that colour is false; any uncoloured cell that sees both colours can have the digit eliminated.                           |
+| **Simple Coloring**                   | Assign two colors to a digit's conjugate pairs — if two cells of the same color see each other, that color is false; any uncolored cell that sees both colors can have the digit eliminated.                                |
 | **X-Chain**                           | A chain of cells connected by alternating strong and weak links on a single digit — the digit can be eliminated from any cell that sees both ends of the chain.                                                             |
 | **XY-Chain**                          | A chain of bivalue cells connected by alternating strong and weak links across multiple digits — the starting and ending digits allow eliminations in cells that see both chain endpoints.                                  |
 | **Alternating Inference Chain (AIC)** | A generalised chain using strong and weak links on any candidates — if the chain starts and ends with strong links on the same candidate, that candidate can be placed or eliminated depending on what the endpoints share. |
@@ -134,4 +134,4 @@ Strategies are listed in approximate order of difficulty, from easiest to hardes
 
 ## What This App Will Never Suggest
 
-**Bifurcation (Trial & Error)** — Pick a candidate, assume it's correct, keep solving, and backtrack if you hit a contradiction. Some players do this on paper when stuck between two options. It "works", but it replaces logic with guessing. Every situation where bifurcation seems necessary can be resolved by a chain or colouring strategy instead. This app exists to teach those strategies — not to shortcut past them.
+**Bifurcation (Trial & Error)** — Pick a candidate, assume it's correct, keep solving, and backtrack if you hit a contradiction. Some players do this on paper when stuck between two options. It "works", but it replaces logic with guessing. Every situation where bifurcation seems necessary can be resolved by a chain or coloring strategy instead. This app exists to teach those strategies — not to shortcut past them.

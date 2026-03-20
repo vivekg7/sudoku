@@ -9,7 +9,7 @@ export 'hidden_subsets.dart';
 export 'naked_single.dart';
 export 'naked_subsets.dart';
 export 'pointing.dart';
-export 'simple_colouring.dart';
+export 'simple_coloring.dart';
 export 'sue_de_coq.dart';
 export 'unique_rectangle.dart';
 export 'x_chain.dart';

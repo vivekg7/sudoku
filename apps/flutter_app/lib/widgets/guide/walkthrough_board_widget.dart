@@ -13,7 +13,7 @@ class WalkthroughBoardWidget extends StatelessWidget {
   /// 81-entry flat list of candidate sets (row-major).
   final List<Set<int>> candidates;
 
-  /// Cells to highlight with accent colour.
+  /// Cells to highlight with accent color.
   final Set<(int, int)> highlightCells;
 
   /// Candidates to accent — (row, col, digit).
@@ -148,7 +148,7 @@ class WalkthroughBoardWidget extends StatelessWidget {
         .firstOrNull;
     final isStepPlacement = placement != null;
 
-    // Background colour
+    // Background color
     Color bgColor;
     if (isStepPlacement) {
       bgColor = sudokuColors.answerBg;

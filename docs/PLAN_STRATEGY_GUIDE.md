@@ -84,7 +84,7 @@ Scaffold
     │       └── WalkthroughBoardWidget (9×9, read-only)
     │           - Placed digits (gray)
     │           - Candidate pencil marks in empty cells
-    │           - Highlighted cells (accent colour)
+    │           - Highlighted cells (accent color)
     │           - Eliminated candidates (red/strikethrough)
     │           - Placed digits from step (green)
     ├── Caption card
@@ -135,8 +135,8 @@ A new read-only 9×9 board widget purpose-built for the guide. Not a reuse of `B
 - Placed digits in cells (bold, gray background)
 - Candidate pencil marks in empty cells (small digits in a 3×3 sub-grid within each cell)
 - Step-based visual states per cell/candidate:
-  - **Highlighted cell** — Accent background colour
-  - **Highlighted candidate** — Accent text colour
+  - **Highlighted cell** — Accent background color
+  - **Highlighted candidate** — Accent text color
   - **Eliminated candidate** — Red with strikethrough
   - **Placed digit** — Green background (answer)
 
@@ -160,7 +160,7 @@ Each phase: author guide data for the strategies, test walkthroughs, then move o
 | 2     | Easy       | Pointing Pair, Pointing Triple, Box/Line Reduction, Naked Pair, Hidden Pair | 5     |                                                                                |
 | 3     | Medium     | Naked Triple, Hidden Triple, Naked Quad, Hidden Quad, X-Wing, Swordfish     | 6     |                                                                                |
 | 4     | Hard       | Jellyfish, XY-Wing, XYZ-Wing, Unique Rectangle Types 1–4                    | 7     |                                                                                |
-| 5     | Expert     | Simple Colouring, X-Chain, XY-Chain, AIC                                    | 4     |                                                                                |
+| 5     | Expert     | Simple Coloring, X-Chain, XY-Chain, AIC                                    | 4     |                                                                                |
 | 6     | Master     | Forcing Chain, Almost Locked Set, Sue de Coq                                | 3     |                                                                                |
 
 ---

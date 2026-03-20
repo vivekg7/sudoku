@@ -40,8 +40,8 @@ class Solver {
     (type: StrategyType.xyWing, strategy: XYWing()),
     (type: StrategyType.xyzWing, strategy: XYZWing()),
     (type: StrategyType.uniqueRectangleType1, strategy: UniqueRectangle()),
-    // Expert: colouring and chains
-    (type: StrategyType.simpleColouring, strategy: SimpleColouring()),
+    // Expert: coloring and chains
+    (type: StrategyType.simpleColoring, strategy: SimpleColoring()),
     (type: StrategyType.xChain, strategy: XChain()),
     (type: StrategyType.xyChain, strategy: XYChain()),
     (type: StrategyType.alternatingInferenceChain, strategy: AIC()),
@@ -184,7 +184,7 @@ class Solver {
     StrategyType.uniqueRectangleType2: 28,
     StrategyType.uniqueRectangleType3: 30,
     StrategyType.uniqueRectangleType4: 30,
-    StrategyType.simpleColouring: 35,
+    StrategyType.simpleColoring: 35,
     StrategyType.xChain: 40,
     StrategyType.xyChain: 45,
     StrategyType.alternatingInferenceChain: 50,

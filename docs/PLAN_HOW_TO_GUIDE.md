@@ -46,7 +46,7 @@ The app's philosophy is "teach the player to think." The hint system does this d
 
 **Text:** Pick any digit (say 7). Scan the grid — where is 7 already placed? Each placed 7 eliminates its entire row, column, and box for another 7. If a box has no 7 yet, and all but one cell in that box is eliminated, then 7 must go in that remaining cell. Do this for every digit, and you'll make steady progress.
 
-**Illustration:** A partial grid (2–3 boxes / rows) showing digit 7 placed in two rows. Highlight the eliminated cells in a third box, showing that only one cell remains where 7 can go. Use colour/shading to show the elimination zones.
+**Illustration:** A partial grid (2–3 boxes / rows) showing digit 7 placed in two rows. Highlight the eliminated cells in a third box, showing that only one cell remains where 7 can go. Use color/shading to show the elimination zones.
 
 ### Section 6: When You're Stuck
 
@@ -123,15 +123,15 @@ Scaffold
 A lightweight, purpose-built widget for small illustrative Sudoku grids. **Not** a reuse of `BoardWidget` — that's too heavy and coupled to game state.
 
 **Props:**
-- `cells`: 2D list of cell data (value, highlight colour, annotation)
+- `cells`: 2D list of cell data (value, highlight color, annotation)
 - `size`: grid dimensions (e.g., 9×1 for a row, 3×3 for a box, or a partial grid)
-- `highlights`: which cells to shade/colour for emphasis
+- `highlights`: which cells to shade/color for emphasis
 - `annotations`: optional labels ("must be 3", crossed-out digits)
 
 **Styling:**
 - Uses `SudokuColors` from the app theme for consistency
 - Thin borders matching the board aesthetic
-- Accent colour for highlighted/answer cells
+- Accent color for highlighted/answer cells
 - `onSurfaceVariant` for regular digits, muted for eliminated digits
 
 **Built with:** `Table` + `Container` cells, or `CustomPaint` if border control needs it. Keep it simple — these are small (5–9 cells), not full 81-cell grids.

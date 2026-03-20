@@ -31,7 +31,7 @@ final List<StrategyGuide> _allGuides = [
   _uniqueRectangleType2Guide,
   _uniqueRectangleType3Guide,
   _uniqueRectangleType4Guide,
-  _simpleColouringGuide,
+  _simpleColoringGuide,
   _xChainGuide,
   _xyChainGuide,
   _aicGuide,
@@ -1845,8 +1845,8 @@ final _uniqueRectangleType4Guide = StrategyGuide(
 // via col 8. It sees both colors → eliminate 7.
 // Target is NOT in any conjugate pair house (box 0, col 0, row 6).
 
-final _simpleColouringGuide = StrategyGuide(
-  strategy: StrategyType.simpleColouring,
+final _simpleColoringGuide = StrategyGuide(
+  strategy: StrategyType.simpleColoring,
   difficulty: Difficulty.expert,
   intro: 'Color conjugate pairs of a candidate with two alternating '
       'colors — cells seeing both colors can\'t have that candidate.',
