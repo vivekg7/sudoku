@@ -48,6 +48,10 @@ class GameStats {
   /// Individual assist toggle states active during the game.
   final Map<String, dynamic> assistToggles;
 
+  /// How the game ended: 'solved', 'analyzed', or 'abandoned'.
+  /// Null for games recorded before this field was added.
+  final String? completionType;
+
   const GameStats({
     required this.id,
     required this.difficulty,
@@ -63,6 +67,7 @@ class GameStats {
     this.boardLayout = 'circular',
     this.mistakeCount = 0,
     this.assistToggles = const {},
+    this.completionType,
   });
 
   /// Total number of hints taken across all layers.
@@ -91,6 +96,7 @@ class GameStats {
         'boardLayout': boardLayout,
         'mistakeCount': mistakeCount,
         'assistToggles': assistToggles,
+        if (completionType != null) 'completionType': completionType,
       };
 
   factory GameStats.fromJson(Map<String, dynamic> json) => GameStats(
@@ -116,5 +122,6 @@ class GameStats {
         boardLayout: (json['boardLayout'] as String?) ?? 'circular',
         mistakeCount: (json['mistakeCount'] as int?) ?? 0,
         assistToggles: (json['assistToggles'] as Map<String, dynamic>?) ?? const {},
+        completionType: json['completionType'] as String?,
       );
 }

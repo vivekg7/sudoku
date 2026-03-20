@@ -270,6 +270,11 @@ class _GameScreenState extends State<GameScreen> {
                       onPressed: () {
                         Navigator.pop(ctx);
                         _gameState.analyzePuzzle();
+                        _recordStats();
+                        // Remove from saved games since it's no longer resumable.
+                        if (_puzzleEntryId != null) {
+                          widget.storage.removePuzzle(_puzzleEntryId!);
+                        }
                         _openAnalysis();
                       },
                       child: const Text('Analyze'),

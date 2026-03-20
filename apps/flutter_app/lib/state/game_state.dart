@@ -576,7 +576,8 @@ class GameState extends ChangeNotifier {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         difficulty: _puzzle!.difficulty,
         solveTimeSeconds: _elapsedSeconds,
-        completed: _puzzle!.isSolved,
+        completed: _puzzle!.isSolved &&
+            _puzzle!.completionType != CompletionType.analyzed,
         hintsByLevel: Map.of(_hintCounts),
         hintsByStrategy: Map.of(_hintStrategyCounts),
         playedAt: DateTime.now(),
@@ -587,6 +588,7 @@ class GameState extends ChangeNotifier {
         showTimer: showTimer,
         boardLayout: boardLayout,
         mistakeCount: _mistakeCount,
+        completionType: _puzzle!.completionType?.name,
       );
 
   @override
