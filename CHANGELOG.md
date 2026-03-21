@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.3.0 — 2026-03-21
+
+- Interactive Strategy Guide with step-through walkthroughs for all 27 strategies
+- How to Solve Sudoku beginner guide
+- Difficulty & Strategy Reference screen
+- Puzzle Analysis with full solve breakdown and candidate notes
+- Auto-fill all notes via long-press on Notes button
+- Unified confirmation dialogs as bottom sheets with candidate note highlighting
+- CLI homepage, PDF export, and timer restore on saved games
+
+---
+
 ## v1.2.0 — 2026-03-18
 
 - Circular board layout (new default) with layout picker
