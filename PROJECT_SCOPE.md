@@ -81,6 +81,7 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 - Practice mode for specific strategies (e.g., "give me puzzles that require X-Wing").
 - Puzzle difficulty rating for user-imported puzzles.
 - Localization / multi-language support.
+- **Collapsible home screen navigation** — Reduce the home screen nav buttons to 4 (Saved, Stats, More, Settings). The "More" button expands inline to reveal the remaining items (PDF, Scan, Learn, Strategies) with a "Less" button to collapse. Settings always stays at the end. Animated transition to keep it smooth.
 
 ---
 
