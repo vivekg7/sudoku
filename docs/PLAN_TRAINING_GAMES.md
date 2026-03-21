@@ -68,15 +68,15 @@ This trains the most fundamental Sudoku skill: instantly recognizing which digit
 
 The player selects a mode before starting. Modes control what type of house is shown and how much time pressure there is.
 
-| Mode   | Houses shown  | Starting time | Time decay               |
-| ------ | ------------- | ------------- | ------------------------ |
-| Chill  | Boxes only    | 10s           | None — stays at 10s      |
-| Quick  | Boxes only    | 5s            | None — stays at 5s       |
-| Sprint | Mixed (all 3) | 5s            | −0.1s per round (min 2s) |
+| Mode   | Houses shown  | Starting time | Decay          | Floor |
+| ------ | ------------- | ------------- | -------------- | ----- |
+| Chill  | Boxes only    | 10s           | −0.2s / round  | 7s    |
+| Quick  | Boxes only    | 8s            | −0.2s / round  | 5s    |
+| Sprint | Mixed (all 3) | 5s            | −0.1s / round  | 2s    |
 
-- **Chill** is for warming up or casual practice. No real pressure.
-- **Quick** is the standard game. 5 seconds per house is tight enough to require real familiarity but loose enough that a competent player can sustain a long streak.
-- **Sprint** is the endgame mode. The timer shrinks as the streak grows, so even strong players eventually get caught. This is where high scores come from.
+- **Chill** starts generous (10s) and gradually tightens to 7s — eases the player into time pressure. By the time Chill feels easy, the player is ready for Quick.
+- **Quick** picks up where Chill's floor leaves off (8s → 5s). The standard competitive mode.
+- **Sprint** is the endgame mode. Starts at 5s (Quick's floor) and shrinks to 2s. Mixed house types add cognitive load. This is where high scores come from.
 
 These modes and their parameters should be defined as constants so they're easy to tune later.
 
