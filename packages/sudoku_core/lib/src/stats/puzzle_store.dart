@@ -1,4 +1,5 @@
 import '../models/board.dart';
+import '../models/candidate_set.dart';
 import '../models/difficulty.dart';
 import '../models/puzzle.dart';
 
@@ -40,6 +41,7 @@ class PuzzleEntry {
         'initialBoard': puzzle.initialBoard.toFlatString(),
         'solution': puzzle.solution.toFlatString(),
         'currentBoard': puzzle.board.toFlatString(),
+        'candidates': puzzle.board.toCandidateBits(),
         'difficulty': puzzle.difficulty.name,
         'bookmarked': bookmarked,
         'savedAt': savedAt.toIso8601String(),
@@ -56,7 +58,11 @@ class PuzzleEntry {
     // Cells that are givens in initialBoard stay as givens; others are
     // user-filled.
     final currentFlat = json['currentBoard'] as String;
-    final currentBoard = _restoreCurrentBoard(initialBoard, currentFlat);
+    final candidateBits = (json['candidates'] as List<dynamic>?)
+        ?.map((e) => e as int)
+        .toList();
+    final currentBoard =
+        _restoreCurrentBoard(initialBoard, currentFlat, candidateBits);
 
     final puzzle = Puzzle(
       initialBoard: initialBoard,
@@ -78,7 +84,9 @@ class PuzzleEntry {
 
   /// Rebuilds a current board where givens from [initialBoard] are marked
   /// as given and other filled cells are user-entered.
-  static Board _restoreCurrentBoard(Board initialBoard, String flat) {
+  /// Optionally restores candidate pencil marks from [candidateBits].
+  static Board _restoreCurrentBoard(
+      Board initialBoard, String flat, List<int>? candidateBits) {
     final values = List.generate(9, (r) {
       return List.generate(9, (c) {
         final ch = flat[r * 9 + c];
@@ -94,11 +102,18 @@ class PuzzleEntry {
       });
     }));
 
-    // Set user-filled values.
+    // Set user-filled values and restore candidates.
     for (var r = 0; r < 9; r++) {
       for (var c = 0; c < 9; c++) {
-        if (!initialBoard.getCell(r, c).isGiven && values[r][c] != 0) {
-          board.getCell(r, c).setValue(values[r][c]);
+        if (initialBoard.getCell(r, c).isGiven) continue;
+        final cell = board.getCell(r, c);
+        if (values[r][c] != 0) {
+          cell.setValue(values[r][c]);
+        } else if (candidateBits != null) {
+          final bits = candidateBits[r * 9 + c];
+          if (bits != 0) {
+            cell.setCandidates(CandidateSet(bits));
+          }
         }
       }
     }

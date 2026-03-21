@@ -30,7 +30,8 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen>
+    with WidgetsBindingObserver {
   late final GameState _gameState;
   final FocusNode _focusNode = FocusNode();
   String? _puzzleEntryId;
@@ -39,6 +40,7 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _gameState = GameState();
     _gameState.maxHintLayer = widget.settings.hintLimit.maxLayer;
     _gameState.notesEnabled = widget.settings.notesEnabled;
@@ -58,10 +60,18 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _gameState.removeListener(_restoreKeyboardFocus);
     _gameState.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) {
+      _saveCurrentPuzzle();
+    }
   }
 
   void _restoreKeyboardFocus() {

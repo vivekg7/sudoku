@@ -126,6 +126,10 @@ class Board {
   String toFlatString() =>
       _grid.expand((row) => row).map((c) => c.isEmpty ? '0' : '${c.value}').join();
 
+  /// Returns a flat list of 81 candidate bitmasks (row-major).
+  List<int> toCandidateBits() =>
+      _grid.expand((row) => row).map((c) => c.candidates.bits).toList();
+
   /// Returns a 2D list of int values.
   List<List<int>> toValues() =>
       List.generate(9, (r) => List.generate(9, (c) => _grid[r][c].value));
