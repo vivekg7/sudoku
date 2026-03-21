@@ -15,12 +15,16 @@ class Game {
   int _cursorRow = 0;
   int _cursorCol = 0;
   bool _showCandidates = false;
+  int _mistakeCount = 0;
 
   // Hint state.
   Hint? _currentHint;
   int _hintLayer = 0; // 0 = none shown, 1 = nudge, 2 = strategy, 3 = answer
   final Map<HintLevel, int> _hintCounts = {};
   final Map<StrategyType, int> _hintStrategyCounts = {};
+
+  // Analysis result (printed after game loop exits).
+  PuzzleAnalysis? _analysis;
 
   Game(this.puzzle);
 
@@ -82,6 +86,13 @@ class Game {
 
       case 'hint':
         _handleHint();
+
+      case 'fill':
+        _handleFill();
+
+      case 'analyze':
+        _handleAnalyze();
+        if (puzzle.completionType == CompletionType.analyzed) return false;
 
       case 'solve':
         _handleSolve();
@@ -170,6 +181,7 @@ class Game {
     _printBoard();
 
     if (conflicts.isNotEmpty) {
+      _mistakeCount++;
       print('Warning: conflict with ${conflicts.join(", ")}!');
     }
   }
@@ -278,43 +290,55 @@ class Game {
   }
 
   void _handleUndo() {
-    final move = puzzle.history.undo();
-    if (move == null) {
+    final moves = puzzle.history.undo();
+    if (moves == null) {
       print('Nothing to undo.');
       return;
     }
 
-    final cell = puzzle.board.getCell(move.row, move.col);
-    if (move.previousValue != 0) {
-      cell.setValue(move.previousValue);
-    } else {
-      cell.clearValue();
-    }
-    cell.setCandidates(move.previousCandidates);
+    for (final move in moves.reversed) {
+      final cell = puzzle.board.getCell(move.row, move.col);
+      if (move.previousValue != 0) {
+        cell.setValue(move.previousValue);
+      } else {
+        cell.clearValue();
+      }
+      cell.setCandidates(move.previousCandidates);
 
-    _cursorRow = move.row;
-    _cursorCol = move.col;
+      for (final (r, c, v) in move.removedPeerCandidates) {
+        puzzle.board.getCell(r, c).addCandidate(v);
+      }
+    }
+
+    _cursorRow = moves.first.row;
+    _cursorCol = moves.first.col;
     _printBoard();
     print('Undone.');
   }
 
   void _handleRedo() {
-    final move = puzzle.history.redo();
-    if (move == null) {
+    final moves = puzzle.history.redo();
+    if (moves == null) {
       print('Nothing to redo.');
       return;
     }
 
-    final cell = puzzle.board.getCell(move.row, move.col);
-    if (move.newValue != 0) {
-      cell.setValue(move.newValue);
-    } else {
-      cell.clearValue();
-    }
-    cell.setCandidates(move.newCandidates);
+    for (final move in moves) {
+      final cell = puzzle.board.getCell(move.row, move.col);
+      if (move.newValue != 0) {
+        cell.setValue(move.newValue);
+      } else {
+        cell.clearValue();
+      }
+      cell.setCandidates(move.newCandidates);
 
-    _cursorRow = move.row;
-    _cursorCol = move.col;
+      for (final (r, c, v) in move.removedPeerCandidates) {
+        puzzle.board.getCell(r, c).removeCandidate(v);
+      }
+    }
+
+    _cursorRow = moves.last.row;
+    _cursorCol = moves.last.col;
     _printBoard();
     print('Redone.');
   }
@@ -411,8 +435,10 @@ class Game {
     print('  note <value>      Toggle candidate at cursor');
     print('  note <RC> <value> Toggle candidate at cell');
     print('  undo / redo       Undo or redo last move');
-    print('  hint              Progressive hint (nudge → strategy → answer)');
+    print('  hint              Progressive hint (nudge -> strategy -> answer)');
+    print('  fill              Auto-fill all candidate notes');
     print('  candidates        Toggle candidate display');
+    print('  analyze           Analyze puzzle (reveals solution)');
     print('  solve             Reveal the solution');
     print('  timer             Show elapsed time');
     print('  pause / resume    Pause or resume timer');
@@ -425,6 +451,7 @@ class Game {
     print('Difficulty: ${puzzle.difficulty.label}');
     print('Time: ${_timer.formatted}');
     print('Cells remaining: ${puzzle.emptyCellCount}');
+    print('Mistakes: $_mistakeCount');
     print('Hints used: ${_totalHints()}');
     if (_hintCounts.isNotEmpty) {
       for (final e in _hintCounts.entries) {
@@ -442,6 +469,112 @@ class Game {
 
   int _totalHints() =>
       _hintCounts.values.fold(0, (sum, c) => sum + c);
+
+  void _handleFill() {
+    final board = puzzle.board;
+    final moves = <Move>[];
+
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        final cell = board.getCell(r, c);
+        if (cell.isFilled) continue;
+
+        var usedBits = 0;
+        for (final peer in board.peers(r, c)) {
+          if (peer.isFilled) usedBits |= 1 << peer.value;
+        }
+        final candidateBits = 0x3FE & ~usedBits;
+        final newCandidates = CandidateSet(candidateBits);
+        final prevCandidates = cell.candidates.copy();
+
+        if (newCandidates == prevCandidates) continue;
+
+        moves.add(Move(
+          row: r,
+          col: c,
+          type: MoveType.setCandidates,
+          previousCandidates: prevCandidates,
+          newCandidates: newCandidates,
+        ));
+
+        cell.setCandidates(newCandidates);
+      }
+    }
+
+    if (moves.isEmpty) {
+      print('All candidates already filled.');
+      return;
+    }
+
+    puzzle.history.pushAll(moves);
+    _clearHint();
+    if (!_showCandidates) _showCandidates = true;
+    _printBoard();
+    print('Filled candidates for ${moves.length} cells.');
+  }
+
+  void _handleAnalyze() {
+    stdout.write('Analyze this puzzle? This ends the game. (y/n): ');
+    final answer = stdin.readLineSync()?.trim().toLowerCase();
+    if (answer != 'y') {
+      print('Cancelled.');
+      return;
+    }
+
+    // Fill all empty cells with solution.
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        final cell = puzzle.board.getCell(r, c);
+        if (cell.isEmpty) {
+          cell.setValue(puzzle.solution.getCell(r, c).value);
+        }
+      }
+    }
+
+    puzzle.completionType = CompletionType.analyzed;
+    _timer.pause();
+
+    // Generate analysis.
+    if (puzzle.solveResult != null) {
+      _analysis = PuzzleAnalyzer.analyze(puzzle);
+      _printAnalysis(_analysis!);
+    }
+  }
+
+  void _printAnalysis(PuzzleAnalysis analysis) {
+    print('\n--- Puzzle Analysis ---');
+    print('Difficulty: ${analysis.difficulty.label} '
+        '(score: ${analysis.scoreBreakdown.totalScore})');
+    print('Hardest strategy: ${analysis.hardestStrategy.label}');
+    print('Total steps: ${analysis.steps.length}');
+    print('');
+
+    print('Strategies used:');
+    for (final sc in analysis.strategyCounts) {
+      print('  ${sc.strategy.label}: ${sc.count}x');
+    }
+
+    if (analysis.bottlenecks.isNotEmpty) {
+      print('');
+      print('Bottleneck cells:');
+      for (final b in analysis.bottlenecks) {
+        print('  R${b.row + 1}C${b.col + 1} = ${b.value} '
+            '(${b.strategy.label})');
+      }
+    }
+
+    final sb = analysis.scoreBreakdown;
+    print('');
+    print('Score breakdown:');
+    print('  Hardest strategy weight: ${sb.hardestWeight} x3 = ${sb.hardestContribution}');
+    print('  Advanced techniques: ${sb.advancedTotal} /4 = ${sb.advancedContribution}');
+    print('  Given penalty (${sb.givenCount} givens): ${sb.givenPenalty}');
+    print('  Step penalty (${sb.stepCount} steps): ${sb.stepPenalty}');
+    print('  Total: ${sb.totalScore}');
+  }
+
+  /// Analysis result, available after [_handleAnalyze] is called.
+  PuzzleAnalysis? get analysis => _analysis;
 
   void _clearHint() {
     _currentHint = null;
@@ -505,10 +638,15 @@ class Game {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         difficulty: puzzle.difficulty,
         solveTimeSeconds: _timer.elapsedSeconds,
-        completed: puzzle.isSolved,
+        completed: puzzle.isSolved &&
+            puzzle.completionType != CompletionType.analyzed,
         hintsByLevel: Map.of(_hintCounts),
         hintsByStrategy: Map.of(_hintStrategyCounts),
         playedAt: DateTime.now(),
         puzzleId: puzzle.initialBoard.toFlatString(),
+        mistakeCount: _mistakeCount,
+        completionType: puzzle.completionType?.name,
+        boardLayout: 'cli',
+        assistLevel: 'none',
       );
 }

@@ -87,6 +87,11 @@ Future<void> main(List<String> arguments) async {
     final game = TuiGame(puzzle);
     await game.run();
 
+    // Print analysis if triggered during the game.
+    if (game.analysis != null) {
+      _printAnalysis(game.analysis!);
+    }
+
     // After TUI exits, terminal is restored - use line-based I/O for save prompt
     if (!puzzle.isSolved) {
       stdout.write('Save game? (y/n): ');
@@ -220,6 +225,38 @@ void _recordStats(GameStats stats, String saveFile) {
   statsFile.writeAsStringSync(
     const JsonEncoder.withIndent('  ').convert(store.toJson()),
   );
+}
+
+void _printAnalysis(PuzzleAnalysis analysis) {
+  print('\n--- Puzzle Analysis ---');
+  print('Difficulty: ${analysis.difficulty.label} '
+      '(score: ${analysis.scoreBreakdown.totalScore})');
+  print('Hardest strategy: ${analysis.hardestStrategy.label}');
+  print('Total steps: ${analysis.steps.length}');
+  print('');
+
+  print('Strategies used:');
+  for (final sc in analysis.strategyCounts) {
+    print('  ${sc.strategy.label}: ${sc.count}x');
+  }
+
+  if (analysis.bottlenecks.isNotEmpty) {
+    print('');
+    print('Bottleneck cells:');
+    for (final b in analysis.bottlenecks) {
+      print('  R${b.row + 1}C${b.col + 1} = ${b.value} '
+          '(${b.strategy.label})');
+    }
+  }
+
+  final sb = analysis.scoreBreakdown;
+  print('');
+  print('Score breakdown:');
+  print('  Hardest strategy weight: ${sb.hardestWeight} x3 = ${sb.hardestContribution}');
+  print('  Advanced techniques: ${sb.advancedTotal} /4 = ${sb.advancedContribution}');
+  print('  Given penalty (${sb.givenCount} givens): ${sb.givenPenalty}');
+  print('  Step penalty (${sb.stepCount} steps): ${sb.stepPenalty}');
+  print('  Total: ${sb.totalScore}');
 }
 
 String _formatSeconds(int seconds) {

@@ -28,6 +28,11 @@ class TuiGame {
   final Map<HintLevel, int> _hintCounts = {};
   final Map<StrategyType, int> _hintStrategyCounts = {};
 
+  int _mistakeCount = 0;
+
+  // Analysis result (printed after TUI exits).
+  PuzzleAnalysis? _analysis;
+
   // Status messages
   String? _statusMessage;
   Set<(int, int)> _conflictCells = {};
@@ -156,11 +161,16 @@ class TuiGame {
         _handleRedo();
       case 'p' || ' ':
         _togglePause();
+      case 'f':
+        _handleFill();
       case 'q':
         _pendingConfirm = _ConfirmAction.quit;
         _redraw();
       case 'x':
         _pendingConfirm = _ConfirmAction.solve;
+        _redraw();
+      case '!':
+        _pendingConfirm = _ConfirmAction.analyze;
         _redraw();
     }
   }
@@ -187,6 +197,9 @@ class TuiGame {
           return;
         case _ConfirmAction.save:
           _saveAndQuit();
+          return;
+        case _ConfirmAction.analyze:
+          _analyzePuzzle();
           return;
       }
     }
@@ -235,6 +248,7 @@ class TuiGame {
     // Check for conflicts
     _conflictCells = _findConflicts(_cursorRow, _cursorCol, value);
     if (_conflictCells.isNotEmpty) {
+      _mistakeCount++;
       _statusMessage = 'Conflict detected!';
     } else {
       _statusMessage = null;
@@ -301,46 +315,58 @@ class TuiGame {
   }
 
   void _handleUndo() {
-    final move = puzzle.history.undo();
-    if (move == null) {
+    final moves = puzzle.history.undo();
+    if (moves == null) {
       _statusMessage = 'Nothing to undo.';
       _redraw();
       return;
     }
 
-    final cell = puzzle.board.getCell(move.row, move.col);
-    if (move.previousValue != 0) {
-      cell.setValue(move.previousValue);
-    } else {
-      cell.clearValue();
-    }
-    cell.setCandidates(move.previousCandidates);
+    for (final move in moves.reversed) {
+      final cell = puzzle.board.getCell(move.row, move.col);
+      if (move.previousValue != 0) {
+        cell.setValue(move.previousValue);
+      } else {
+        cell.clearValue();
+      }
+      cell.setCandidates(move.previousCandidates);
 
-    _cursorRow = move.row;
-    _cursorCol = move.col;
+      for (final (r, c, v) in move.removedPeerCandidates) {
+        puzzle.board.getCell(r, c).addCandidate(v);
+      }
+    }
+
+    _cursorRow = moves.first.row;
+    _cursorCol = moves.first.col;
     _conflictCells = {};
     _statusMessage = 'Undone.';
     _redraw();
   }
 
   void _handleRedo() {
-    final move = puzzle.history.redo();
-    if (move == null) {
+    final moves = puzzle.history.redo();
+    if (moves == null) {
       _statusMessage = 'Nothing to redo.';
       _redraw();
       return;
     }
 
-    final cell = puzzle.board.getCell(move.row, move.col);
-    if (move.newValue != 0) {
-      cell.setValue(move.newValue);
-    } else {
-      cell.clearValue();
-    }
-    cell.setCandidates(move.newCandidates);
+    for (final move in moves) {
+      final cell = puzzle.board.getCell(move.row, move.col);
+      if (move.newValue != 0) {
+        cell.setValue(move.newValue);
+      } else {
+        cell.clearValue();
+      }
+      cell.setCandidates(move.newCandidates);
 
-    _cursorRow = move.row;
-    _cursorCol = move.col;
+      for (final (r, c, v) in move.removedPeerCandidates) {
+        puzzle.board.getCell(r, c).removeCandidate(v);
+      }
+    }
+
+    _cursorRow = moves.last.row;
+    _cursorCol = moves.last.col;
     _conflictCells = {};
     _statusMessage = 'Redone.';
     _redraw();
@@ -412,6 +438,73 @@ class TuiGame {
     _gameComplete.complete();
   }
 
+  void _handleFill() {
+    final board = puzzle.board;
+    final moves = <Move>[];
+
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        final cell = board.getCell(r, c);
+        if (cell.isFilled) continue;
+
+        var usedBits = 0;
+        for (final peer in board.peers(r, c)) {
+          if (peer.isFilled) usedBits |= 1 << peer.value;
+        }
+        final candidateBits = 0x3FE & ~usedBits;
+        final newCandidates = CandidateSet(candidateBits);
+        final prevCandidates = cell.candidates.copy();
+
+        if (newCandidates == prevCandidates) continue;
+
+        moves.add(Move(
+          row: r,
+          col: c,
+          type: MoveType.setCandidates,
+          previousCandidates: prevCandidates,
+          newCandidates: newCandidates,
+        ));
+
+        cell.setCandidates(newCandidates);
+      }
+    }
+
+    if (moves.isEmpty) {
+      _statusMessage = 'All candidates already filled.';
+    } else {
+      puzzle.history.pushAll(moves);
+      _clearHint();
+      if (!_showCandidates) _showCandidates = true;
+      _statusMessage = 'Filled candidates for ${moves.length} cells.';
+    }
+    _redraw();
+  }
+
+  void _analyzePuzzle() {
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        final cell = puzzle.board.getCell(r, c);
+        if (cell.isEmpty) {
+          cell.setValue(puzzle.solution.getCell(r, c).value);
+        }
+      }
+    }
+
+    puzzle.completionType = CompletionType.analyzed;
+    _timer.pause();
+
+    if (puzzle.solveResult != null) {
+      _analysis = PuzzleAnalyzer.analyze(puzzle);
+    }
+
+    _statusMessage = null;
+    _redraw();
+    _gameComplete.complete();
+  }
+
+  /// Analysis result, available after analyze is called.
+  PuzzleAnalysis? get analysis => _analysis;
+
   void _clearHint() {
     _currentHint = null;
     _hintLayer = 0;
@@ -467,6 +560,7 @@ class TuiGame {
       _ConfirmAction.quit => 'Quit game? (y/n)',
       _ConfirmAction.solve => 'Reveal solution? This ends the game. (y/n)',
       _ConfirmAction.save => 'Save game before quitting? (y/n)',
+      _ConfirmAction.analyze => 'Analyze puzzle? This ends the game. (y/n)',
     };
   }
 
@@ -475,12 +569,17 @@ class TuiGame {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         difficulty: puzzle.difficulty,
         solveTimeSeconds: _timer.elapsedSeconds,
-        completed: puzzle.isSolved,
+        completed: puzzle.isSolved &&
+            puzzle.completionType != CompletionType.analyzed,
         hintsByLevel: Map.of(_hintCounts),
         hintsByStrategy: Map.of(_hintStrategyCounts),
         playedAt: DateTime.now(),
         puzzleId: puzzle.initialBoard.toFlatString(),
+        mistakeCount: _mistakeCount,
+        completionType: puzzle.completionType?.name,
+        boardLayout: 'cli',
+        assistLevel: 'none',
       );
 }
 
-enum _ConfirmAction { quit, solve, save }
+enum _ConfirmAction { quit, solve, save, analyze }
