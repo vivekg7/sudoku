@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.3.1 — 2026-03-21
+
+- Auto-save game progress on app suspend/close via lifecycle observer
+- Persist pencil mark candidates across save/resume
+
+---
+
 ## v1.3.0 — 2026-03-21
 
 - Interactive Strategy Guide with step-through walkthroughs for all 27 strategies
