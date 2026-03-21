@@ -235,7 +235,7 @@ class SettingsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Hints'),
+                const Text('Hints (long-press)'),
                 Text(
                   settings.hintLimit.description,
                   style: TextStyle(
