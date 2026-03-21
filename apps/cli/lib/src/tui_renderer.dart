@@ -165,8 +165,6 @@ class TuiRenderer {
       bg = Ansi.bgSameDigit;
     } else if (isRelated) {
       bg = Ansi.bgRelated;
-    } else if (cell.isGiven) {
-      bg = Ansi.bgGiven;
     } else {
       bg = Ansi.bgDefault;
     }
@@ -269,8 +267,6 @@ class TuiRenderer {
       bg = Ansi.bgSameDigit;
     } else if (isRelated) {
       bg = Ansi.bgRelated;
-    } else if (cell.isGiven) {
-      bg = Ansi.bgGiven;
     } else {
       bg = Ansi.bgDefault;
     }

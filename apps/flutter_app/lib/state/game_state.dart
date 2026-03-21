@@ -15,6 +15,7 @@ class GameState extends ChangeNotifier {
   final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
   int _elapsedSeconds = 0;
+  int _elapsedOffset = 0;
   bool _isPaused = false;
   bool _isSolvedNotified = false;
 
@@ -97,6 +98,7 @@ class GameState extends ChangeNotifier {
     _isPaused = false;
     _isSolvedNotified = false;
     _elapsedSeconds = 0;
+    _elapsedOffset = 0;
     _stopwatch.reset();
     _currentHint = null;
     _hintLayer = 0;
@@ -132,7 +134,7 @@ class GameState extends ChangeNotifier {
   }
 
   /// Resume from a saved puzzle (no generation needed).
-  void resumePuzzle(Puzzle puzzle) {
+  void resumePuzzle(Puzzle puzzle, {int elapsedSeconds = 0}) {
     _timer?.cancel();
     _puzzle = puzzle;
     _selectedRow = null;
@@ -141,7 +143,8 @@ class GameState extends ChangeNotifier {
     _isPencilMode = false;
     _isPaused = false;
     _isSolvedNotified = false;
-    _elapsedSeconds = 0;
+    _elapsedOffset = elapsedSeconds;
+    _elapsedSeconds = elapsedSeconds;
     _stopwatch.reset();
     _currentHint = null;
     _hintLayer = 0;
@@ -158,7 +161,7 @@ class GameState extends ChangeNotifier {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!_isPaused) {
-        _elapsedSeconds = _stopwatch.elapsed.inSeconds;
+        _elapsedSeconds = _elapsedOffset + _stopwatch.elapsed.inSeconds;
         notifyListeners();
       }
     });

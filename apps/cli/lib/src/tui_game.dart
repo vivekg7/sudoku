@@ -10,8 +10,9 @@ import 'tui_renderer.dart';
 /// Interactive TUI Sudoku game with raw keyboard input and real-time updates.
 class TuiGame {
   final Puzzle puzzle;
-  final Terminal _terminal = Terminal();
-  final InputHandler _input = InputHandler();
+  final Terminal _terminal;
+  final InputHandler _input;
+  final bool _ownsTerminal;
   final TuiRenderer _renderer = TuiRenderer();
   final GameTimer _timer = GameTimer();
   final HintGenerator _hintGen = HintGenerator();
@@ -45,14 +46,27 @@ class TuiGame {
   final Completer<void> _gameComplete = Completer<void>();
   Timer? _timerTick;
 
-  TuiGame(this.puzzle);
+  /// Creates a TUI game. If [terminal] and [input] are provided, they are
+  /// borrowed (not disposed on exit). Otherwise new ones are created and owned.
+  TuiGame(this.puzzle, {Terminal? terminal, InputHandler? input, int initialElapsedSeconds = 0})
+      : _terminal = terminal ?? Terminal(),
+        _input = input ?? InputHandler(),
+        _ownsTerminal = terminal == null {
+    if (initialElapsedSeconds > 0) {
+      _timer.setInitialOffset(initialElapsedSeconds);
+    }
+  }
+
+  /// Current elapsed seconds (for saving).
+  int get elapsedSeconds => _timer.elapsedSeconds;
 
   /// Runs the TUI game loop. Returns when the game is finished.
   Future<void> run() async {
-    _terminal.init();
+    if (_ownsTerminal) _terminal.init();
+    _terminal.clear();
     try {
       _timer.start();
-      _input.start();
+      if (_ownsTerminal) _input.start();
 
       _redraw();
 
@@ -68,8 +82,10 @@ class TuiGame {
       _timerTick?.cancel();
       await subscription.cancel();
     } finally {
-      await _input.stop();
-      _terminal.dispose();
+      if (_ownsTerminal) {
+        await _input.stop();
+        _terminal.dispose();
+      }
     }
   }
 
@@ -113,6 +129,8 @@ class TuiGame {
           _statusMessage = null;
           _redraw();
         }
+      case EnterKey():
+        break;
       case UnknownKey():
         break;
     }

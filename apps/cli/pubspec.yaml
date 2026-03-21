@@ -9,6 +9,7 @@ environment:
 # Add regular dependencies here.
 dependencies:
   args: ^2.7.0
+  pdf: ^3.12.0
   sudoku_core:
     path: ../../packages/sudoku_core
 

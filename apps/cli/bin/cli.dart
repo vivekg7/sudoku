@@ -6,6 +6,10 @@ import 'package:args/args.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
 import 'package:cli/src/game.dart';
+import 'package:cli/src/homepage.dart';
+import 'package:cli/src/input_handler.dart';
+import 'package:cli/src/pdf_service.dart';
+import 'package:cli/src/terminal.dart';
 import 'package:cli/src/tui_game.dart';
 
 Future<void> main(List<String> arguments) async {
@@ -26,7 +30,15 @@ Future<void> main(List<String> arguments) async {
         help: 'File path for saving games')
     ..addOption('import',
         help: 'Import a puzzle from an 81-character string')
-    ..addFlag('stats', negatable: false, help: 'Show accumulated stats');
+    ..addFlag('stats', negatable: false, help: 'Show accumulated stats')
+    ..addOption('pdf', help: 'Generate PDF puzzles to a file')
+    ..addOption('count',
+        defaultsTo: '6', help: 'Number of puzzles for PDF export')
+    ..addFlag('hints',
+        defaultsTo: true, help: 'Include solve-order hints in PDF')
+    ..addFlag('rough-grid',
+        negatable: false, help: 'Include rough work grid in PDF')
+    ..addFlag('quotes', defaultsTo: true, help: 'Include quotes in PDF');
 
   final ArgResults args;
   try {
@@ -46,36 +58,221 @@ Future<void> main(List<String> arguments) async {
   }
 
   final saveFile = args.option('save-file')!;
+  final useClassic = args.flag('classic') || !stdout.hasTerminal;
 
+  // --stats: show stats and exit.
   if (args.flag('stats')) {
     _showStats(saveFile);
     exit(0);
   }
 
-  Puzzle puzzle;
-
-  if (args.option('load') != null) {
-    puzzle = _loadGame(args.option('load')!);
-  } else if (args.option('import') != null) {
-    puzzle = _importPuzzle(args.option('import')!);
-  } else {
+  // --pdf: non-interactive PDF generation and exit.
+  if (args.option('pdf') != null) {
+    final outputPath = args.option('pdf')!;
     final difficultyName = args.option('difficulty')!;
     final difficulty = Difficulty.values.byName(difficultyName);
-    puzzle = _generatePuzzle(difficulty);
+    final count = int.tryParse(args.option('count')!) ?? 6;
+
+    await _runPdfExport(
+      outputPath: outputPath,
+      difficulty: difficulty,
+      count: count.clamp(1, 20),
+      includeHints: args.flag('hints'),
+      includeRoughGrid: args.flag('rough-grid'),
+      includeQuotes: args.flag('quotes'),
+    );
+    exit(0);
   }
 
-  final useClassic = args.flag('classic') || !stdout.hasTerminal;
+  // Direct launch: --load, --import, or explicit --difficulty skip homepage.
+  if (args.option('load') != null) {
+    final entry = _loadGame(args.option('load')!);
+    await _runGame(entry.puzzle, saveFile, useClassic, initialElapsedSeconds: entry.elapsedSeconds);
+    exit(0);
+  }
+  if (args.option('import') != null) {
+    final puzzle = _importPuzzle(args.option('import')!);
+    await _runGame(puzzle, saveFile, useClassic);
+    exit(0);
+  }
+  if (args.wasParsed('difficulty')) {
+    final difficulty = Difficulty.values.byName(args.option('difficulty')!);
+    final puzzle = _generatePuzzle(difficulty);
+    await _runGame(puzzle, saveFile, useClassic);
+    exit(0);
+  }
 
+  // No specific action: show interactive homepage.
+  await _homepageLoop(saveFile, useClassic);
+}
+
+// -- Homepage loop --
+
+Future<void> _homepageLoop(String saveFile, bool useClassic) async {
   if (useClassic) {
-    // Classic line-based mode
-    final game = Game(puzzle);
+    await _classicHomepageLoop(saveFile);
+    return;
+  }
+
+  // TUI mode: share a single Terminal + InputHandler across the session.
+  final terminal = Terminal();
+  final input = InputHandler();
+  terminal.init();
+  input.start();
+
+  try {
+    while (true) {
+      final action = await TuiHomepage(terminal: terminal, input: input).show();
+
+      switch (action) {
+        case NewGameAction(:final difficulty):
+          // Temporarily exit raw mode for puzzle generation output.
+          terminal.dispose();
+          final puzzle = _generatePuzzle(difficulty);
+          terminal.init();
+          input.start();
+          final game = TuiGame(puzzle, terminal: terminal, input: input);
+          await game.run();
+          terminal.dispose();
+          if (game.analysis != null) _printAnalysis(game.analysis!);
+          if (!puzzle.isSolved) {
+            stdout.write('Save game? (y/n): ');
+            final answer = stdin.readLineSync()?.trim().toLowerCase();
+            if (answer == 'y') {
+              _saveGame(puzzle, saveFile, elapsedSeconds: game.elapsedSeconds);
+              print('Game saved to $saveFile.');
+            }
+          }
+          _recordStats(game.toGameStats(), saveFile);
+          terminal.init();
+          input.start();
+
+        case LoadGameAction():
+          terminal.dispose();
+          final file = File(saveFile);
+          if (!file.existsSync()) {
+            print('No saved game found at $saveFile.');
+            stdout.write('Press Enter to continue...');
+            stdin.readLineSync();
+            terminal.init();
+            input.start();
+            continue;
+          }
+          final entry = _loadGame(saveFile);
+          terminal.init();
+          input.start();
+          final game = TuiGame(entry.puzzle, terminal: terminal, input: input, initialElapsedSeconds: entry.elapsedSeconds);
+          await game.run();
+          terminal.dispose();
+          if (game.analysis != null) _printAnalysis(game.analysis!);
+          if (!entry.puzzle.isSolved) {
+            stdout.write('Save game? (y/n): ');
+            final answer = stdin.readLineSync()?.trim().toLowerCase();
+            if (answer == 'y') {
+              _saveGame(entry.puzzle, saveFile, elapsedSeconds: game.elapsedSeconds);
+              print('Game saved to $saveFile.');
+            }
+          }
+          _recordStats(game.toGameStats(), saveFile);
+          terminal.init();
+          input.start();
+
+        case ExportPdfAction(
+            :final difficulty,
+            :final count,
+            :final includeHints,
+            :final includeRoughGrid,
+            :final includeQuotes,
+            :final outputPath,
+          ):
+          terminal.dispose();
+          await _runPdfExport(
+            outputPath: outputPath,
+            difficulty: difficulty,
+            count: count,
+            includeHints: includeHints,
+            includeRoughGrid: includeRoughGrid,
+            includeQuotes: includeQuotes,
+          );
+          stdout.write('Press Enter to continue...');
+          stdin.readLineSync();
+          terminal.init();
+          input.start();
+
+        case ViewStatsAction():
+          terminal.dispose();
+          _showStats(saveFile);
+          stdout.write('\nPress Enter to continue...');
+          stdin.readLineSync();
+          terminal.init();
+          input.start();
+
+        case QuitAction():
+          return;
+      }
+    }
+  } finally {
+    terminal.dispose();
+    await input.stop();
+  }
+}
+
+Future<void> _classicHomepageLoop(String saveFile) async {
+  while (true) {
+    final action = ClassicHomepage().show();
+
+    switch (action) {
+      case NewGameAction(:final difficulty):
+        final puzzle = _generatePuzzle(difficulty);
+        await _runGame(puzzle, saveFile, true);
+
+      case LoadGameAction():
+        final file = File(saveFile);
+        if (!file.existsSync()) {
+          print('No saved game found at $saveFile.');
+          continue;
+        }
+        final entry = _loadGame(saveFile);
+        await _runGame(entry.puzzle, saveFile, true, initialElapsedSeconds: entry.elapsedSeconds);
+
+      case ExportPdfAction(
+          :final difficulty,
+          :final count,
+          :final includeHints,
+          :final includeRoughGrid,
+          :final includeQuotes,
+          :final outputPath,
+        ):
+        await _runPdfExport(
+          outputPath: outputPath,
+          difficulty: difficulty,
+          count: count,
+          includeHints: includeHints,
+          includeRoughGrid: includeRoughGrid,
+          includeQuotes: includeQuotes,
+        );
+
+      case ViewStatsAction():
+        _showStats(saveFile);
+
+      case QuitAction():
+        return;
+    }
+  }
+}
+
+// -- Game runner --
+
+Future<void> _runGame(Puzzle puzzle, String saveFile, bool useClassic, {int initialElapsedSeconds = 0}) async {
+  if (useClassic) {
+    final game = Game(puzzle, initialElapsedSeconds: initialElapsedSeconds);
     game.run();
 
     if (!puzzle.isSolved) {
       stdout.write('Save game? (y/n): ');
       final answer = stdin.readLineSync()?.trim().toLowerCase();
       if (answer == 'y') {
-        _saveGame(puzzle, saveFile);
+        _saveGame(puzzle, saveFile, elapsedSeconds: game.elapsedSeconds);
         print('Game saved to $saveFile.');
       }
     }
@@ -83,21 +280,18 @@ Future<void> main(List<String> arguments) async {
     final stats = game.toGameStats();
     _recordStats(stats, saveFile);
   } else {
-    // TUI mode
-    final game = TuiGame(puzzle);
+    final game = TuiGame(puzzle, initialElapsedSeconds: initialElapsedSeconds);
     await game.run();
 
-    // Print analysis if triggered during the game.
     if (game.analysis != null) {
       _printAnalysis(game.analysis!);
     }
 
-    // After TUI exits, terminal is restored - use line-based I/O for save prompt
     if (!puzzle.isSolved) {
       stdout.write('Save game? (y/n): ');
       final answer = stdin.readLineSync()?.trim().toLowerCase();
       if (answer == 'y') {
-        _saveGame(puzzle, saveFile);
+        _saveGame(puzzle, saveFile, elapsedSeconds: game.elapsedSeconds);
         print('Game saved to $saveFile.');
       }
     }
@@ -106,6 +300,38 @@ Future<void> main(List<String> arguments) async {
     _recordStats(stats, saveFile);
   }
 }
+
+// -- PDF export --
+
+Future<void> _runPdfExport({
+  required String outputPath,
+  required Difficulty difficulty,
+  required int count,
+  required bool includeHints,
+  required bool includeRoughGrid,
+  required bool includeQuotes,
+}) async {
+  print('Generating $count ${difficulty.label} puzzles...');
+
+  final service = CliPdfService();
+  await service.generateAndSave(
+    outputPath,
+    count: count,
+    difficulty: difficulty,
+    includeRoughGrid: includeRoughGrid,
+    includeHints: includeHints,
+    includeQuotes: includeQuotes,
+    onProgress: (completed) {
+      stdout.write('\r  Puzzle $completed/$count');
+    },
+  );
+
+  print('');
+  final pages = count + (includeHints ? ((count + 3) ~/ 4) : 0);
+  print('Wrote $outputPath ($count puzzles, $pages pages).');
+}
+
+// -- Helpers --
 
 Puzzle _generatePuzzle(Difficulty difficulty) {
   print('Generating ${difficulty.label} puzzle...');
@@ -131,7 +357,6 @@ Puzzle _importPuzzle(String flat) {
     exit(1);
   }
 
-  // Reconstruct solution board.
   final solutionBoard = board.clone();
   computeCandidates(solutionBoard);
   for (final step in result.steps) {
@@ -148,16 +373,17 @@ Puzzle _importPuzzle(String flat) {
   );
 }
 
-void _saveGame(Puzzle puzzle, String path) {
+void _saveGame(Puzzle puzzle, String path, {int elapsedSeconds = 0}) {
   final entry = PuzzleEntry(
     id: DateTime.now().millisecondsSinceEpoch.toString(),
     puzzle: puzzle,
+    elapsedSeconds: elapsedSeconds,
   );
   final json = const JsonEncoder.withIndent('  ').convert(entry.toJson());
   File(path).writeAsStringSync(json);
 }
 
-Puzzle _loadGame(String path) {
+PuzzleEntry _loadGame(String path) {
   final file = File(path);
   if (!file.existsSync()) {
     print('Error: save file not found: $path');
@@ -165,8 +391,9 @@ Puzzle _loadGame(String path) {
   }
   final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
   final entry = PuzzleEntry.fromJson(json);
-  print('Loaded saved game (${entry.puzzle.difficulty.label}).');
-  return entry.puzzle;
+  print('Loaded saved game (${entry.puzzle.difficulty.label}, '
+      '${_formatSeconds(entry.elapsedSeconds)} elapsed).');
+  return entry;
 }
 
 void _showStats(String saveFile) {

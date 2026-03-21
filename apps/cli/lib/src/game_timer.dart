@@ -18,6 +18,11 @@ class GameTimer {
     _running = false;
   }
 
+  /// Sets an initial offset (e.g. from a saved game).
+  void setInitialOffset(int seconds) {
+    _elapsed = Duration(seconds: seconds);
+  }
+
   /// Resets the timer to zero.
   void reset() {
     _startTime = null;

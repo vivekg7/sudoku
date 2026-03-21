@@ -26,7 +26,14 @@ class Game {
   // Analysis result (printed after game loop exits).
   PuzzleAnalysis? _analysis;
 
-  Game(this.puzzle);
+  Game(this.puzzle, {int initialElapsedSeconds = 0}) {
+    if (initialElapsedSeconds > 0) {
+      _timer.setInitialOffset(initialElapsedSeconds);
+    }
+  }
+
+  /// Current elapsed seconds (for saving).
+  int get elapsedSeconds => _timer.elapsedSeconds;
 
   /// Runs the interactive game loop.
   void run() {

@@ -47,7 +47,10 @@ class _GameScreenState extends State<GameScreen> {
 
     if (widget.resumeEntry != null) {
       _puzzleEntryId = widget.resumeEntry!.id;
-      _gameState.resumePuzzle(widget.resumeEntry!.puzzle);
+      _gameState.resumePuzzle(
+        widget.resumeEntry!.puzzle,
+        elapsedSeconds: widget.resumeEntry!.elapsedSeconds,
+      );
     } else {
       _gameState.newGame(widget.difficulty);
     }
@@ -77,6 +80,7 @@ class _GameScreenState extends State<GameScreen> {
     await widget.storage.savePuzzle(PuzzleEntry(
       id: _puzzleEntryId!,
       puzzle: puzzle,
+      elapsedSeconds: _gameState.elapsedSeconds,
     ));
   }
 

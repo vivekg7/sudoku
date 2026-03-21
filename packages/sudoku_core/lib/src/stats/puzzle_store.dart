@@ -16,17 +16,22 @@ class PuzzleEntry {
   /// When the entry was saved.
   final DateTime savedAt;
 
+  /// Elapsed play time in seconds when the game was saved.
+  final int elapsedSeconds;
+
   PuzzleEntry({
     required this.id,
     required this.puzzle,
     this.bookmarked = false,
+    this.elapsedSeconds = 0,
     DateTime? savedAt,
   }) : savedAt = savedAt ?? DateTime.now();
 
-  PuzzleEntry copyWith({bool? bookmarked}) => PuzzleEntry(
+  PuzzleEntry copyWith({bool? bookmarked, int? elapsedSeconds}) => PuzzleEntry(
         id: id,
         puzzle: puzzle,
         bookmarked: bookmarked ?? this.bookmarked,
+        elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
         savedAt: savedAt,
       );
 
@@ -40,6 +45,7 @@ class PuzzleEntry {
         'savedAt': savedAt.toIso8601String(),
         'createdAt': puzzle.createdAt.toIso8601String(),
         if (puzzle.quoteId != null) 'quoteId': puzzle.quoteId,
+        'elapsedSeconds': elapsedSeconds,
       };
 
   factory PuzzleEntry.fromJson(Map<String, dynamic> json) {
@@ -65,6 +71,7 @@ class PuzzleEntry {
       id: json['id'] as String,
       puzzle: puzzle,
       bookmarked: json['bookmarked'] as bool? ?? false,
+      elapsedSeconds: json['elapsedSeconds'] as int? ?? 0,
       savedAt: DateTime.parse(json['savedAt'] as String),
     );
   }
