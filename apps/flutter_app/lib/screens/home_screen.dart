@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:sudoku_core/sudoku_core.dart';
 
 import '../services/settings_service.dart';
-import '../widgets/app_logo.dart';
 import '../services/storage_service.dart';
+import '../services/training_storage_service.dart';
+import '../widgets/app_logo.dart';
 import 'game_screen.dart';
 import 'how_to_solve_screen.dart';
 import 'pdf_export_screen.dart';
@@ -12,15 +13,18 @@ import 'saved_games_screen.dart';
 import 'scan_screen.dart';
 import 'settings_screen.dart';
 import 'stats_screen.dart';
+import 'training/training_hub_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final StorageService storage;
   final SettingsService settings;
+  final TrainingStorageService trainingStorage;
 
   const HomeScreen({
     super.key,
     required this.storage,
     required this.settings,
+    required this.trainingStorage,
   });
 
   @override
@@ -90,6 +94,12 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.bar_chart,
                       label: 'Stats',
                       onPressed: () => _openStats(context),
+                    ),
+                    _navButton(
+                      context,
+                      icon: Icons.fitness_center,
+                      label: 'Train',
+                      onPressed: () => _openTraining(context),
                     ),
                     _navButton(
                       context,
@@ -166,6 +176,17 @@ class HomeScreen extends StatelessWidget {
           difficulty: difficulty,
           storage: storage,
           settings: settings,
+        ),
+      ),
+    );
+  }
+
+  void _openTraining(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TrainingHubScreen(
+          settings: settings,
+          trainingStorage: trainingStorage,
         ),
       ),
     );
