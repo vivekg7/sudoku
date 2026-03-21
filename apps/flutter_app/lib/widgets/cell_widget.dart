@@ -46,9 +46,13 @@ class CellWidget extends StatelessWidget {
       isHintInvolved: isHintInvolved,
     );
 
+    final highlightedDigit = gameState.assistToggles.highlightSameDigit
+        ? _highlightedDigit()
+        : null;
+
     final content = cell.isFilled
         ? _buildValue(cell, isConflict, colorScheme)
-        : _buildCandidates(cell.candidates, colorScheme);
+        : _buildCandidates(cell.candidates, colorScheme, highlightedDigit);
 
     final bgDuration = animationsEnabled
         ? const Duration(milliseconds: 200)
@@ -179,7 +183,19 @@ class CellWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCandidates(CandidateSet candidates, ColorScheme colorScheme) {
+  /// Returns the digit that should be highlighted across the board,
+  /// or null if no digit is active.
+  int? _highlightedDigit() {
+    if (gameState.activeNumber != null) return gameState.activeNumber;
+    final sr = gameState.selectedRow;
+    final sc = gameState.selectedCol;
+    if (sr == null || sc == null) return null;
+    final v = gameState.puzzle!.board.getCell(sr, sc).value;
+    return v != 0 ? v : null;
+  }
+
+  Widget _buildCandidates(
+      CandidateSet candidates, ColorScheme colorScheme, int? highlightedDigit) {
     if (candidates.isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -193,7 +209,8 @@ class CellWidget extends StatelessWidget {
                   for (var c = 0; c < 3; c++)
                     Expanded(
                       child: Center(
-                        child: _candidateDigit(r * 3 + c + 1, candidates, colorScheme),
+                        child: _candidateDigit(
+                            r * 3 + c + 1, candidates, colorScheme, highlightedDigit),
                       ),
                     ),
                 ],
@@ -204,15 +221,18 @@ class CellWidget extends StatelessWidget {
     );
   }
 
-  Widget _candidateDigit(int digit, CandidateSet candidates, ColorScheme colorScheme) {
+  Widget _candidateDigit(
+      int digit, CandidateSet candidates, ColorScheme colorScheme, int? highlightedDigit) {
     if (!candidates.contains(digit)) return const SizedBox.shrink();
+    final isHighlighted = highlightedDigit == digit;
     return FittedBox(
       fit: BoxFit.scaleDown,
       child: Text(
         '$digit',
         style: TextStyle(
           fontSize: 10,
-          color: colorScheme.onSurfaceVariant,
+          fontWeight: isHighlighted ? FontWeight.w700 : null,
+          color: isHighlighted ? colorScheme.primary : colorScheme.onSurfaceVariant,
         ),
       ),
     );
