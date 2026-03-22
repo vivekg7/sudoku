@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.4.0 — 2026-03-22
+
+- Training Hub with Number Rush — a timed game to practice speed-placing digits, with difficulty levels and a leaderboard
+- Number-first mode now respects pencil/notes mode — tapping cells toggles candidates
+- Cells with matching candidates are highlighted when a number is selected
+- Erase button exits number-first mode when no cell is selected
+
+---
+
 ## v1.3.1 — 2026-03-21
 
 - Auto-save game progress on app suspend/close via lifecycle observer
