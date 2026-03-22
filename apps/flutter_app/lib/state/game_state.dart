@@ -193,8 +193,24 @@ class GameState extends ChangeNotifier {
     if (_activeNumber != null && _selectedRow == null && _selectedCol == null) {
       final cell = _puzzle!.board.getCell(row, col);
       if (!cell.isGiven && cell.isEmpty) {
-        _placeValue(row, col, _activeNumber!);
-        if (remainingCount(_activeNumber!) == 0) _activeNumber = null;
+        if (_isPencilMode) {
+          final prevCandidates = cell.candidates.copy();
+          cell.toggleCandidate(_activeNumber!);
+          final newCandidates = cell.candidates.copy();
+          _puzzle!.history.push(Move(
+            row: row,
+            col: col,
+            type: cell.candidates.contains(_activeNumber!)
+                ? MoveType.addCandidate
+                : MoveType.removeCandidate,
+            previousCandidates: prevCandidates,
+            newCandidates: newCandidates,
+          ));
+          _clearHint();
+        } else {
+          _placeValue(row, col, _activeNumber!);
+          if (remainingCount(_activeNumber!) == 0) _activeNumber = null;
+        }
         notifyListeners();
         return;
       }
@@ -596,17 +612,22 @@ class GameState extends ChangeNotifier {
   bool hasSameValueAsSelected(int row, int col) {
     if (!assistToggles.highlightSameDigit) return false;
     if (_puzzle == null) return false;
-    final cellValue = _puzzle!.board.getCell(row, col).value;
-    if (cellValue == 0) return false;
+    final cell = _puzzle!.board.getCell(row, col);
+    final cellValue = cell.value;
 
     // Highlight cells matching the active number.
-    if (_activeNumber != null) return cellValue == _activeNumber;
+    if (_activeNumber != null) {
+      return cellValue == _activeNumber ||
+          (cellValue == 0 && cell.candidates.contains(_activeNumber!));
+    }
 
     // Highlight cells matching the selected cell's value.
     if (_selectedRow == null || _selectedCol == null) return false;
     if (row == _selectedRow && col == _selectedCol) return false;
     final selValue = _puzzle!.board.getCell(_selectedRow!, _selectedCol!).value;
-    return selValue != 0 && cellValue == selValue;
+    if (selValue == 0) return false;
+    return cellValue == selValue ||
+        (cellValue == 0 && cell.candidates.contains(selValue));
   }
 
   int remainingCount(int value) {
