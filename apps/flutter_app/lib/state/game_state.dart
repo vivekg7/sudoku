@@ -324,7 +324,14 @@ class GameState extends ChangeNotifier {
   }
 
   void clearCell() {
-    if (_puzzle == null || _selectedRow == null || _selectedCol == null) return;
+    if (_puzzle == null) return;
+    if (_selectedRow == null || _selectedCol == null) {
+      if (_activeNumber != null) {
+        _activeNumber = null;
+        notifyListeners();
+      }
+      return;
+    }
     _clearCellAt(_selectedRow!, _selectedCol!);
   }
 
