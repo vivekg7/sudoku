@@ -82,6 +82,10 @@ Build the most complete offline Sudoku app possible — a hobby project by a sud
 - Puzzle difficulty rating for user-imported puzzles.
 - Localization / multi-language support.
 - **Collapsible home screen navigation** — Reduce the home screen nav buttons to 4 (Saved, Stats, More, Settings). The "More" button expands inline to reveal the remaining items (PDF, Scan, Learn, Strategies) with a "Less" button to collapse. Settings always stays at the end. Animated transition to keep it smooth.
+- **Storage scaling** —
+  - Add an upper limit to how many in-progress games and bookmarks can be saved, keeping the puzzles file bounded.
+  - Split stats into hot data (summary counts + top 20 games per difficulty) and 200-game archive chunks. Hot data loads on startup; archives load on demand.
+  - When total data exceeds 20 MB (checked at most once a month), show an option in Settings to delete old archives. Deletion preserves the summary — aggregate counts (games played, etc.) are never reduced.
 
 ---
 
