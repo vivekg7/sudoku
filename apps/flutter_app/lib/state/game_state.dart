@@ -297,9 +297,20 @@ class GameState extends ChangeNotifier {
     cell.setValue(value);
 
     // Auto-remove the placed digit from peer candidates.
-    final removedPeers = assistToggles.autoRemoveCandidates
+    var removedPeers = assistToggles.autoRemoveCandidates
         ? _puzzle!.board.removeCandidateFromPeers(row, col, value)
-        : const <(int, int, int)>[];
+        : <(int, int, int)>[];
+
+    // When all 9 instances of a digit are placed, remove any remaining
+    // candidates for that digit board-wide. This is not an assist — it's a
+    // logical necessity because the numpad disables completed digits,
+    // leaving no way to manually remove stale candidates.
+    if (remainingCount(value) == 0) {
+      removedPeers = [
+        ...removedPeers,
+        ..._puzzle!.board.removeCandidateEverywhere(value),
+      ];
+    }
 
     _puzzle!.history.push(Move(
       row: row,

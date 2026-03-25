@@ -94,6 +94,23 @@ class Board {
     return [for (final (r, c) in indices) _grid[r][c]];
   }
 
+  /// Removes [value] from the candidates of every empty cell on the board.
+  /// Returns the list of (row, col, value) that were actually removed,
+  /// so they can be restored on undo.
+  List<(int, int, int)> removeCandidateEverywhere(int value) {
+    final removed = <(int, int, int)>[];
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        final cell = _grid[r][c];
+        if (cell.isEmpty && cell.candidates.contains(value)) {
+          cell.removeCandidate(value);
+          removed.add((r, c, value));
+        }
+      }
+    }
+    return removed;
+  }
+
   /// Removes [value] from the candidates of every peer of (row, col)
   /// that is still empty. Returns the list of (row, col, value) that
   /// were actually removed, so they can be restored on undo.
