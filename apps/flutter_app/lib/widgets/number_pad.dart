@@ -26,9 +26,9 @@ class NumberPad extends StatelessWidget {
         // Number buttons + erase in two rows.
         Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -160,14 +160,14 @@ class NumberPad extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               onTap: isCompleted ? null : () => gameState.enterValue(value),
               child: SizedBox(
-                height: 54,
+                height: 48,
                 child: Center(child: label),
               ),
             ),
           );
 
     return Padding(
-      padding: const EdgeInsets.all(3),
+      padding: const EdgeInsets.all(4),
       child: AnimatedScale(
         scale: isActive ? 1.08 : 1.0,
         duration: duration,
@@ -220,12 +220,12 @@ class NumberPad extends StatelessWidget {
               canRequestFocus: false,
               borderRadius: BorderRadius.circular(8),
               onTap: gameState.clearCell,
-              child: SizedBox(height: 54, child: Center(child: icon)),
+              child: SizedBox(height: 48, child: Center(child: icon)),
             ),
           );
 
     return Padding(
-      padding: const EdgeInsets.all(3),
+      padding: const EdgeInsets.all(4),
       child: AnimatedScale(
         scale: isActive ? 1.08 : 1.0,
         duration: duration,
