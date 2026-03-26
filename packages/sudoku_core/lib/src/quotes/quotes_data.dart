@@ -213,6 +213,109 @@ const allQuotes = <Quote>[
     author: 'Swami Vivekananda',
     tier: QuoteTier.light,
   ),
+  Quote(
+    id: 116,
+    text: 'Fall seven times, stand up eight.',
+    author: 'Japanese Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 117,
+    text:
+        'The bamboo that bends is stronger than the oak that resists.',
+    author: 'Japanese Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 118,
+    text: 'Beginning is easy, continuing is hard.',
+    author: 'Japanese Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 119,
+    text: 'Even dust, if piled up, will become a mountain.',
+    author: 'Japanese Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 120,
+    text: 'A frog in a well knows nothing of the sea.',
+    author: 'Japanese Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 121,
+    text:
+        'Be not afraid of growing slowly, be afraid only of standing still.',
+    author: 'Chinese Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 122,
+    text: 'Teachers open the door, but you must enter by yourself.',
+    author: 'Chinese Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 123,
+    text:
+        'One who asks a question is a fool for five minutes; one who does not ask remains a fool forever.',
+    author: 'Chinese Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 124,
+    text: 'Talk does not cook rice.',
+    author: 'Chinese Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 125,
+    text: 'Smooth seas do not make skillful sailors.',
+    author: 'African Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 126,
+    text: 'However long the night, the dawn will break.',
+    author: 'African Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 127,
+    text:
+        'It does not matter how slowly you go as long as you do not stop.',
+    author: 'Confucius',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 128,
+    text:
+        'A ship in harbour is safe, but that is not what ships are built for.',
+    author: 'John A. Shedd',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 129,
+    text: 'Not all those who wander are lost.',
+    author: 'J.R.R. Tolkien',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 130,
+    text:
+        'What lies behind us and what lies before us are tiny matters compared to what lies within us.',
+    author: 'Ralph Waldo Emerson',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 131,
+    text:
+        'If you can\'t fly, then run. If you can\'t run, then walk. If you can\'t walk, then crawl, but whatever you do, you have to keep moving forward.',
+    author: 'Martin Luther King Jr.',
+    tier: QuoteTier.light,
+  ),
 
   // ── Medium tier (Medium, Hard) ───────────────────────────────────
   Quote(
@@ -454,6 +557,116 @@ const allQuotes = <Quote>[
     text:
         'There is no end to education. It is not that you read a book, pass an examination, and finish with education. The whole of life is a process of learning.',
     author: 'J. Krishnamurti',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 132,
+    text: 'Think lightly of yourself and deeply of the world.',
+    author: 'Miyamoto Musashi',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 133,
+    text:
+        'There is nothing outside of yourself that can ever enable you to get better, stronger, richer, quicker, or smarter. Everything is within.',
+    author: 'Miyamoto Musashi',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 134,
+    text:
+        'Perception is strong and sight weak. In strategy it is important to see distant things as if they were close and to take a distanced view of close things.',
+    author: 'Miyamoto Musashi',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 135,
+    text:
+        'Do not seek to follow in the footsteps of the wise; seek what they sought.',
+    author: 'Matsuo Bashō',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 136,
+    text: 'To know and not to do is not yet to know.',
+    author: 'Zen Proverb',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 137,
+    text: 'The obstacle is the path.',
+    author: 'Zen Proverb',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 138,
+    text: 'When you reach the top of the mountain, keep climbing.',
+    author: 'Zen Proverb',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 139,
+    text:
+        'The more you sweat in practice, the less you bleed in battle.',
+    author: 'Chinese Proverb',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 140,
+    text: 'Dig the well before you are thirsty.',
+    author: 'Chinese Proverb',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 141,
+    text:
+        'The person who moves a mountain begins by carrying away small stones.',
+    author: 'Confucius',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 142,
+    text: 'Real knowledge is to know the extent of one\'s ignorance.',
+    author: 'Confucius',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 143,
+    text: 'Study the past if you would define the future.',
+    author: 'Confucius',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 144,
+    text: 'Better a diamond with a flaw than a pebble without.',
+    author: 'Confucius',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 145,
+    text:
+        'Be like water making its way through cracks. Adjust, adapt, and find your way.',
+    author: 'Bruce Lee',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 146,
+    text: 'Knowledge is of no value unless you put it into practice.',
+    author: 'Anton Chekhov',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 147,
+    text:
+        'Knowing is not enough, we must apply. Willing is not enough, we must do.',
+    author: 'Johann Wolfgang von Goethe',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 148,
+    text:
+        'The master has failed more times than the beginner has even tried.',
+    author: 'Stephen McCranie',
     tier: QuoteTier.medium,
   ),
 
@@ -759,6 +972,98 @@ const allQuotes = <Quote>[
     text:
         'Whatever happened, happened for the good. Whatever is happening, is happening for the good. Whatever will happen, will also happen for the good.',
     author: 'Bhagavad Gita',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 149,
+    text:
+        'No man ever steps in the same river twice, for it is not the same river and he is not the same man.',
+    author: 'Heraclitus',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 150,
+    text: 'Nothing lasts, nothing is finished, nothing is perfect.',
+    author: 'Wabi-Sabi',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 151,
+    text:
+        'In the beginner\'s mind there are many possibilities, but in the expert\'s mind there are few.',
+    author: 'Shunryu Suzuki',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 152,
+    text:
+        'Do you have the patience to wait till your mud settles and the water is clear?',
+    author: 'Lao Tzu',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 153,
+    text: 'Nature does not hurry, yet everything is accomplished.',
+    author: 'Lao Tzu',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 154,
+    text: 'Mastering others is strength. Mastering yourself is true power.',
+    author: 'Lao Tzu',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 155,
+    text:
+        'One moment of patience may ward off great disaster. One moment of impatience may ruin a whole life.',
+    author: 'Chinese Proverb',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 156,
+    text: 'Everything has beauty, but not everyone sees it.',
+    author: 'Confucius',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 157,
+    text:
+        'If you understand, things are just as they are; if you do not understand, things are just as they are.',
+    author: 'Zen Proverb',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 158,
+    text:
+        'The first principle is that you must not fool yourself — and you are the easiest person to fool.',
+    author: 'Richard Feynman',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 159,
+    text:
+        'To think is easy. To act is hard. But the hardest thing in the world is to act in accordance with your thinking.',
+    author: 'Johann Wolfgang von Goethe',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 160,
+    text: 'Silence is the sleep that nourishes wisdom.',
+    author: 'Francis Bacon',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 161,
+    text:
+        'The purpose of life is not to be happy. It is to be useful, to be honourable, to be compassionate.',
+    author: 'Ralph Waldo Emerson',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 162,
+    text: 'The less effort, the faster and more powerful you will be.',
+    author: 'Bruce Lee',
     tier: QuoteTier.deep,
   ),
 ];
