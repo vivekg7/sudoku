@@ -61,6 +61,30 @@ enum NumberRushMode {
   }
 }
 
+/// Difficulty modes for Where Does N Go.
+enum WhereDoesNGoMode {
+  chill('Chill', 15000, 10000, 300, true),
+  quick('Quick', 12000, 7000, 200, false),
+  sprint('Sprint', 10000, 5000, 200, false);
+
+  final String label;
+  final int startingTimeMs;
+  final int minTimeMs;
+  final int decayPerRoundMs;
+
+  /// Whether to highlight the target house on the board.
+  final bool highlightHouse;
+
+  const WhereDoesNGoMode(this.label, this.startingTimeMs, this.minTimeMs,
+      this.decayPerRoundMs, this.highlightHouse);
+
+  /// Time allowed for a given round (in ms).
+  int timeForRound(int round) {
+    final decayed = startingTimeMs - (round * decayPerRoundMs);
+    return decayed < minTimeMs ? minTimeMs : decayed;
+  }
+}
+
 /// Type of house shown in Number Rush.
 enum HouseType { box, row, column }
 
@@ -68,10 +92,30 @@ enum HouseType { box, row, column }
 class TrainingStorageService extends ChangeNotifier {
   late final String _filePath;
   final Map<String, List<TrainingScore>> _leaderboards = {};
-  NumberRushMode? _lastPlayedMode;
+  String? _lastPlayedKey;
+
+  /// The full game+mode key of the most recently played training game.
+  String? get lastPlayedKey => _lastPlayedKey;
 
   /// The most recently played Number Rush mode, or `null` if none.
-  NumberRushMode? get lastPlayedMode => _lastPlayedMode;
+  NumberRushMode? get lastPlayedMode {
+    final key = _lastPlayedKey;
+    if (key == null || !key.startsWith('numberRush_')) return null;
+    final modeName = key.substring('numberRush_'.length);
+    return NumberRushMode.values
+        .cast<NumberRushMode?>()
+        .firstWhere((m) => m?.name == modeName, orElse: () => null);
+  }
+
+  /// The most recently played Where Does N Go mode, or `null` if none.
+  WhereDoesNGoMode? get lastPlayedWhereDoesNGoMode {
+    final key = _lastPlayedKey;
+    if (key == null || !key.startsWith('whereDoesNGo_')) return null;
+    final modeName = key.substring('whereDoesNGo_'.length);
+    return WhereDoesNGoMode.values
+        .cast<WhereDoesNGoMode?>()
+        .firstWhere((m) => m?.name == modeName, orElse: () => null);
+  }
 
   static const _maxEntries = 10;
 
@@ -91,10 +135,15 @@ class TrainingStorageService extends ChangeNotifier {
     return (board != null && board.isNotEmpty) ? board.first : null;
   }
 
-  /// Set the last played Number Rush mode (in memory only).
+  /// Set the last played game+mode key (in memory only).
   /// Call [save] afterwards or rely on [addScore] to persist it.
+  void setLastPlayedKey(String key) {
+    _lastPlayedKey = key;
+  }
+
+  /// Convenience: set last played to a Number Rush mode.
   void setLastPlayedMode(NumberRushMode mode) {
-    _lastPlayedMode = mode;
+    _lastPlayedKey = numberRushKey(mode);
   }
 
   /// Persist current state to disk and notify listeners.
@@ -122,18 +171,29 @@ class TrainingStorageService extends ChangeNotifier {
   static String numberRushKey(NumberRushMode mode) =>
       'numberRush_${mode.name}';
 
+  /// Storage key for Where Does N Go leaderboard.
+  static String whereDoesNGoKey(WhereDoesNGoMode mode) =>
+      'whereDoesNGo_${mode.name}';
+
   Future<void> _load() async {
     final file = File(_filePath);
     if (!file.existsSync()) return;
     try {
       final json =
           jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-      // Restore last played mode.
-      final modeName = json['_lastPlayedMode'] as String?;
-      if (modeName != null) {
-        _lastPlayedMode = NumberRushMode.values
-            .cast<NumberRushMode?>()
-            .firstWhere((m) => m?.name == modeName, orElse: () => null);
+      // Restore last played key.
+      final lastKey = json['_lastPlayedKey'] as String?;
+      if (lastKey != null) {
+        _lastPlayedKey = lastKey;
+      } else {
+        // Migrate from old _lastPlayedMode format.
+        final modeName = json['_lastPlayedMode'] as String?;
+        if (modeName != null) {
+          final mode = NumberRushMode.values
+              .cast<NumberRushMode?>()
+              .firstWhere((m) => m?.name == modeName, orElse: () => null);
+          if (mode != null) _lastPlayedKey = numberRushKey(mode);
+        }
       }
       for (final entry in json.entries) {
         if (entry.key.startsWith('_')) continue; // Skip metadata keys.
@@ -150,8 +210,8 @@ class TrainingStorageService extends ChangeNotifier {
 
   Future<void> _save() async {
     final json = <String, dynamic>{};
-    if (_lastPlayedMode != null) {
-      json['_lastPlayedMode'] = _lastPlayedMode!.name;
+    if (_lastPlayedKey != null) {
+      json['_lastPlayedKey'] = _lastPlayedKey;
     }
     for (final entry in _leaderboards.entries) {
       json[entry.key] = entry.value.map((s) => s.toJson()).toList();

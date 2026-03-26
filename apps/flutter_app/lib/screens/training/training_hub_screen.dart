@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../services/settings_service.dart';
 import '../../services/training_storage_service.dart';
 import 'number_rush_screen.dart';
+import 'where_does_n_go_screen.dart';
 
 class TrainingHubScreen extends StatefulWidget {
   final SettingsService settings;
@@ -19,13 +20,16 @@ class TrainingHubScreen extends StatefulWidget {
 }
 
 class _TrainingHubScreenState extends State<TrainingHubScreen> {
-  bool _leaderboardExpanded = false;
-  late NumberRushMode _selectedLeaderboardMode;
+  bool _rushLeaderboardExpanded = false;
+  bool _nGoLeaderboardExpanded = false;
+  late NumberRushMode _selectedRushMode;
+  late WhereDoesNGoMode _selectedNGoMode;
 
   @override
   void initState() {
     super.initState();
-    _selectedLeaderboardMode = _pickDefaultLeaderboardMode();
+    _selectedRushMode = _pickDefaultRushMode();
+    _selectedNGoMode = _pickDefaultNGoMode();
     widget.trainingStorage.addListener(_onStorageChanged);
   }
 
@@ -36,18 +40,15 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
   }
 
   void _onStorageChanged() {
-    // Auto-sync leaderboard to the last played mode after a game.
-    final last = widget.trainingStorage.lastPlayedMode;
-    if (last != null && last != _selectedLeaderboardMode) {
-      setState(() => _selectedLeaderboardMode = last);
-    }
+    setState(() {
+      final lastRush = widget.trainingStorage.lastPlayedMode;
+      if (lastRush != null) _selectedRushMode = lastRush;
+      final lastNGo = widget.trainingStorage.lastPlayedWhereDoesNGoMode;
+      if (lastNGo != null) _selectedNGoMode = lastNGo;
+    });
   }
 
-  /// Pick the smartest default mode for the leaderboard:
-  /// 1. Last played mode (most intuitive after a game).
-  /// 2. Mode with the highest best score (before first play).
-  /// 3. Quick (final fallback).
-  NumberRushMode _pickDefaultLeaderboardMode() {
+  NumberRushMode _pickDefaultRushMode() {
     final last = widget.trainingStorage.lastPlayedMode;
     if (last != null) return last;
 
@@ -64,6 +65,23 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     return best ?? NumberRushMode.quick;
   }
 
+  WhereDoesNGoMode _pickDefaultNGoMode() {
+    final last = widget.trainingStorage.lastPlayedWhereDoesNGoMode;
+    if (last != null) return last;
+
+    WhereDoesNGoMode? best;
+    int bestStreak = -1;
+    for (final mode in WhereDoesNGoMode.values) {
+      final key = TrainingStorageService.whereDoesNGoKey(mode);
+      final top = widget.trainingStorage.getBest(key);
+      if (top != null && top.streak > bestStreak) {
+        bestStreak = top.streak;
+        best = mode;
+      }
+    }
+    return best ?? WhereDoesNGoMode.quick;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,6 +92,8 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           children: [
             _numberRushCard(context),
+            const SizedBox(height: 12),
+            _whereDoesNGoCard(context),
             const SizedBox(height: 12),
             _lockedGameCard(
               context,
@@ -142,11 +162,16 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
             // Expandable leaderboard.
             if (hasAnyScores) ...[
               const SizedBox(height: 8),
-              _leaderboardToggle(context),
+              _leaderboardToggle(
+                context,
+                expanded: _rushLeaderboardExpanded,
+                onToggle: () => setState(
+                    () => _rushLeaderboardExpanded = !_rushLeaderboardExpanded),
+              ),
               AnimatedCrossFade(
                 firstChild: const SizedBox.shrink(),
-                secondChild: _leaderboardContent(context),
-                crossFadeState: _leaderboardExpanded
+                secondChild: _rushLeaderboardContent(context),
+                crossFadeState: _rushLeaderboardExpanded
                     ? CrossFadeState.showSecond
                     : CrossFadeState.showFirst,
                 duration: widget.settings.animationsEnabled
@@ -161,12 +186,15 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     );
   }
 
-  Widget _leaderboardToggle(BuildContext context) {
+  Widget _leaderboardToggle(
+    BuildContext context, {
+    required bool expanded,
+    required VoidCallback onToggle,
+  }) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return InkWell(
-      onTap: () =>
-          setState(() => _leaderboardExpanded = !_leaderboardExpanded),
+      onTap: onToggle,
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
@@ -188,9 +216,7 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
             ),
             const Spacer(),
             Icon(
-              _leaderboardExpanded
-                  ? Icons.expand_less
-                  : Icons.expand_more,
+              expanded ? Icons.expand_less : Icons.expand_more,
               size: 20,
               color: colorScheme.onSurfaceVariant,
             ),
@@ -200,16 +226,14 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     );
   }
 
-  Widget _leaderboardContent(BuildContext context) {
+  Widget _rushLeaderboardContent(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final key =
-        TrainingStorageService.numberRushKey(_selectedLeaderboardMode);
+    final key = TrainingStorageService.numberRushKey(_selectedRushMode);
     final scores = widget.trainingStorage.getLeaderboard(key);
 
     return Column(
       children: [
         const SizedBox(height: 4),
-        // Mode tabs.
         SegmentedButton<NumberRushMode>(
           segments: [
             for (final mode in NumberRushMode.values)
@@ -221,9 +245,9 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
                 ),
               ),
           ],
-          selected: {_selectedLeaderboardMode},
+          selected: {_selectedRushMode},
           onSelectionChanged: (selected) {
-            setState(() => _selectedLeaderboardMode = selected.first);
+            setState(() => _selectedRushMode = selected.first);
           },
           showSelectedIcon: false,
           style: SegmentedButton.styleFrom(
@@ -236,7 +260,7 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Text(
-              'No scores yet for ${_selectedLeaderboardMode.label}.',
+              'No scores yet for ${_selectedRushMode.label}.',
               style: TextStyle(
                 fontSize: 13,
                 color: colorScheme.onSurfaceVariant,
@@ -253,6 +277,164 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
             _leaderboardRow(context, i + 1, scores[i]),
           ],
       ],
+    );
+  }
+
+  Widget _whereDoesNGoCard(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hasAnyScores = WhereDoesNGoMode.values.any((mode) {
+      final key = TrainingStorageService.whereDoesNGoKey(mode);
+      return widget.trainingStorage.getLeaderboard(key).isNotEmpty;
+    });
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.location_searching,
+                    color: colorScheme.primary, size: 22),
+                const SizedBox(width: 8),
+                Text(
+                  'Where Does N Go?',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Spot the only cell where a digit can go.',
+              style: TextStyle(
+                fontSize: 14,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                for (final mode in WhereDoesNGoMode.values) ...[
+                  Expanded(
+                    child: _nGoModeButton(context, mode),
+                  ),
+                  if (mode != WhereDoesNGoMode.values.last)
+                    const SizedBox(width: 8),
+                ],
+              ],
+            ),
+            if (hasAnyScores) ...[
+              const SizedBox(height: 8),
+              _leaderboardToggle(
+                context,
+                expanded: _nGoLeaderboardExpanded,
+                onToggle: () => setState(
+                    () => _nGoLeaderboardExpanded = !_nGoLeaderboardExpanded),
+              ),
+              AnimatedCrossFade(
+                firstChild: const SizedBox.shrink(),
+                secondChild: _nGoLeaderboardContent(context),
+                crossFadeState: _nGoLeaderboardExpanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                duration: widget.settings.animationsEnabled
+                    ? const Duration(milliseconds: 250)
+                    : Duration.zero,
+                sizeCurve: Curves.easeOutCubic,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _nGoLeaderboardContent(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final key = TrainingStorageService.whereDoesNGoKey(_selectedNGoMode);
+    final scores = widget.trainingStorage.getLeaderboard(key);
+
+    return Column(
+      children: [
+        const SizedBox(height: 4),
+        SegmentedButton<WhereDoesNGoMode>(
+          segments: [
+            for (final mode in WhereDoesNGoMode.values)
+              ButtonSegment(
+                value: mode,
+                label: Text(
+                  mode.label,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+          ],
+          selected: {_selectedNGoMode},
+          onSelectionChanged: (selected) {
+            setState(() => _selectedNGoMode = selected.first);
+          },
+          showSelectedIcon: false,
+          style: SegmentedButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (scores.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              'No scores yet for ${_selectedNGoMode.label}.',
+              style: TextStyle(
+                fontSize: 13,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          )
+        else
+          for (var i = 0; i < scores.length; i++) ...[
+            if (i > 0)
+              Divider(
+                height: 1,
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ),
+            _leaderboardRow(context, i + 1, scores[i]),
+          ],
+      ],
+    );
+  }
+
+  Widget _nGoModeButton(BuildContext context, WhereDoesNGoMode mode) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final key = TrainingStorageService.whereDoesNGoKey(mode);
+    final best = widget.trainingStorage.getBest(key);
+
+    return FilledButton.tonal(
+      onPressed: () => _startWhereDoesNGo(context, mode),
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            mode.label,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          if (best != null)
+            Text(
+              '${best.streak}',
+              style: TextStyle(
+                fontSize: 11,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -435,6 +617,18 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => NumberRushScreen(
+          mode: mode,
+          settings: widget.settings,
+          trainingStorage: widget.trainingStorage,
+        ),
+      ),
+    );
+  }
+
+  void _startWhereDoesNGo(BuildContext context, WhereDoesNGoMode mode) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => WhereDoesNGoScreen(
           mode: mode,
           settings: widget.settings,
           trainingStorage: widget.trainingStorage,
