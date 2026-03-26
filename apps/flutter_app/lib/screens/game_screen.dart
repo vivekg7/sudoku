@@ -375,12 +375,12 @@ class _GameScreenState extends State<GameScreen>
       autofocus: true,
       onKeyEvent: _handleKeyEvent,
       child: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _gameState.deselect,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _gameState.deselect,
+          child: Column(
+            children: [
+              Expanded(
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 500),
@@ -391,7 +391,6 @@ class _GameScreenState extends State<GameScreen>
                   ),
                 ),
               ),
-            ),
             if (widget.settings.quotesEnabled)
               QuoteBanner(quoteId: _gameState.puzzle?.quoteId),
             AnimatedSize(
@@ -417,6 +416,7 @@ class _GameScreenState extends State<GameScreen>
               ),
             ),
           ],
+          ),
         ),
       ),
     );

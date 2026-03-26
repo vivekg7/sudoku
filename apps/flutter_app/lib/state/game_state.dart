@@ -184,9 +184,15 @@ class GameState extends ChangeNotifier {
   }
 
   void deselect() {
-    if (_selectedRow == null && _selectedCol == null) return;
+    if (_selectedRow == null &&
+        _selectedCol == null &&
+        _activeNumber == null &&
+        !_isEraseMode) {
+      return;
+    }
     _selectedRow = null;
     _selectedCol = null;
+    _activeNumber = null;
     _isEraseMode = false;
     notifyListeners();
   }
