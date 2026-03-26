@@ -5,13 +5,17 @@ A comprehensive, fully offline Sudoku app that doesn't just let you play — it 
 ## Features
 
 - **Smart Puzzle Generation** — Puzzles are generated on the fly across 6 difficulty levels, tuned by the solving strategies required — not just the number of givens.
-- **Full Solving Engine** — Implements all known Sudoku solving strategies, from naked singles to forcing chains and ALS.
-- **Multi-Layer Hints** — Hints guide your thinking, not hand you answers. From a gentle nudge ("look for 3 in box 4") to a strategy suggestion to the exact answer — you choose how much help you want.
-- **Pencil Marks & Undo/Redo** — Full note-taking and move history support.
-- **Number-First Input** — Tap a number first, then tap cells to fill — great for placing all instances of a digit quickly.
+- **Full Solving Engine** — Implements all 27 known Sudoku solving strategies, from naked singles to forcing chains, ALS, and Sue de Coq.
+- **Multi-Layer Hints** — Hints guide your thinking, not hand you answers. From a gentle nudge ("look for 3 in box 4") to a strategy suggestion to the exact answer — each layer requires a deliberate long-press.
+- **Interactive Strategy Guide** — Step-through walkthroughs for all 27 strategies with narrated example boards showing highlights, eliminations, and placements. Plus a beginner-friendly "How to Solve Sudoku" guide.
+- **Training Games** — Bite-sized drills to build Sudoku reflexes. Number Rush (find the missing digit against the clock) and Where Does N Go? (spot the only cell for a digit on a full board). Three modes each with personal leaderboards.
+- **Puzzle Analysis** — Full solve breakdown showing which strategies are needed at every step, with a solve-order heatmap and bottleneck identification.
+- **Pencil Marks & Undo/Redo** — Full note-taking with auto-fill (long-press Notes) and move history support.
+- **Number-First & Erase-First Input** — Tap a digit then tap cells to fill, or toggle erase mode for quick corrections.
 - **PDF Export** — Generate puzzles in bulk with optional rough work grids, solve-order hints at the back, and QR codes to open each puzzle in the app.
 - **QR Scanner** — Scan printed puzzle QR codes to play them interactively.
-- **Player Stats** — Track solve times, streaks, completion rates, and detailed hint usage to see which techniques you're mastering.
+- **Themes & Customization** — Dark, AMOLED, and light themes with 9 accent colors. Two board layouts: Circular (modern) and Classic (traditional). Smooth gameplay animations (togglable).
+- **Player Stats** — Track solve times, streaks, completion rates, and detailed hint usage with per-difficulty leaderboards.
 - **Save & Bookmark** — Save in-progress puzzles, bookmark favorites, and export/import all your data as JSON.
 - **CLI App** — A standalone command-line interface with TUI and classic modes.
 
@@ -106,7 +110,7 @@ Difficulty is determined by the most advanced solving strategy required — not 
 | Easy     | + Pointing Pairs, Box/Line Reduction, Naked & Hidden Pairs |
 | Medium   | + Naked & Hidden Triples/Quads, X-Wing, Swordfish          |
 | Hard     | + Jellyfish, XY-Wing, XYZ-Wing, Unique Rectangles          |
-| Expert   | + Simple Coloring, X-Chains, XY-Chains, AIC               |
+| Expert   | + Simple Coloring, X-Chains, XY-Chains, AIC                |
 | Master   | + Forcing Chains, ALS, Sue de Coq                          |
 
 ## Privacy
