@@ -23,16 +23,30 @@ class NumberPad extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Number buttons.
+        // Number buttons + erase in two rows.
         Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
+            constraints: const BoxConstraints(maxWidth: 420),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  for (var i = 1; i <= 9; i++)
-                    Expanded(child: _numberButton(context, i)),
+                  // Row 1: digits 1-5
+                  Row(
+                    children: [
+                      for (var i = 1; i <= 5; i++)
+                        Expanded(child: _numberButton(context, i)),
+                    ],
+                  ),
+                  // Row 2: digits 6-9 + erase
+                  Row(
+                    children: [
+                      for (var i = 6; i <= 9; i++)
+                        Expanded(child: _numberButton(context, i)),
+                      Expanded(child: _eraseButton(context)),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -62,12 +76,6 @@ class NumberPad extends StatelessWidget {
                     gameState.puzzle?.history.canRedo == true
                         ? gameState.redo
                         : null,
-              ),
-              _actionButton(
-                context,
-                icon: Icons.backspace_outlined,
-                label: 'Erase',
-                onPressed: gameState.clearCell,
               ),
               if (gameState.notesEnabled) _pencilButton(context),
               if (gameState.maxHintLayer > 0) _hintButton(context),
@@ -152,14 +160,14 @@ class NumberPad extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               onTap: isCompleted ? null : () => gameState.enterValue(value),
               child: SizedBox(
-                height: 48,
+                height: 54,
                 child: Center(child: label),
               ),
             ),
           );
 
     return Padding(
-      padding: const EdgeInsets.all(2),
+      padding: const EdgeInsets.all(3),
       child: AnimatedScale(
         scale: isActive ? 1.08 : 1.0,
         duration: duration,
@@ -170,6 +178,45 @@ class NumberPad extends StatelessWidget {
           child: button,
         ),
       ),
+    );
+  }
+
+  Widget _eraseButton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isCircular = boardLayout == BoardLayout.circular;
+    final color = colorScheme.surfaceContainerLow;
+    final iconColor = colorScheme.onSurfaceVariant;
+
+    final icon = Icon(Icons.backspace_outlined, size: 22, color: iconColor);
+
+    final Widget button = isCircular
+        ? AspectRatio(
+            aspectRatio: 1.0,
+            child: Material(
+              color: color,
+              shape: const CircleBorder(),
+              child: InkWell(
+                canRequestFocus: false,
+                customBorder: const CircleBorder(),
+                onTap: gameState.clearCell,
+                child: Center(child: icon),
+              ),
+            ),
+          )
+        : Material(
+            color: color,
+            borderRadius: BorderRadius.circular(8),
+            child: InkWell(
+              canRequestFocus: false,
+              borderRadius: BorderRadius.circular(8),
+              onTap: gameState.clearCell,
+              child: SizedBox(height: 54, child: Center(child: icon)),
+            ),
+          );
+
+    return Padding(
+      padding: const EdgeInsets.all(3),
+      child: button,
     );
   }
 

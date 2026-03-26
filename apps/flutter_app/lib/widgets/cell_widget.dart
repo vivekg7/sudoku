@@ -160,7 +160,7 @@ class CellWidget extends StatelessWidget {
         child: Text(
           '${cell.value}',
           style: TextStyle(
-            fontSize: 28,
+            fontSize: 32,
             fontWeight: cell.isGiven ? FontWeight.w400 : FontWeight.w300,
             color: color,
           ),
