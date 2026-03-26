@@ -722,11 +722,30 @@ class _StepBoardView extends StatelessWidget {
   Widget build(BuildContext context) {
     // Replay the solve up to this step to get accurate board + candidates.
     final board = puzzle.initialBoard.clone();
+
+    // Pre-fill wrong values so the removal step can clear them.
+    // The first step may be a wrongValue step with removals — those cells
+    // need to be filled with the wrong values before replay begins.
+    for (final s in allSteps) {
+      if (s.strategy != StrategyType.wrongValue) break;
+      for (final r in s.removals) {
+        board.getCell(r.row, r.col).setValue(r.value);
+      }
+    }
+
     computeCandidates(board);
 
-    // Apply all prior steps (placements + eliminations).
+    // Apply all prior steps (removals, placements, eliminations).
     for (var i = 0; i < stepIndex; i++) {
       final s = allSteps[i];
+      // Apply wrong-value removals (clear filled cells) and recompute
+      // candidates so subsequent steps see the correct candidate sets.
+      if (s.removals.isNotEmpty) {
+        for (final r in s.removals) {
+          board.getCell(r.row, r.col).clearValue();
+        }
+        computeCandidates(board);
+      }
       for (final p in s.placements) {
         final cell = board.getCell(p.row, p.col);
         cell.setValue(p.value);
@@ -746,6 +765,7 @@ class _StepBoardView extends StatelessWidget {
     const noCandidateStrategies = {
       StrategyType.hiddenSingle,
       StrategyType.nakedSingle,
+      StrategyType.wrongValue,
     };
     final showCandidates = !noCandidateStrategies.contains(step.strategy);
     final boardValues = board.toValues();

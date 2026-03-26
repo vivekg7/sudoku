@@ -44,6 +44,30 @@ class Placement {
   String toString() => 'Place $value at R${row + 1}C${col + 1}';
 }
 
+/// A wrong-value removal: clear the value at ([row], [col]).
+class Removal {
+  final int row;
+  final int col;
+
+  /// The wrong value being removed.
+  final int value;
+
+  const Removal(this.row, this.col, this.value);
+
+  @override
+  bool operator ==(Object other) =>
+      other is Removal &&
+      row == other.row &&
+      col == other.col &&
+      value == other.value;
+
+  @override
+  int get hashCode => Object.hash(row, col, value);
+
+  @override
+  String toString() => 'Remove $value from R${row + 1}C${col + 1}';
+}
+
 /// Describes one logical step the solver found.
 class SolveStep {
   /// Which strategy produced this step.
@@ -54,6 +78,9 @@ class SolveStep {
 
   /// Candidates eliminated by this step.
   final List<Elimination> eliminations;
+
+  /// Wrong values removed by this step (used for wrong-value correction).
+  final List<Removal> removals;
 
   /// Cells that are "involved" in the pattern (for highlighting in UI).
   /// E.g., the two cells forming a naked pair.
@@ -66,6 +93,7 @@ class SolveStep {
     required this.strategy,
     this.placements = const [],
     this.eliminations = const [],
+    this.removals = const [],
     this.involvedCells = const [],
     this.description = '',
   });

@@ -42,18 +42,39 @@ class PuzzleAnalyzer {
     StrategyType.almostLockedSet: 55,
     StrategyType.sueDeCoq: 55,
     StrategyType.backtracking: 70,
+    StrategyType.wrongValue: 0,
   };
 
   /// Generate a full analysis from a puzzle.
   ///
   /// The puzzle must have a non-null [Puzzle.solveResult].
-  static PuzzleAnalysis analyze(Puzzle puzzle) {
+  /// If [wrongCells] is provided, a correction step is prepended to the
+  /// analysis showing which wrong values need to be removed first.
+  static PuzzleAnalysis analyze(
+    Puzzle puzzle, {
+    List<Removal> wrongCells = const [],
+  }) {
     final solveResult = puzzle.solveResult;
     if (solveResult == null) {
       throw ArgumentError('Puzzle has no cached solveResult');
     }
 
-    final steps = solveResult.steps;
+    final steps = <SolveStep>[
+      if (wrongCells.isNotEmpty)
+        SolveStep(
+          strategy: StrategyType.wrongValue,
+          removals: wrongCells,
+          involvedCells: [
+            for (final w in wrongCells) (row: w.row, col: w.col),
+          ],
+          description: wrongCells.length == 1
+              ? 'Remove wrong value ${wrongCells.first.value} '
+                  'from R${wrongCells.first.row + 1}C${wrongCells.first.col + 1}'
+              : 'Remove ${wrongCells.length} wrong values: '
+                  '${wrongCells.map((w) => '${w.value} from R${w.row + 1}C${w.col + 1}').join(', ')}',
+        ),
+      ...solveResult.steps,
+    ];
 
     // Strategy counts ordered by first appearance.
     final strategyCounts = _buildStrategyCounts(steps);

@@ -307,7 +307,10 @@ class _GameScreenState extends State<GameScreen>
     final puzzle = _gameState.puzzle;
     if (puzzle == null || puzzle.solveResult == null) return;
 
-    final analysis = PuzzleAnalyzer.analyze(puzzle);
+    final analysis = PuzzleAnalyzer.analyze(
+      puzzle,
+      wrongCells: _gameState.wrongCellsAtAnalysis,
+    );
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => AnalysisScreen(

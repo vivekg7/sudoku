@@ -2,6 +2,7 @@ import '../models/board.dart';
 import '../solver/candidate_helper.dart';
 import '../solver/solve_step.dart';
 import '../solver/solver_engine.dart';
+import '../solver/strategy_type.dart';
 import 'hint.dart';
 
 /// Generates multi-layer hints for the current board state.
@@ -16,9 +17,25 @@ class HintGenerator {
   /// Generates a [Hint] for the current board state, or `null` if
   /// the board is already solved or no strategy applies.
   ///
+  /// If [solution] and [initialBoard] are provided, checks for wrong
+  /// values first (user-filled cells that don't match the solution).
+  /// When found, returns a staged hint guiding the player to the mistake
+  /// instead of a normal strategy hint.
+  ///
   /// The board must have candidates computed. If [computeCandidatesFirst]
   /// is true (default), candidates are computed on a clone before solving.
-  Hint? generate(Board board, {bool computeCandidatesFirst = true}) {
+  Hint? generate(
+    Board board, {
+    bool computeCandidatesFirst = true,
+    Board? solution,
+    Board? initialBoard,
+  }) {
+    // Check for wrong values before normal hint generation.
+    if (solution != null && initialBoard != null) {
+      final wrongHint = _checkWrongValues(board, solution, initialBoard);
+      if (wrongHint != null) return wrongHint;
+    }
+
     final work = computeCandidatesFirst ? board.clone() : board;
     if (computeCandidatesFirst) computeCandidates(work);
 
@@ -31,6 +48,63 @@ class HintGenerator {
       strategyHint: _buildStrategyHint(step),
       answer: _buildAnswer(step),
     );
+  }
+
+  /// Checks for user-filled cells whose values don't match the solution.
+  /// Returns a wrong-value hint if any are found, or `null` if all correct.
+  Hint? _checkWrongValues(Board board, Board solution, Board initialBoard) {
+    final wrongCells = <({int row, int col, int value})>[];
+
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        final cell = board.getCell(r, c);
+        if (cell.isGiven || cell.isEmpty) continue;
+        if (cell.value != solution.getCell(r, c).value) {
+          wrongCells.add((row: r, col: c, value: cell.value));
+        }
+      }
+    }
+
+    if (wrongCells.isEmpty) return null;
+
+    final step = SolveStep(
+      strategy: StrategyType.wrongValue,
+      involvedCells: [for (final w in wrongCells) (row: w.row, col: w.col)],
+      removals: [for (final w in wrongCells) Removal(w.row, w.col, w.value)],
+      description: wrongCells.length == 1
+          ? 'R${wrongCells.first.row + 1}C${wrongCells.first.col + 1} has the wrong value'
+          : '${wrongCells.length} cells have wrong values',
+    );
+
+    return Hint(
+      step: step,
+      nudge: _buildWrongValueNudge(),
+      strategyHint: _buildWrongValueStrategyHint(wrongCells),
+      answer: _buildWrongValueAnswer(wrongCells),
+    );
+  }
+
+  String _buildWrongValueNudge() {
+    return "Your puzzle can't be solved from here \u2014 "
+        'a filled cell has the wrong value';
+  }
+
+  String _buildWrongValueStrategyHint(
+    List<({int row, int col, int value})> wrongCells,
+  ) {
+    final boxes = wrongCells.map((w) => (w.row ~/ 3) * 3 + w.col ~/ 3).toSet();
+    final boxLabels = (boxes.toList()..sort()).map((b) => '${b + 1}');
+    return 'Check the cells you filled in '
+        'box${boxes.length > 1 ? 'es' : ''} ${boxLabels.join(' and ')}';
+  }
+
+  String _buildWrongValueAnswer(
+    List<({int row, int col, int value})> wrongCells,
+  ) {
+    final parts = [
+      for (final w in wrongCells) 'R${w.row + 1}C${w.col + 1}',
+    ];
+    return '${parts.join(' and ')} ${wrongCells.length == 1 ? 'is' : 'are'} wrong';
   }
 
   /// Layer 1: A vague directional nudge.

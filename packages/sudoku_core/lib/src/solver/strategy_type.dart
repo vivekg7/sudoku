@@ -27,7 +27,8 @@ enum StrategyType {
   forcingChain('Forcing Chain'),
   almostLockedSet('Almost Locked Set'),
   sueDeCoq('Sue de Coq'),
-  backtracking('Backtracking');
+  backtracking('Backtracking'),
+  wrongValue('Wrong Value');
 
   final String label;
   const StrategyType(this.label);

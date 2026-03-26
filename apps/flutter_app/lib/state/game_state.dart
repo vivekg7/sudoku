@@ -493,20 +493,38 @@ class GameState extends ChangeNotifier {
   int _playerFilledCount = 0;
   int get playerFilledCount => _playerFilledCount;
 
+  /// Wrong values cleared during analysis (for prepending removal steps).
+  List<Removal> _wrongCellsAtAnalysis = [];
+  List<Removal> get wrongCellsAtAnalysis => _wrongCellsAtAnalysis;
+
   /// Fill all remaining cells with the solution and mark as analyzed.
   ///
   /// After calling this, the puzzle is complete and no longer interactive.
+  /// If the player placed wrong values, those cells are cleared first so
+  /// the analysis step-by-step can show the corrections.
   void analyzePuzzle() {
     if (_puzzle == null) return;
 
     // Snapshot the player's progress before filling.
     _playerFilledCount = 0;
+    _wrongCellsAtAnalysis = [];
     for (var r = 0; r < 9; r++) {
       for (var c = 0; c < 9; c++) {
         final initial = _puzzle!.initialBoard.getCell(r, c);
         final current = _puzzle!.board.getCell(r, c);
-        if (!initial.isGiven && current.isFilled) _playerFilledCount++;
+        if (!initial.isGiven && current.isFilled) {
+          _playerFilledCount++;
+          // Detect wrong values.
+          if (current.value != _puzzle!.solution.getCell(r, c).value) {
+            _wrongCellsAtAnalysis.add(Removal(r, c, current.value));
+          }
+        }
       }
+    }
+
+    // Clear wrong values before filling with solution.
+    for (final wrong in _wrongCellsAtAnalysis) {
+      _puzzle!.board.getCell(wrong.row, wrong.col).clearValue();
     }
 
     // Fill all empty cells with solution values.
@@ -535,7 +553,11 @@ class GameState extends ChangeNotifier {
 
     // If we've shown all allowed layers, generate a new hint on next press.
     if (_currentHint == null || _hintLayer >= maxHintLayer) {
-      _currentHint = _hintGen.generate(_puzzle!.board);
+      _currentHint = _hintGen.generate(
+        _puzzle!.board,
+        solution: _puzzle!.solution,
+        initialBoard: _puzzle!.initialBoard,
+      );
       _hintLayer = 0;
 
       if (_currentHint == null) return; // no hint available

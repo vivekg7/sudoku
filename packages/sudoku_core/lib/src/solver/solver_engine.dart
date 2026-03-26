@@ -192,6 +192,7 @@ class Solver {
     StrategyType.almostLockedSet: 55,
     StrategyType.sueDeCoq: 55,
     StrategyType.backtracking: 70,
+    StrategyType.wrongValue: 0,
   };
 
   /// Classifies a puzzle's difficulty from a human perspective.
