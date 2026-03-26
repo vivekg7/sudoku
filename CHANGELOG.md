@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.5.0 — 2026-03-27
+
+- "Where Does N Go?" training game — find the only cell for a digit on a full board
+- Erase-first mode for quick erasing without cell selection
+- Swipe navigation in strategy walkthroughs
+- Numpad redesigned as two rows with larger buttons
+- Portrait-only lock on all devices
+- Fix hints ignoring wrong values, stale candidates, input mode deactivation, and Rush leaderboard bugs
+
+---
+
 ## v1.4.0 — 2026-03-22
 
 - Training Hub with Number Rush — a timed game to practice speed-placing digits, with difficulty levels and a leaderboard

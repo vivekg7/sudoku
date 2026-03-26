@@ -1,7 +1,7 @@
 name: sudoku
 description: "Offline Sudoku app with full solving engine and multi-layer hints."
 publish_to: "none"
-version: 1.4.0+6
+version: 1.5.0+7
 
 environment:
   sdk: ^3.11.1
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^1.0.9
   path_provider: ^2.1.5
   file_picker: ^10.3.10
   pdf: ^3.12.0
