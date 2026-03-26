@@ -158,6 +158,61 @@ const allQuotes = <Quote>[
     author: 'Mother Teresa',
     tier: QuoteTier.light,
   ),
+  Quote(
+    id: 91,
+    text:
+        'Live as if you were to die tomorrow. Learn as if you were to live forever.',
+    author: 'Mahatma Gandhi',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 92,
+    text: 'Great dreams of great dreamers are always transcended.',
+    author: 'A.P.J. Abdul Kalam',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 93,
+    text:
+        'Happiness is when what you think, what you say, and what you do are in harmony.',
+    author: 'Mahatma Gandhi',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 94,
+    text:
+        'All birds find shelter during a rain. But the eagle avoids rain by flying above the clouds.',
+    author: 'A.P.J. Abdul Kalam',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 95,
+    text:
+        'Take risks in your life. If you win, you can lead. If you lose, you can guide.',
+    author: 'Swami Vivekananda',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 96,
+    text:
+        'Let us sacrifice our today so that our children can have a better tomorrow.',
+    author: 'A.P.J. Abdul Kalam',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 97,
+    text:
+        'The best way to find yourself is to lose yourself in the service of others.',
+    author: 'Mahatma Gandhi',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 98,
+    text:
+        'We are what our thoughts have made us; so take care about what you think.',
+    author: 'Swami Vivekananda',
+    tier: QuoteTier.light,
+  ),
 
   // ── Medium tier (Medium, Hard) ───────────────────────────────────
   Quote(
@@ -339,6 +394,66 @@ const allQuotes = <Quote>[
     id: 64,
     text: 'Stillness is where creativity and solutions to problems are found.',
     author: 'Eckhart Tolle',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 99,
+    text:
+        'The fragrance of flowers spreads only in the direction of the wind. But the goodness of a person spreads in all directions.',
+    author: 'Chanakya',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 100,
+    text: 'Education is the manifestation of the perfection already in man.',
+    author: 'Swami Vivekananda',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 101,
+    text:
+        'Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.',
+    author: 'Buddha',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 102,
+    text: 'In a conflict between the heart and the brain, follow your heart.',
+    author: 'Swami Vivekananda',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 103,
+    text: 'You cannot believe in God until you believe in yourself.',
+    author: 'Swami Vivekananda',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 104,
+    text:
+        'The earth is enjoyed by heroes — this is the unfailing truth. Be a hero.',
+    author: 'Chanakya',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 105,
+    text:
+        'An equation for me has no meaning unless it expresses a thought of God.',
+    author: 'Srinivasa Ramanujan',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 106,
+    text:
+        'Do not be led by others, awaken your own mind, amass your own experience, and decide for yourself your own path.',
+    author: 'Atharva Veda',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 107,
+    text:
+        'There is no end to education. It is not that you read a book, pass an examination, and finish with education. The whole of life is a process of learning.',
+    author: 'J. Krishnamurti',
     tier: QuoteTier.medium,
   ),
 
@@ -589,6 +704,61 @@ const allQuotes = <Quote>[
     id: 90,
     text: 'The greatest wealth is a poverty of desires.',
     author: 'Seneca',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 108,
+    text:
+        'It is better to live your own destiny imperfectly than to live an imitation of somebody else\'s life with perfection.',
+    author: 'Bhagavad Gita',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 109,
+    text:
+        'There is neither this world, nor the world beyond, nor happiness for the one who doubts.',
+    author: 'Bhagavad Gita',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 110,
+    text: 'Yoga is the stilling of the fluctuations of the mind.',
+    author: 'Patanjali',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 111,
+    text:
+        'The self-controlled soul, who moves amongst sense objects, free from either attachment or repulsion, wins eternal peace.',
+    author: 'Bhagavad Gita',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 112,
+    text:
+        'That which seems like poison at first, but tastes like nectar in the end — this is the joy of clarity, born from the serenity of one\'s own mind.',
+    author: 'Bhagavad Gita',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 113,
+    text:
+        'The knowing self is not born, it does not die. It has not sprung from anything; nothing has sprung from it.',
+    author: 'Katha Upanishad',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 114,
+    text:
+        'When the five senses and the mind are still, and the reasoning intellect does not stir, that is called the highest state.',
+    author: 'Katha Upanishad',
+    tier: QuoteTier.deep,
+  ),
+  Quote(
+    id: 115,
+    text:
+        'Whatever happened, happened for the good. Whatever is happening, is happening for the good. Whatever will happen, will also happen for the good.',
+    author: 'Bhagavad Gita',
     tier: QuoteTier.deep,
   ),
 ];
