@@ -12,6 +12,7 @@ class GameState extends ChangeNotifier {
   int? _selectedCol;
   int? _activeNumber;
   bool _isPencilMode = false;
+  bool _isEraseMode = false;
   final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
   int _elapsedSeconds = 0;
@@ -48,6 +49,7 @@ class GameState extends ChangeNotifier {
   int? get selectedCol => _selectedCol;
   int? get activeNumber => _activeNumber;
   bool get isPencilMode => _isPencilMode;
+  bool get isEraseMode => _isEraseMode;
   int get elapsedSeconds => _elapsedSeconds;
   bool get isPaused => _isPaused;
   bool get isPlaying => _puzzle != null && !_puzzle!.isSolved;
@@ -94,6 +96,7 @@ class GameState extends ChangeNotifier {
     _selectedRow = null;
     _selectedCol = null;
     _activeNumber = null;
+    _isEraseMode = false;
     _isPencilMode = false;
     _isPaused = false;
     _isSolvedNotified = false;
@@ -140,6 +143,7 @@ class GameState extends ChangeNotifier {
     _selectedRow = null;
     _selectedCol = null;
     _activeNumber = null;
+    _isEraseMode = false;
     _isPencilMode = false;
     _isPaused = false;
     _isSolvedNotified = false;
@@ -183,11 +187,33 @@ class GameState extends ChangeNotifier {
     if (_selectedRow == null && _selectedCol == null) return;
     _selectedRow = null;
     _selectedCol = null;
+    _isEraseMode = false;
     notifyListeners();
   }
 
   void selectCell(int row, int col) {
     if (_isPaused || _puzzle == null) return;
+
+    // Erase-first mode: erase user-filled cells or clear candidates on tap.
+    if (_isEraseMode && _selectedRow == null && _selectedCol == null) {
+      final cell = _puzzle!.board.getCell(row, col);
+      if (!cell.isGiven && cell.isFilled) {
+        _clearCellAt(row, col);
+      } else if (cell.isEmpty && cell.candidates.isNotEmpty) {
+        final prevCandidates = cell.candidates.copy();
+        cell.candidates.clear();
+        _puzzle!.history.push(Move(
+          row: row,
+          col: col,
+          type: MoveType.removeCandidate,
+          previousCandidates: prevCandidates,
+          newCandidates: CandidateSet(),
+        ));
+        _clearHint();
+        notifyListeners();
+      }
+      return;
+    }
 
     // Number-first mode: fill empty cells with the active number.
     if (_activeNumber != null && _selectedRow == null && _selectedCol == null) {
@@ -218,6 +244,7 @@ class GameState extends ChangeNotifier {
 
     // Normal cell-first selection.
     _activeNumber = null;
+    _isEraseMode = false;
     if (_selectedRow == row && _selectedCol == col) {
       _selectedRow = null;
       _selectedCol = null;
@@ -234,12 +261,14 @@ class GameState extends ChangeNotifier {
     final c = ((_selectedCol ?? 4) + dCol).clamp(0, 8);
     _selectedRow = r;
     _selectedCol = c;
+    _isEraseMode = false;
     notifyListeners();
   }
 
   void togglePencilMode() {
     if (!notesEnabled) return;
     _isPencilMode = !_isPencilMode;
+    _isEraseMode = false;
     notifyListeners();
   }
 
@@ -249,6 +278,7 @@ class GameState extends ChangeNotifier {
 
     // No cell selected → activate/toggle number-first mode.
     if (_selectedRow == null || _selectedCol == null) {
+      _isEraseMode = false;
       _activeNumber = (_activeNumber == value) ? null : value;
       notifyListeners();
       return;
@@ -256,6 +286,7 @@ class GameState extends ChangeNotifier {
 
     // Cell selected → cell-first input.
     _activeNumber = null;
+    _isEraseMode = false;
     final cell = _puzzle!.board.getCell(_selectedRow!, _selectedCol!);
     if (cell.isGiven) return;
 
@@ -337,10 +368,10 @@ class GameState extends ChangeNotifier {
   void clearCell() {
     if (_puzzle == null) return;
     if (_selectedRow == null || _selectedCol == null) {
-      if (_activeNumber != null) {
-        _activeNumber = null;
-        notifyListeners();
-      }
+      // No cell selected → toggle erase mode (like number-first mode).
+      _activeNumber = null;
+      _isEraseMode = !_isEraseMode;
+      notifyListeners();
       return;
     }
     _clearCellAt(_selectedRow!, _selectedCol!);
@@ -352,6 +383,7 @@ class GameState extends ChangeNotifier {
     _selectedRow = row;
     _selectedCol = col;
     _activeNumber = null;
+    _isEraseMode = false;
     _clearCellAt(row, col);
   }
 
@@ -417,6 +449,7 @@ class GameState extends ChangeNotifier {
 
     _selectedRow = moves.first.row;
     _selectedCol = moves.first.col;
+    _isEraseMode = false;
     notifyListeners();
   }
 
@@ -433,6 +466,7 @@ class GameState extends ChangeNotifier {
 
     _selectedRow = moves.last.row;
     _selectedCol = moves.last.col;
+    _isEraseMode = false;
 
     if (_puzzle!.isSolved) {
       _stopwatch.stop();

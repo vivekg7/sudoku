@@ -184,12 +184,22 @@ class NumberPad extends StatelessWidget {
   Widget _eraseButton(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isCircular = boardLayout == BoardLayout.circular;
-    final color = colorScheme.surfaceContainerLow;
-    final iconColor = colorScheme.onSurfaceVariant;
+    final isActive = gameState.isEraseMode;
+
+    final duration = animationsEnabled
+        ? const Duration(milliseconds: 150)
+        : Duration.zero;
+
+    final color = isActive
+        ? colorScheme.primaryContainer
+        : colorScheme.surfaceContainerLow;
+    final iconColor = isActive
+        ? colorScheme.primary
+        : colorScheme.onSurfaceVariant;
 
     final icon = Icon(Icons.backspace_outlined, size: 22, color: iconColor);
 
-    final Widget button = isCircular
+    Widget button = isCircular
         ? AspectRatio(
             aspectRatio: 1.0,
             child: Material(
@@ -216,7 +226,12 @@ class NumberPad extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(3),
-      child: button,
+      child: AnimatedScale(
+        scale: isActive ? 1.08 : 1.0,
+        duration: duration,
+        curve: Curves.easeOutCubic,
+        child: button,
+      ),
     );
   }
 
