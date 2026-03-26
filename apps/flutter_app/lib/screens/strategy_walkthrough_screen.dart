@@ -20,6 +20,7 @@ class StrategyWalkthroughScreen extends StatefulWidget {
 class _StrategyWalkthroughScreenState
     extends State<StrategyWalkthroughScreen> {
   late final StrategyGuide _guide;
+  late final PageController _pageController;
 
   /// Current step index. 0 = intro (no highlights).
   int _step = 0;
@@ -31,93 +32,35 @@ class _StrategyWalkthroughScreenState
   void initState() {
     super.initState();
     _guide = strategyGuides[widget.strategy]!;
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    // Permanent state (accumulates across all steps up to current)
-    final placeCells = <(int, int, int)>{};
-    final blockedCells = <(int, int)>{};
-    final removedCandidates = <(int, int, int)>{};
-
-    for (var i = 0; i < _step; i++) {
-      final step = _guide.steps[i];
-      placeCells.addAll(step.placeCells);
-      blockedCells.addAll(step.blockedCells);
-      // Candidates eliminated in previous steps are removed from the board
-      if (i < _step - 1) {
-        removedCandidates.addAll(step.eliminateCandidates);
-      }
-    }
-
-    // Visual annotations (current step only)
-    final currentStep = _step > 0 ? _guide.steps[_step - 1] : null;
-    final highlightCells = currentStep?.highlightCells ?? const {};
-    final highlightCandidates = currentStep?.highlightCandidates ?? const {};
-    final eliminateCandidates = currentStep?.eliminateCandidates ?? const {};
-    final colorACells = currentStep?.colorACells ?? const {};
-    final colorBCells = currentStep?.colorBCells ?? const {};
-
-    // Current caption
-    final caption = _step == 0
-        ? _guide.intro
-        : _guide.steps[_step - 1].caption;
-
     return Scaffold(
       appBar: AppBar(title: Text(_guide.strategy.label)),
       body: SafeArea(
         child: Column(
           children: [
-            // Board
+            // Board + caption in a swipeable PageView.
             Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 500),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: WalkthroughBoardWidget(
-                      board: _guide.board,
-                      candidates: _guide.candidates,
-                      highlightCells: highlightCells,
-                      highlightCandidates: highlightCandidates,
-                      eliminateCandidates: eliminateCandidates,
-                      placeCells: placeCells,
-                      blockedCells: blockedCells,
-                      removedCandidates: removedCandidates,
-                      colorACells: colorACells,
-                      colorBCells: colorBCells,
-                    ),
-                  ),
-                ),
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: _totalSteps,
+                onPageChanged: (page) => setState(() => _step = page),
+                itemBuilder: (context, index) => _buildPage(index, colorScheme),
               ),
             ),
 
-            // Caption
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 64),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Text(
-                    caption,
-                    key: ValueKey(_step),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 15,
-                      height: 1.5,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Step controls
+            // Step controls (fixed at bottom).
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: Row(
@@ -149,6 +92,90 @@ class _StrategyWalkthroughScreenState
     );
   }
 
-  void _previousStep() => setState(() => _step--);
-  void _nextStep() => setState(() => _step++);
+  Widget _buildPage(int step, ColorScheme colorScheme) {
+    // Permanent state (accumulates across all steps up to current).
+    final placeCells = <(int, int, int)>{};
+    final blockedCells = <(int, int)>{};
+    final removedCandidates = <(int, int, int)>{};
+
+    for (var i = 0; i < step; i++) {
+      final s = _guide.steps[i];
+      placeCells.addAll(s.placeCells);
+      blockedCells.addAll(s.blockedCells);
+      if (i < step - 1) {
+        removedCandidates.addAll(s.eliminateCandidates);
+      }
+    }
+
+    // Visual annotations (current step only).
+    final currentStep = step > 0 ? _guide.steps[step - 1] : null;
+    final highlightCells = currentStep?.highlightCells ?? const {};
+    final highlightCandidates = currentStep?.highlightCandidates ?? const {};
+    final eliminateCandidates = currentStep?.eliminateCandidates ?? const {};
+    final colorACells = currentStep?.colorACells ?? const {};
+    final colorBCells = currentStep?.colorBCells ?? const {};
+
+    final caption = step == 0
+        ? _guide.intro
+        : _guide.steps[step - 1].caption;
+
+    return Column(
+      children: [
+        Expanded(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: WalkthroughBoardWidget(
+                  board: _guide.board,
+                  candidates: _guide.candidates,
+                  highlightCells: highlightCells,
+                  highlightCandidates: highlightCandidates,
+                  eliminateCandidates: eliminateCandidates,
+                  placeCells: placeCells,
+                  blockedCells: blockedCells,
+                  removedCandidates: removedCandidates,
+                  colorACells: colorACells,
+                  colorBCells: colorBCells,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 64),
+            child: Center(
+              child: Text(
+                caption,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.5,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  void _previousStep() {
+    _pageController.previousPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _nextStep() {
+    _pageController.nextPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+  }
 }
