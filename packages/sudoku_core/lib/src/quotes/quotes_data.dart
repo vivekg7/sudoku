@@ -316,6 +316,30 @@ const allQuotes = <Quote>[
     author: 'Martin Luther King Jr.',
     tier: QuoteTier.light,
   ),
+  Quote(
+    id: 163,
+    text: 'Little by little, a little becomes a lot.',
+    author: 'Tanzanian Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 164,
+    text: 'Even the darkest night will end and the sun will rise.',
+    author: 'Victor Hugo',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 165,
+    text: 'Fortune favors the brave.',
+    author: 'Latin Proverb',
+    tier: QuoteTier.light,
+  ),
+  Quote(
+    id: 166,
+    text: 'Better to light a candle than curse the darkness.',
+    author: 'Chinese Proverb',
+    tier: QuoteTier.light,
+  ),
 
   // ── Medium tier (Medium, Hard) ───────────────────────────────────
   Quote(
@@ -667,6 +691,26 @@ const allQuotes = <Quote>[
     text:
         'The master has failed more times than the beginner has even tried.',
     author: 'Stephen McCranie',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 167,
+    text:
+        'A river cuts through rock not because of its power, but because of its persistence.',
+    author: 'H. Jackson Brown Jr.',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 168,
+    text: 'Fear knocked at the door. Faith answered. No one was there.',
+    author: 'English Proverb',
+    tier: QuoteTier.medium,
+  ),
+  Quote(
+    id: 169,
+    text:
+        'Great things are done by a series of small things brought together.',
+    author: 'Vincent van Gogh',
     tier: QuoteTier.medium,
   ),
 
