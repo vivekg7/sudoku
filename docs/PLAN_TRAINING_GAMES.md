@@ -68,11 +68,11 @@ This trains the most fundamental Sudoku skill: instantly recognizing which digit
 
 The player selects a mode before starting. Modes control what type of house is shown and how much time pressure there is.
 
-| Mode   | Houses shown  | Starting time | Decay          | Floor |
-| ------ | ------------- | ------------- | -------------- | ----- |
-| Chill  | Boxes only    | 10s           | −0.2s / round  | 7s    |
-| Quick  | Boxes only    | 8s            | −0.2s / round  | 5s    |
-| Sprint | Mixed (all 3) | 5s            | −0.1s / round  | 2s    |
+| Mode   | Houses shown  | Starting time | Decay         | Floor |
+| ------ | ------------- | ------------- | ------------- | ----- |
+| Chill  | Boxes only    | 10s           | −0.2s / round | 7s    |
+| Quick  | Boxes only    | 8s            | −0.2s / round | 5s    |
+| Sprint | Mixed (all 3) | 5s            | −0.1s / round | 2s    |
 
 - **Chill** starts generous (10s) and gradually tightens to 7s — eases the player into time pressure. By the time Chill feels easy, the player is ready for Quick.
 - **Quick** picks up where Chill's floor leaves off (8s → 5s). The standard competitive mode.
@@ -90,6 +90,7 @@ These modes and their parameters should be defined as constants so they're easy 
   - `playedAt` — DateTime when the run happened.
 - **Ranking rule:** higher streak always wins. If two runs have the same streak, the one completed in less total time ranks higher.
 - Leaderboard is displayed on the Training Hub screen (see below), not inside the gameplay screen — scores belong to the training section, not the game itself.
+- **Smart leaderboard selector:** the Training Hub leaderboard defaults to the most recently played game + mode, so the player immediately sees the board they're competing against. Stored via `TrainingStorageService`.
 - Stats are separate from the main puzzle stats. Training game stats live in their own data structure.
 
 ### Results Screen (Game Over)
@@ -190,6 +191,135 @@ The Training Hub is the home page for all training games — similar in spirit t
 
 ---
 
+## Game 2: Where Does N Go?
+
+**One-line pitch:** A full board, one digit, one cell — find where it goes by elimination.
+
+### Concept
+
+A partially solved 9×9 board is shown. The player is given a digit N and must tap the one cell where it can logically be placed via hidden single elimination. No advanced strategies required — just cross-referencing rows, columns, and boxes to rule out every other cell.
+
+This trains the most important real-game scanning skill: finding where a digit must go by checking what's already placed in the surrounding houses. It's the natural next step after Number Rush — from "what's missing?" to "where does it go?"
+
+### Game Flow
+
+1. Generate a board state where exactly one cell can be solved for digit N using basic elimination.
+2. Display prompt: "Where does 5 go in Box 4?" (Chill/Quick) or "Where does 5 go?" (Sprint).
+3. Player taps the correct cell directly on the board.
+4. Correct → streak increments, timer resets, new board/digit loaded.
+5. Wrong tap or timeout → game over → results screen.
+
+```
+┌─────────────────────────────────────┐
+│  Score: 7           Best: 15        │
+│                                     │
+│  "Where does 5 go in Box 4?"       │
+│                                     │
+│  ┌───┬───┬───┬───┬───┬───┬───┬───┬───┐
+│  │ . │ 3 │ . │ . │ 7 │ . │ . │ 1 │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ . │ 8 │ . │ . │ . │ 3 │ . │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ 5 │ . │ . │ . │ . │ 3 │ . │ . │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ . │ 5 │ . │ . │ . │ . │ . │ 9 │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ . │ . │ 5 │ . │ . │ . │ . │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ 8 │ . │ . │ . │ . │ 5 │ . │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ . │ . │ . │ . │ 5 │ . │ . │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ 5 │ . │ . │ . │ . │ . │ . │ 7 │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ . │ . │ . │ . │ . │ . │ 5 │ . │
+│  └───┴───┴───┴───┴───┴───┴───┴───┴───┘
+│                                     │
+│  ████████████░░░░░ 8.2s             │
+│                                     │
+│  ── streak: 7 ──                    │
+└─────────────────────────────────────┘
+```
+
+### Difficulty Modes
+
+| Mode   | Prompt                                  | Houses               | Highlight        | Starting time | Decay         | Floor |
+| ------ | --------------------------------------- | -------------------- | ---------------- | ------------- | ------------- | ----- |
+| Chill  | "Where does N go in **Box X**?"         | Boxes only           | Yes (target box) | 15s           | −0.3s / round | 10s   |
+| Quick  | "Where does N go in **Row/Col/Box X**?" | Boxes, rows, columns | No               | 12s           | −0.2s / round | 7s    |
+| Sprint | "Where does N go?"                      | No house hint        | No               | 10s           | −0.2s / round | 5s    |
+
+- **Chill** — Boxes only, target box highlighted with a subtle background tint (accent color at ~10% opacity). The player focuses purely on elimination logic. Generous timer for thinking through cross-references.
+- **Quick** — Any house type, no highlight. The player must locate the house and scan it. Standard competitive mode.
+- **Sprint** — No house hint at all. The player scans the entire board to find the one cell where N can be placed. Timer starts at Quick's floor. This is where high scores come from.
+
+Timer behavior identical to Number Rush: countdown bar that resets on correct answer, accent → yellow → red color transition as time runs low.
+
+### Board Generation
+
+1. Use the puzzle generator to create a Beginner/Easy puzzle (these rely on hidden singles).
+2. Run the solver step-by-step until a hidden single step is found.
+3. Freeze the board at that state — this is the challenge board.
+4. The target digit N = the digit from the hidden single step. The target cell = where the solver would place it.
+5. **Validation:** Confirm that N cannot be placed in any other cell on the board via basic elimination alone (naked singles or hidden singles). If it can, skip this step and advance the solver further until a clean hidden single is found where N has exactly one logical placement.
+6. For Sprint mode (no house hint): additionally verify that N has only one hidden-single placement across the _entire board_, not just within one house.
+
+**Avoiding repetition:**
+
+- Don't repeat the same digit N on consecutive rounds.
+- Don't reuse the same puzzle — generate a fresh one each round (generation is fast for Beginner/Easy).
+
+**Performance note:** Beginner/Easy puzzles generate quickly since they only need basic strategies. If generation per round causes noticeable lag, pre-generate a small buffer (3–5 boards ahead) while the player is solving the current one.
+
+### UI Layout
+
+Same minimal chrome approach as Number Rush:
+
+- **Top bar:** Score (current streak) and best score for the mode.
+- **Prompt:** Large, clear text — "Where does 5 go in Box 4?" or "Where does 5 go?"
+- **Board:** Full 9×9 board using the existing `BoardWidget`. Cells show filled digits only — no candidates visible (the player does elimination mentally). Given cells styled as givens, solver-placed cells styled as filled values.
+- **Timer bar:** Below the board, same horizontal countdown bar as Number Rush.
+- **Streak counter:** Below the timer.
+
+No numpad — the player taps directly on the board.
+
+### Interaction
+
+- All empty cells are tappable.
+- Correct cell → brief green flash on the cell, digit appears, then board transitions to next challenge (200ms crossfade).
+- Wrong cell → brief red flash, game over → results screen. Show the correct cell highlighted and explain: "5 goes here — Row 3 and Box 6 already have a 5, leaving only this cell."
+- Timeout → timer bar pulses red, game over → results screen (same correct-cell reveal).
+- All animations respect the global animation toggle. When disabled: instant transitions.
+
+### Scoring & Leaderboard
+
+Identical structure to Number Rush:
+
+- Score = streak count (consecutive correct taps).
+- Top 10 leaderboard per mode, stored in the same `TrainingStorageService`.
+- Ranking: higher streak wins, tiebreaker = lower total time.
+- Each entry: `streak`, `totalTimeMs`, `playedAt`.
+
+### Results Screen
+
+Same layout as Number Rush results:
+
+- Final streak and total time.
+- Leaderboard position (with celebration if top 3 / new record).
+- Average time per answer.
+- **If wrong:** show the board with the correct cell highlighted in green and the tapped cell in red. Brief explanation of why that cell is the answer.
+- **Play Again** (same mode) and **Back to Training** buttons.
+
+### Navigation
+
+- Training Hub → "Where Does N Go?" card with Chill / Quick / Sprint mode buttons inline.
+- Card sits below Number Rush, above the coming-soon games.
+- Card description: "Spot the only cell where a digit can go."
+- Tapping a mode goes straight into gameplay (no intermediate screen).
+- The leaderboard mode selector gains the new game's modes.
+
+---
+
 ## Future Game Ideas
 
 > Not designed yet — listed here as candidates for future planning. Each will get its own section when we decide to build it.
@@ -202,13 +332,23 @@ Given a real puzzle board state, apply strategy X to fill exactly one cell. Test
 
 Given a board with full pencil marks, identify which candidates can be eliminated and by which strategy. Trains the "spotting" skill — the hardest part of advanced solving.
 
-### Where Does N Go?
-
-Given a house with candidates visible, tap the cell where digit N must go. Trains hidden single recognition specifically — the most common and most useful scanning pattern.
+### ~~Where Does N Go?~~ → Moved to full design (Game 2 above)
 
 ### Spot the Pattern
 
 Show a board state, ask "which strategy applies here?" as a multiple-choice question. Pure pattern recognition, no solving required. Good for learning to identify strategy shapes (X-Wing, Pointing Pair, etc.).
+
+### Candidate Fill
+
+Given a partially filled board region (a box, row, or column), correctly mark all candidates for the empty cells. The player taps cells and enters candidates — the game scores based on accuracy (missed candidates and phantom candidates both count as errors). This trains the foundational skill of building candidate lists mentally, which is the prerequisite for every strategy beyond naked and hidden singles. Could have a timed mode (fill candidates before the clock runs out) and a precision mode (no timer, scored purely on correctness).
+
+### Chain Tracer
+
+Given a board state where a specific chain-based strategy applies (X-Chain, XY-Chain, or AIC), the player must trace the chain by tapping cells in the correct order from start to finish. The game highlights the starting cell and the candidate in question — the player follows the logical links. Correct chain = the elimination or placement is revealed. Wrong tap = the game shows where the chain should have gone next. This drills the sequential reasoning that makes chains and AICs feel impossible to most players — turning an abstract concept into a physical, tap-by-tap exercise. Depends on the strategy walkthrough data already in `sudoku_core` for example boards.
+
+### House Sweep
+
+A full 9×9 board is shown with several deliberate rule violations (duplicate digits in rows, columns, or boxes). The player must tap every cell that breaks a rule within a time limit. Trains the verification and proofreading skill — the ability to quickly scan a completed or near-completed board and catch errors. Useful for players who often finish puzzles only to realize they made a mistake 20 moves ago. Modes could vary by number of violations (3, 5, 8) and time pressure.
 
 ---
 
