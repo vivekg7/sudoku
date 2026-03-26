@@ -132,7 +132,7 @@ class _NumberRushScreenState extends State<NumberRushScreen>
     }
   }
 
-  void _endGame(int? wrongAnswer) {
+  void _endGame(int? wrongAnswer) async {
     _timerController.stop();
     _totalStopwatch.stop();
     setState(() {
@@ -147,28 +147,32 @@ class _NumberRushScreenState extends State<NumberRushScreen>
     );
 
     final key = TrainingStorageService.numberRushKey(widget.mode);
-    // Only record scores with at least 1 correct answer.
-    final rankFuture = _score > 0
-        ? widget.trainingStorage.addScore(key, score)
-        : Future<int?>.value(null);
+    widget.trainingStorage.setLastPlayedMode(widget.mode);
 
-    rankFuture.then((rank) {
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => NumberRushResultsScreen(
-            score: score,
-            rank: rank,
-            mode: widget.mode,
-            wrongAnswer: _wrongAnswer,
-            correctAnswer: _challenge.answer,
-            challenge: _wrongAnswer != null ? _challenge.cells : null,
-            settings: widget.settings,
-            trainingStorage: widget.trainingStorage,
-          ),
+    // Persist sequentially — one save, never concurrent writes.
+    final int? rank;
+    if (_score > 0) {
+      rank = await widget.trainingStorage.addScore(key, score);
+    } else {
+      await widget.trainingStorage.save();
+      rank = null;
+    }
+
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => NumberRushResultsScreen(
+          score: score,
+          rank: rank,
+          mode: widget.mode,
+          wrongAnswer: _wrongAnswer,
+          correctAnswer: _challenge.answer,
+          challenge: _wrongAnswer != null ? _challenge.cells : null,
+          settings: widget.settings,
+          trainingStorage: widget.trainingStorage,
         ),
-      );
-    });
+      ),
+    );
   }
 
   @override

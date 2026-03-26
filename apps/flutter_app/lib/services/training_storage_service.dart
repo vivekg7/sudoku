@@ -68,6 +68,10 @@ enum HouseType { box, row, column }
 class TrainingStorageService extends ChangeNotifier {
   late final String _filePath;
   final Map<String, List<TrainingScore>> _leaderboards = {};
+  NumberRushMode? _lastPlayedMode;
+
+  /// The most recently played Number Rush mode, or `null` if none.
+  NumberRushMode? get lastPlayedMode => _lastPlayedMode;
 
   static const _maxEntries = 10;
 
@@ -87,7 +91,20 @@ class TrainingStorageService extends ChangeNotifier {
     return (board != null && board.isNotEmpty) ? board.first : null;
   }
 
+  /// Set the last played Number Rush mode (in memory only).
+  /// Call [save] afterwards or rely on [addScore] to persist it.
+  void setLastPlayedMode(NumberRushMode mode) {
+    _lastPlayedMode = mode;
+  }
+
+  /// Persist current state to disk and notify listeners.
+  Future<void> save() async {
+    await _save();
+    notifyListeners();
+  }
+
   /// Add a score. Returns the 1-based rank if it made the board, or null.
+  /// Always persists (including any pending [setLastPlayedMode] change).
   Future<int?> addScore(String key, TrainingScore score) async {
     final board = _leaderboards.putIfAbsent(key, () => []);
     board.add(score);
@@ -96,10 +113,9 @@ class TrainingStorageService extends ChangeNotifier {
       board.removeRange(_maxEntries, board.length);
     }
     final rank = board.indexOf(score);
-    if (rank == -1) return null; // Didn't make the board.
     await _save();
     notifyListeners();
-    return rank + 1;
+    return rank == -1 ? null : rank + 1;
   }
 
   /// Storage key for Number Rush leaderboard.
@@ -112,7 +128,15 @@ class TrainingStorageService extends ChangeNotifier {
     try {
       final json =
           jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+      // Restore last played mode.
+      final modeName = json['_lastPlayedMode'] as String?;
+      if (modeName != null) {
+        _lastPlayedMode = NumberRushMode.values
+            .cast<NumberRushMode?>()
+            .firstWhere((m) => m?.name == modeName, orElse: () => null);
+      }
       for (final entry in json.entries) {
+        if (entry.key.startsWith('_')) continue; // Skip metadata keys.
         final list = (entry.value as List)
             .map((e) => TrainingScore.fromJson(e as Map<String, dynamic>))
             .toList()
@@ -126,6 +150,9 @@ class TrainingStorageService extends ChangeNotifier {
 
   Future<void> _save() async {
     final json = <String, dynamic>{};
+    if (_lastPlayedMode != null) {
+      json['_lastPlayedMode'] = _lastPlayedMode!.name;
+    }
     for (final entry in _leaderboards.entries) {
       json[entry.key] = entry.value.map((s) => s.toJson()).toList();
     }

@@ -20,7 +20,49 @@ class TrainingHubScreen extends StatefulWidget {
 
 class _TrainingHubScreenState extends State<TrainingHubScreen> {
   bool _leaderboardExpanded = false;
-  NumberRushMode _selectedLeaderboardMode = NumberRushMode.quick;
+  late NumberRushMode _selectedLeaderboardMode;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedLeaderboardMode = _pickDefaultLeaderboardMode();
+    widget.trainingStorage.addListener(_onStorageChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.trainingStorage.removeListener(_onStorageChanged);
+    super.dispose();
+  }
+
+  void _onStorageChanged() {
+    // Auto-sync leaderboard to the last played mode after a game.
+    final last = widget.trainingStorage.lastPlayedMode;
+    if (last != null && last != _selectedLeaderboardMode) {
+      setState(() => _selectedLeaderboardMode = last);
+    }
+  }
+
+  /// Pick the smartest default mode for the leaderboard:
+  /// 1. Last played mode (most intuitive after a game).
+  /// 2. Mode with the highest best score (before first play).
+  /// 3. Quick (final fallback).
+  NumberRushMode _pickDefaultLeaderboardMode() {
+    final last = widget.trainingStorage.lastPlayedMode;
+    if (last != null) return last;
+
+    NumberRushMode? best;
+    int bestStreak = -1;
+    for (final mode in NumberRushMode.values) {
+      final key = TrainingStorageService.numberRushKey(mode);
+      final top = widget.trainingStorage.getBest(key);
+      if (top != null && top.streak > bestStreak) {
+        bestStreak = top.streak;
+        best = mode;
+      }
+    }
+    return best ?? NumberRushMode.quick;
+  }
 
   @override
   Widget build(BuildContext context) {
