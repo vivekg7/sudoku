@@ -405,19 +405,41 @@ class _NumberRushScreenState extends State<NumberRushScreen>
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 500),
+        constraints: const BoxConstraints(maxWidth: 400),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              for (var i = 1; i <= 9; i++)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(2),
-                    child: _rushNumberButton(
-                        context, i, isCircular, colorScheme),
-                  ),
-                ),
+              // Row 1: digits 1-5
+              Row(
+                children: [
+                  for (var i = 1; i <= 5; i++)
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(3),
+                        child: _rushNumberButton(
+                            context, i, isCircular, colorScheme),
+                      ),
+                    ),
+                ],
+              ),
+              // Row 2: digits 6-9 centered
+              Row(
+                children: [
+                  const Spacer(),
+                  for (var i = 6; i <= 9; i++)
+                    Expanded(
+                      flex: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(3),
+                        child: _rushNumberButton(
+                            context, i, isCircular, colorScheme),
+                      ),
+                    ),
+                  const Spacer(),
+                ],
+              ),
             ],
           ),
         ),
@@ -466,7 +488,7 @@ class _NumberRushScreenState extends State<NumberRushScreen>
           canRequestFocus: false,
           borderRadius: BorderRadius.circular(8),
           onTap: _gameOver ? null : () => _onNumberTap(value),
-          child: SizedBox(height: 48, child: Center(child: label)),
+          child: SizedBox(height: 56, child: Center(child: label)),
         ),
       );
     }
