@@ -6,6 +6,19 @@ import 'candidate_fill_screen.dart';
 import 'number_rush_screen.dart';
 import 'where_does_n_go_screen.dart';
 
+/// A single mode entry for a training game card.
+class _GameMode {
+  final String label;
+  final String storageKey;
+  final VoidCallback onStart;
+
+  const _GameMode({
+    required this.label,
+    required this.storageKey,
+    required this.onStart,
+  });
+}
+
 class TrainingHubScreen extends StatefulWidget {
   final SettingsService settings;
   final TrainingStorageService trainingStorage;
@@ -21,19 +34,13 @@ class TrainingHubScreen extends StatefulWidget {
 }
 
 class _TrainingHubScreenState extends State<TrainingHubScreen> {
-  bool _rushLeaderboardExpanded = false;
-  bool _nGoLeaderboardExpanded = false;
-  bool _fillLeaderboardExpanded = false;
-  late NumberRushMode _selectedRushMode;
-  late WhereDoesNGoMode _selectedNGoMode;
-  late CandidateFillMode _selectedFillMode;
+  // Per-game state: leaderboard expanded + selected mode index.
+  final Map<String, bool> _leaderboardExpanded = {};
+  final Map<String, int> _selectedModeIndex = {};
 
   @override
   void initState() {
     super.initState();
-    _selectedRushMode = _pickDefaultRushMode();
-    _selectedNGoMode = _pickDefaultNGoMode();
-    _selectedFillMode = _pickDefaultFillMode();
     widget.trainingStorage.addListener(_onStorageChanged);
   }
 
@@ -45,65 +52,96 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
 
   void _onStorageChanged() {
     setState(() {
-      final lastRush = widget.trainingStorage.lastPlayedMode;
-      if (lastRush != null) _selectedRushMode = lastRush;
-      final lastNGo = widget.trainingStorage.lastPlayedWhereDoesNGoMode;
-      if (lastNGo != null) _selectedNGoMode = lastNGo;
-      final lastFill = widget.trainingStorage.lastPlayedCandidateFillMode;
-      if (lastFill != null) _selectedFillMode = lastFill;
+      // Update selected leaderboard mode to match the last played mode.
+      final lastKey = widget.trainingStorage.lastPlayedKey;
+      if (lastKey != null) {
+        for (final entry in _gameModeLists().entries) {
+          final modes = entry.value;
+          final idx = modes.indexWhere((m) => m.storageKey == lastKey);
+          if (idx >= 0) {
+            _selectedModeIndex[entry.key] = idx;
+            break;
+          }
+        }
+      }
     });
   }
 
-  NumberRushMode _pickDefaultRushMode() {
-    final last = widget.trainingStorage.lastPlayedMode;
-    if (last != null) return last;
+  /// Pick the default mode index for a game based on last played or best score.
+  int _pickDefaultMode(List<_GameMode> modes) {
+    final lastKey = widget.trainingStorage.lastPlayedKey;
+    if (lastKey != null) {
+      final idx = modes.indexWhere((m) => m.storageKey == lastKey);
+      if (idx >= 0) return idx;
+    }
 
-    NumberRushMode? best;
+    int bestIdx = 1; // Default to middle mode (Quick).
     int bestStreak = -1;
-    for (final mode in NumberRushMode.values) {
-      final key = TrainingStorageService.numberRushKey(mode);
-      final top = widget.trainingStorage.getBest(key);
+    for (int i = 0; i < modes.length; i++) {
+      final top = widget.trainingStorage.getBest(modes[i].storageKey);
       if (top != null && top.streak > bestStreak) {
         bestStreak = top.streak;
-        best = mode;
+        bestIdx = i;
       }
     }
-    return best ?? NumberRushMode.quick;
+    return bestIdx;
   }
 
-  WhereDoesNGoMode _pickDefaultNGoMode() {
-    final last = widget.trainingStorage.lastPlayedWhereDoesNGoMode;
-    if (last != null) return last;
+  /// Returns all game mode lists keyed by game key.
+  Map<String, List<_GameMode>> _gameModeLists() => {
+        'numberRush': _numberRushModes(),
+        'whereDoesNGo': _whereDoesNGoModes(),
+        'candidateFill': _candidateFillModes(),
+      };
 
-    WhereDoesNGoMode? best;
-    int bestStreak = -1;
-    for (final mode in WhereDoesNGoMode.values) {
-      final key = TrainingStorageService.whereDoesNGoKey(mode);
-      final top = widget.trainingStorage.getBest(key);
-      if (top != null && top.streak > bestStreak) {
-        bestStreak = top.streak;
-        best = mode;
-      }
-    }
-    return best ?? WhereDoesNGoMode.quick;
-  }
+  // ── Game definitions ──────────────────────────────────────────────
 
-  CandidateFillMode _pickDefaultFillMode() {
-    final last = widget.trainingStorage.lastPlayedCandidateFillMode;
-    if (last != null) return last;
+  List<_GameMode> _numberRushModes() => [
+        for (final mode in NumberRushMode.values)
+          _GameMode(
+            label: mode.label,
+            storageKey: TrainingStorageService.numberRushKey(mode),
+            onStart: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => NumberRushScreen(
+                mode: mode,
+                settings: widget.settings,
+                trainingStorage: widget.trainingStorage,
+              ),
+            )),
+          ),
+      ];
 
-    CandidateFillMode? best;
-    int bestStreak = -1;
-    for (final mode in CandidateFillMode.values) {
-      final key = TrainingStorageService.candidateFillKey(mode);
-      final top = widget.trainingStorage.getBest(key);
-      if (top != null && top.streak > bestStreak) {
-        bestStreak = top.streak;
-        best = mode;
-      }
-    }
-    return best ?? CandidateFillMode.quick;
-  }
+  List<_GameMode> _whereDoesNGoModes() => [
+        for (final mode in WhereDoesNGoMode.values)
+          _GameMode(
+            label: mode.label,
+            storageKey: TrainingStorageService.whereDoesNGoKey(mode),
+            onStart: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => WhereDoesNGoScreen(
+                mode: mode,
+                settings: widget.settings,
+                trainingStorage: widget.trainingStorage,
+              ),
+            )),
+          ),
+      ];
+
+  List<_GameMode> _candidateFillModes() => [
+        for (final mode in CandidateFillMode.values)
+          _GameMode(
+            label: mode.label,
+            storageKey: TrainingStorageService.candidateFillKey(mode),
+            onStart: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => CandidateFillScreen(
+                mode: mode,
+                settings: widget.settings,
+                trainingStorage: widget.trainingStorage,
+              ),
+            )),
+          ),
+      ];
+
+  // ── Build ─────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -114,11 +152,32 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
         builder: (context, _) => ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           children: [
-            _numberRushCard(context),
+            _gameCard(
+              context,
+              gameKey: 'numberRush',
+              icon: Icons.bolt,
+              name: 'Number Rush',
+              description: 'Find the missing number — as fast as you can.',
+              modes: _numberRushModes(),
+            ),
             const SizedBox(height: 12),
-            _whereDoesNGoCard(context),
+            _gameCard(
+              context,
+              gameKey: 'whereDoesNGo',
+              icon: Icons.location_searching,
+              name: 'Where Does N Go?',
+              description: 'Spot the only cell where a digit can go.',
+              modes: _whereDoesNGoModes(),
+            ),
             const SizedBox(height: 12),
-            _candidateFillCard(context),
+            _gameCard(
+              context,
+              gameKey: 'candidateFill',
+              icon: Icons.grid_on,
+              name: 'Candidate Fill',
+              description: 'Mark every candidate in a region — perfectly.',
+              modes: _candidateFillModes(),
+            ),
             const SizedBox(height: 12),
             _lockedGameCard(
               context,
@@ -137,12 +196,22 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     );
   }
 
-  Widget _numberRushCard(BuildContext context) {
+  // ── Generic game card ─────────────────────────────────────────────
+
+  Widget _gameCard(
+    BuildContext context, {
+    required String gameKey,
+    required IconData icon,
+    required String name,
+    required String description,
+    required List<_GameMode> modes,
+  }) {
     final colorScheme = Theme.of(context).colorScheme;
-    final hasAnyScores = NumberRushMode.values.any((mode) {
-      final key = TrainingStorageService.numberRushKey(mode);
-      return widget.trainingStorage.getLeaderboard(key).isNotEmpty;
-    });
+    final hasAnyScores = modes.any(
+      (m) => widget.trainingStorage.getLeaderboard(m.storageKey).isNotEmpty,
+    );
+    final expanded = _leaderboardExpanded[gameKey] ?? false;
+    final selectedIdx = _selectedModeIndex[gameKey] ?? _pickDefaultMode(modes);
 
     return Card(
       child: Padding(
@@ -150,12 +219,13 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header.
             Row(
               children: [
-                Icon(Icons.bolt, color: colorScheme.primary, size: 22),
+                Icon(icon, color: colorScheme.primary, size: 22),
                 const SizedBox(width: 8),
                 Text(
-                  'Number Rush',
+                  name,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -166,21 +236,21 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Find the missing number — as fast as you can.',
+              description,
               style: TextStyle(
                 fontSize: 14,
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 16),
+            // Mode buttons.
             Row(
               children: [
-                for (final mode in NumberRushMode.values) ...[
+                for (int i = 0; i < modes.length; i++) ...[
                   Expanded(
-                    child: _modeButton(context, mode),
+                    child: _modeButton(context, modes[i]),
                   ),
-                  if (mode != NumberRushMode.values.last)
-                    const SizedBox(width: 8),
+                  if (i < modes.length - 1) const SizedBox(width: 8),
                 ],
               ],
             ),
@@ -189,14 +259,19 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
               const SizedBox(height: 8),
               _leaderboardToggle(
                 context,
-                expanded: _rushLeaderboardExpanded,
-                onToggle: () => setState(
-                    () => _rushLeaderboardExpanded = !_rushLeaderboardExpanded),
+                expanded: expanded,
+                onToggle: () => setState(() =>
+                    _leaderboardExpanded[gameKey] = !expanded),
               ),
               AnimatedCrossFade(
                 firstChild: const SizedBox.shrink(),
-                secondChild: _rushLeaderboardContent(context),
-                crossFadeState: _rushLeaderboardExpanded
+                secondChild: _leaderboardContent(
+                  context,
+                  gameKey: gameKey,
+                  modes: modes,
+                  selectedIdx: selectedIdx,
+                ),
+                crossFadeState: expanded
                     ? CrossFadeState.showSecond
                     : CrossFadeState.showFirst,
                 duration: widget.settings.animationsEnabled
@@ -210,6 +285,37 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
       ),
     );
   }
+
+  Widget _modeButton(BuildContext context, _GameMode mode) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final best = widget.trainingStorage.getBest(mode.storageKey);
+
+    return FilledButton.tonal(
+      onPressed: mode.onStart,
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            mode.label,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          if (best != null)
+            Text(
+              '${best.streak}',
+              style: TextStyle(
+                fontSize: 11,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ── Leaderboard ───────────────────────────────────────────────────
 
   Widget _leaderboardToggle(
     BuildContext context, {
@@ -251,463 +357,63 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     );
   }
 
-  Widget _rushLeaderboardContent(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final key = TrainingStorageService.numberRushKey(_selectedRushMode);
-    final scores = widget.trainingStorage.getLeaderboard(key);
-
-    return Column(
-      children: [
-        const SizedBox(height: 4),
-        SegmentedButton<NumberRushMode>(
-          segments: [
-            for (final mode in NumberRushMode.values)
-              ButtonSegment(
-                value: mode,
-                label: Text(
-                  mode.label,
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ),
-          ],
-          selected: {_selectedRushMode},
-          onSelectionChanged: (selected) {
-            setState(() => _selectedRushMode = selected.first);
-          },
-          showSelectedIcon: false,
-          style: SegmentedButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (scores.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Text(
-              'No scores yet for ${_selectedRushMode.label}.',
-              style: TextStyle(
-                fontSize: 13,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          )
-        else
-          for (var i = 0; i < scores.length; i++) ...[
-            if (i > 0)
-              Divider(
-                height: 1,
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-              ),
-            _leaderboardRow(context, i + 1, scores[i]),
-          ],
-      ],
-    );
-  }
-
-  Widget _whereDoesNGoCard(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final hasAnyScores = WhereDoesNGoMode.values.any((mode) {
-      final key = TrainingStorageService.whereDoesNGoKey(mode);
-      return widget.trainingStorage.getLeaderboard(key).isNotEmpty;
-    });
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.location_searching,
-                    color: colorScheme.primary, size: 22),
-                const SizedBox(width: 8),
-                Text(
-                  'Where Does N Go?',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Spot the only cell where a digit can go.',
-              style: TextStyle(
-                fontSize: 14,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                for (final mode in WhereDoesNGoMode.values) ...[
-                  Expanded(
-                    child: _nGoModeButton(context, mode),
-                  ),
-                  if (mode != WhereDoesNGoMode.values.last)
-                    const SizedBox(width: 8),
-                ],
-              ],
-            ),
-            if (hasAnyScores) ...[
-              const SizedBox(height: 8),
-              _leaderboardToggle(
-                context,
-                expanded: _nGoLeaderboardExpanded,
-                onToggle: () => setState(
-                    () => _nGoLeaderboardExpanded = !_nGoLeaderboardExpanded),
-              ),
-              AnimatedCrossFade(
-                firstChild: const SizedBox.shrink(),
-                secondChild: _nGoLeaderboardContent(context),
-                crossFadeState: _nGoLeaderboardExpanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                duration: widget.settings.animationsEnabled
-                    ? const Duration(milliseconds: 250)
-                    : Duration.zero,
-                sizeCurve: Curves.easeOutCubic,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _nGoLeaderboardContent(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final key = TrainingStorageService.whereDoesNGoKey(_selectedNGoMode);
-    final scores = widget.trainingStorage.getLeaderboard(key);
-
-    return Column(
-      children: [
-        const SizedBox(height: 4),
-        SegmentedButton<WhereDoesNGoMode>(
-          segments: [
-            for (final mode in WhereDoesNGoMode.values)
-              ButtonSegment(
-                value: mode,
-                label: Text(
-                  mode.label,
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ),
-          ],
-          selected: {_selectedNGoMode},
-          onSelectionChanged: (selected) {
-            setState(() => _selectedNGoMode = selected.first);
-          },
-          showSelectedIcon: false,
-          style: SegmentedButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (scores.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Text(
-              'No scores yet for ${_selectedNGoMode.label}.',
-              style: TextStyle(
-                fontSize: 13,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          )
-        else
-          for (var i = 0; i < scores.length; i++) ...[
-            if (i > 0)
-              Divider(
-                height: 1,
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-              ),
-            _leaderboardRow(context, i + 1, scores[i]),
-          ],
-      ],
-    );
-  }
-
-  Widget _nGoModeButton(BuildContext context, WhereDoesNGoMode mode) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final key = TrainingStorageService.whereDoesNGoKey(mode);
-    final best = widget.trainingStorage.getBest(key);
-
-    return FilledButton.tonal(
-      onPressed: () => _startWhereDoesNGo(context, mode),
-      style: FilledButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            mode.label,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          if (best != null)
-            Text(
-              '${best.streak}',
-              style: TextStyle(
-                fontSize: 11,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _modeButton(BuildContext context, NumberRushMode mode) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final key = TrainingStorageService.numberRushKey(mode);
-    final best = widget.trainingStorage.getBest(key);
-
-    return FilledButton.tonal(
-      onPressed: () => _startNumberRush(context, mode),
-      style: FilledButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            mode.label,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          if (best != null)
-            Text(
-              '${best.streak}',
-              style: TextStyle(
-                fontSize: 11,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _candidateFillCard(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final hasAnyScores = CandidateFillMode.values.any((mode) {
-      final key = TrainingStorageService.candidateFillKey(mode);
-      return widget.trainingStorage.getLeaderboard(key).isNotEmpty;
-    });
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.grid_on, color: colorScheme.primary, size: 22),
-                const SizedBox(width: 8),
-                Text(
-                  'Candidate Fill',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Mark every candidate in a region — perfectly.',
-              style: TextStyle(
-                fontSize: 14,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                for (final mode in CandidateFillMode.values) ...[
-                  Expanded(
-                    child: _fillModeButton(context, mode),
-                  ),
-                  if (mode != CandidateFillMode.values.last)
-                    const SizedBox(width: 8),
-                ],
-              ],
-            ),
-            if (hasAnyScores) ...[
-              const SizedBox(height: 8),
-              _leaderboardToggle(
-                context,
-                expanded: _fillLeaderboardExpanded,
-                onToggle: () => setState(
-                    () => _fillLeaderboardExpanded = !_fillLeaderboardExpanded),
-              ),
-              AnimatedCrossFade(
-                firstChild: const SizedBox.shrink(),
-                secondChild: _fillLeaderboardContent(context),
-                crossFadeState: _fillLeaderboardExpanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                duration: widget.settings.animationsEnabled
-                    ? const Duration(milliseconds: 250)
-                    : Duration.zero,
-                sizeCurve: Curves.easeOutCubic,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _fillModeButton(BuildContext context, CandidateFillMode mode) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final key = TrainingStorageService.candidateFillKey(mode);
-    final best = widget.trainingStorage.getBest(key);
-
-    return FilledButton.tonal(
-      onPressed: () => _startCandidateFill(context, mode),
-      style: FilledButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            mode.label,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          if (best != null)
-            Text(
-              '${best.streak}',
-              style: TextStyle(
-                fontSize: 11,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _fillLeaderboardContent(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final key = TrainingStorageService.candidateFillKey(_selectedFillMode);
-    final scores = widget.trainingStorage.getLeaderboard(key);
-
-    return Column(
-      children: [
-        const SizedBox(height: 4),
-        SegmentedButton<CandidateFillMode>(
-          segments: [
-            for (final mode in CandidateFillMode.values)
-              ButtonSegment(
-                value: mode,
-                label: Text(
-                  mode.label,
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ),
-          ],
-          selected: {_selectedFillMode},
-          onSelectionChanged: (selected) {
-            setState(() => _selectedFillMode = selected.first);
-          },
-          showSelectedIcon: false,
-          style: SegmentedButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (scores.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Text(
-              'No scores yet for ${_selectedFillMode.label}.',
-              style: TextStyle(
-                fontSize: 13,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          )
-        else
-          for (var i = 0; i < scores.length; i++) ...[
-            if (i > 0)
-              Divider(
-                height: 1,
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-              ),
-            _leaderboardRow(context, i + 1, scores[i]),
-          ],
-      ],
-    );
-  }
-
-  Widget _lockedGameCard(
+  Widget _leaderboardContent(
     BuildContext context, {
-    required String name,
-    required String description,
+    required String gameKey,
+    required List<_GameMode> modes,
+    required int selectedIdx,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
+    final scores = widget.trainingStorage
+        .getLeaderboard(modes[selectedIdx].storageKey);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(Icons.lock_outline,
-                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color:
-                          colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'Soon',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: colorScheme.onSurfaceVariant,
+    return Column(
+      children: [
+        const SizedBox(height: 4),
+        SegmentedButton<int>(
+          expandedInsets: EdgeInsets.zero,
+          segments: [
+            for (int i = 0; i < modes.length; i++)
+              ButtonSegment(
+                value: i,
+                label: Text(
+                  modes[i].label,
+                  style: const TextStyle(fontSize: 12),
                 ),
               ),
-            ),
           ],
+          selected: {selectedIdx},
+          onSelectionChanged: (selected) {
+            setState(() => _selectedModeIndex[gameKey] = selected.first);
+          },
+          showSelectedIcon: false,
+          style: SegmentedButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+          ),
         ),
-      ),
+        const SizedBox(height: 8),
+        if (scores.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              'No scores yet for ${modes[selectedIdx].label}.',
+              style: TextStyle(
+                fontSize: 13,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          )
+        else
+          for (var i = 0; i < scores.length; i++) ...[
+            if (i > 0)
+              Divider(
+                height: 1,
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ),
+            _leaderboardRow(context, i + 1, scores[i]),
+          ],
+      ],
     );
   }
 
@@ -770,6 +476,71 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     );
   }
 
+  // ── Locked card ───────────────────────────────────────────────────
+
+  Widget _lockedGameCard(
+    BuildContext context, {
+    required String name,
+    required String description,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(Icons.lock_outline,
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color:
+                          colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                'Soon',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────
+
   String _formatTime(int ms) {
     final seconds = ms / 1000;
     if (seconds < 60) return '${seconds.toStringAsFixed(1)}s';
@@ -793,41 +564,5 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', //
     ];
     return '${months[date.month - 1]} ${date.day}';
-  }
-
-  void _startNumberRush(BuildContext context, NumberRushMode mode) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => NumberRushScreen(
-          mode: mode,
-          settings: widget.settings,
-          trainingStorage: widget.trainingStorage,
-        ),
-      ),
-    );
-  }
-
-  void _startWhereDoesNGo(BuildContext context, WhereDoesNGoMode mode) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => WhereDoesNGoScreen(
-          mode: mode,
-          settings: widget.settings,
-          trainingStorage: widget.trainingStorage,
-        ),
-      ),
-    );
-  }
-
-  void _startCandidateFill(BuildContext context, CandidateFillMode mode) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => CandidateFillScreen(
-          mode: mode,
-          settings: widget.settings,
-          trainingStorage: widget.trainingStorage,
-        ),
-      ),
-    );
   }
 }

@@ -121,36 +121,6 @@ class TrainingStorageService extends ChangeNotifier {
   /// The full game+mode key of the most recently played training game.
   String? get lastPlayedKey => _lastPlayedKey;
 
-  /// The most recently played Number Rush mode, or `null` if none.
-  NumberRushMode? get lastPlayedMode {
-    final key = _lastPlayedKey;
-    if (key == null || !key.startsWith('numberRush_')) return null;
-    final modeName = key.substring('numberRush_'.length);
-    return NumberRushMode.values
-        .cast<NumberRushMode?>()
-        .firstWhere((m) => m?.name == modeName, orElse: () => null);
-  }
-
-  /// The most recently played Where Does N Go mode, or `null` if none.
-  WhereDoesNGoMode? get lastPlayedWhereDoesNGoMode {
-    final key = _lastPlayedKey;
-    if (key == null || !key.startsWith('whereDoesNGo_')) return null;
-    final modeName = key.substring('whereDoesNGo_'.length);
-    return WhereDoesNGoMode.values
-        .cast<WhereDoesNGoMode?>()
-        .firstWhere((m) => m?.name == modeName, orElse: () => null);
-  }
-
-  /// The most recently played Candidate Fill mode, or `null` if none.
-  CandidateFillMode? get lastPlayedCandidateFillMode {
-    final key = _lastPlayedKey;
-    if (key == null || !key.startsWith('candidateFill_')) return null;
-    final modeName = key.substring('candidateFill_'.length);
-    return CandidateFillMode.values
-        .cast<CandidateFillMode?>()
-        .firstWhere((m) => m?.name == modeName, orElse: () => null);
-  }
-
   static const _maxEntries = 10;
 
   Future<void> init() async {
@@ -173,11 +143,6 @@ class TrainingStorageService extends ChangeNotifier {
   /// Call [save] afterwards or rely on [addScore] to persist it.
   void setLastPlayedKey(String key) {
     _lastPlayedKey = key;
-  }
-
-  /// Convenience: set last played to a Number Rush mode.
-  void setLastPlayedMode(NumberRushMode mode) {
-    _lastPlayedKey = numberRushKey(mode);
   }
 
   /// Persist current state to disk and notify listeners.

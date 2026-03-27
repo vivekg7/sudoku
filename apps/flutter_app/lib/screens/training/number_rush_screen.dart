@@ -147,7 +147,7 @@ class _NumberRushScreenState extends State<NumberRushScreen>
     );
 
     final key = TrainingStorageService.numberRushKey(widget.mode);
-    widget.trainingStorage.setLastPlayedMode(widget.mode);
+    widget.trainingStorage.setLastPlayedKey(key);
 
     // Persist sequentially — one save, never concurrent writes.
     final int? rank;
