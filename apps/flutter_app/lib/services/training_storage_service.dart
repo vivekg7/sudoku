@@ -85,6 +85,30 @@ enum WhereDoesNGoMode {
   }
 }
 
+/// Difficulty modes for Candidate Fill.
+enum CandidateFillMode {
+  chill('Chill', 45000, 30000, 1000, [HouseType.box], 3, 4),
+  quick('Quick', 35000, 20000, 800, HouseType.values, 4, 5),
+  sprint('Sprint', 25000, 15000, 500, HouseType.values, 5, 6);
+
+  final String label;
+  final int startingTimeMs;
+  final int minTimeMs;
+  final int decayPerRoundMs;
+  final List<HouseType> houseTypes;
+  final int minEmptyCells;
+  final int maxEmptyCells;
+
+  const CandidateFillMode(this.label, this.startingTimeMs, this.minTimeMs,
+      this.decayPerRoundMs, this.houseTypes, this.minEmptyCells, this.maxEmptyCells);
+
+  /// Time allowed for a given round (in ms).
+  int timeForRound(int round) {
+    final decayed = startingTimeMs - (round * decayPerRoundMs);
+    return decayed < minTimeMs ? minTimeMs : decayed;
+  }
+}
+
 /// Type of house shown in Number Rush.
 enum HouseType { box, row, column }
 
@@ -114,6 +138,16 @@ class TrainingStorageService extends ChangeNotifier {
     final modeName = key.substring('whereDoesNGo_'.length);
     return WhereDoesNGoMode.values
         .cast<WhereDoesNGoMode?>()
+        .firstWhere((m) => m?.name == modeName, orElse: () => null);
+  }
+
+  /// The most recently played Candidate Fill mode, or `null` if none.
+  CandidateFillMode? get lastPlayedCandidateFillMode {
+    final key = _lastPlayedKey;
+    if (key == null || !key.startsWith('candidateFill_')) return null;
+    final modeName = key.substring('candidateFill_'.length);
+    return CandidateFillMode.values
+        .cast<CandidateFillMode?>()
         .firstWhere((m) => m?.name == modeName, orElse: () => null);
   }
 
@@ -174,6 +208,10 @@ class TrainingStorageService extends ChangeNotifier {
   /// Storage key for Where Does N Go leaderboard.
   static String whereDoesNGoKey(WhereDoesNGoMode mode) =>
       'whereDoesNGo_${mode.name}';
+
+  /// Storage key for Candidate Fill leaderboard.
+  static String candidateFillKey(CandidateFillMode mode) =>
+      'candidateFill_${mode.name}';
 
   Future<void> _load() async {
     final file = File(_filePath);

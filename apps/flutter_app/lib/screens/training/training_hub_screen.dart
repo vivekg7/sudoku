@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/settings_service.dart';
 import '../../services/training_storage_service.dart';
+import 'candidate_fill_screen.dart';
 import 'number_rush_screen.dart';
 import 'where_does_n_go_screen.dart';
 
@@ -22,14 +23,17 @@ class TrainingHubScreen extends StatefulWidget {
 class _TrainingHubScreenState extends State<TrainingHubScreen> {
   bool _rushLeaderboardExpanded = false;
   bool _nGoLeaderboardExpanded = false;
+  bool _fillLeaderboardExpanded = false;
   late NumberRushMode _selectedRushMode;
   late WhereDoesNGoMode _selectedNGoMode;
+  late CandidateFillMode _selectedFillMode;
 
   @override
   void initState() {
     super.initState();
     _selectedRushMode = _pickDefaultRushMode();
     _selectedNGoMode = _pickDefaultNGoMode();
+    _selectedFillMode = _pickDefaultFillMode();
     widget.trainingStorage.addListener(_onStorageChanged);
   }
 
@@ -45,6 +49,8 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
       if (lastRush != null) _selectedRushMode = lastRush;
       final lastNGo = widget.trainingStorage.lastPlayedWhereDoesNGoMode;
       if (lastNGo != null) _selectedNGoMode = lastNGo;
+      final lastFill = widget.trainingStorage.lastPlayedCandidateFillMode;
+      if (lastFill != null) _selectedFillMode = lastFill;
     });
   }
 
@@ -82,6 +88,23 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     return best ?? WhereDoesNGoMode.quick;
   }
 
+  CandidateFillMode _pickDefaultFillMode() {
+    final last = widget.trainingStorage.lastPlayedCandidateFillMode;
+    if (last != null) return last;
+
+    CandidateFillMode? best;
+    int bestStreak = -1;
+    for (final mode in CandidateFillMode.values) {
+      final key = TrainingStorageService.candidateFillKey(mode);
+      final top = widget.trainingStorage.getBest(key);
+      if (top != null && top.streak > bestStreak) {
+        bestStreak = top.streak;
+        best = mode;
+      }
+    }
+    return best ?? CandidateFillMode.quick;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,6 +117,8 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
             _numberRushCard(context),
             const SizedBox(height: 12),
             _whereDoesNGoCard(context),
+            const SizedBox(height: 12),
+            _candidateFillCard(context),
             const SizedBox(height: 12),
             _lockedGameCard(
               context,
@@ -468,6 +493,163 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     );
   }
 
+  Widget _candidateFillCard(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hasAnyScores = CandidateFillMode.values.any((mode) {
+      final key = TrainingStorageService.candidateFillKey(mode);
+      return widget.trainingStorage.getLeaderboard(key).isNotEmpty;
+    });
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.grid_on, color: colorScheme.primary, size: 22),
+                const SizedBox(width: 8),
+                Text(
+                  'Candidate Fill',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Mark every candidate in a region — perfectly.',
+              style: TextStyle(
+                fontSize: 14,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                for (final mode in CandidateFillMode.values) ...[
+                  Expanded(
+                    child: _fillModeButton(context, mode),
+                  ),
+                  if (mode != CandidateFillMode.values.last)
+                    const SizedBox(width: 8),
+                ],
+              ],
+            ),
+            if (hasAnyScores) ...[
+              const SizedBox(height: 8),
+              _leaderboardToggle(
+                context,
+                expanded: _fillLeaderboardExpanded,
+                onToggle: () => setState(
+                    () => _fillLeaderboardExpanded = !_fillLeaderboardExpanded),
+              ),
+              AnimatedCrossFade(
+                firstChild: const SizedBox.shrink(),
+                secondChild: _fillLeaderboardContent(context),
+                crossFadeState: _fillLeaderboardExpanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                duration: widget.settings.animationsEnabled
+                    ? const Duration(milliseconds: 250)
+                    : Duration.zero,
+                sizeCurve: Curves.easeOutCubic,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _fillModeButton(BuildContext context, CandidateFillMode mode) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final key = TrainingStorageService.candidateFillKey(mode);
+    final best = widget.trainingStorage.getBest(key);
+
+    return FilledButton.tonal(
+      onPressed: () => _startCandidateFill(context, mode),
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            mode.label,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          if (best != null)
+            Text(
+              '${best.streak}',
+              style: TextStyle(
+                fontSize: 11,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _fillLeaderboardContent(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final key = TrainingStorageService.candidateFillKey(_selectedFillMode);
+    final scores = widget.trainingStorage.getLeaderboard(key);
+
+    return Column(
+      children: [
+        const SizedBox(height: 4),
+        SegmentedButton<CandidateFillMode>(
+          segments: [
+            for (final mode in CandidateFillMode.values)
+              ButtonSegment(
+                value: mode,
+                label: Text(
+                  mode.label,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+          ],
+          selected: {_selectedFillMode},
+          onSelectionChanged: (selected) {
+            setState(() => _selectedFillMode = selected.first);
+          },
+          showSelectedIcon: false,
+          style: SegmentedButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (scores.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              'No scores yet for ${_selectedFillMode.label}.',
+              style: TextStyle(
+                fontSize: 13,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          )
+        else
+          for (var i = 0; i < scores.length; i++) ...[
+            if (i > 0)
+              Divider(
+                height: 1,
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ),
+            _leaderboardRow(context, i + 1, scores[i]),
+          ],
+      ],
+    );
+  }
+
   Widget _lockedGameCard(
     BuildContext context, {
     required String name,
@@ -629,6 +811,18 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => WhereDoesNGoScreen(
+          mode: mode,
+          settings: widget.settings,
+          trainingStorage: widget.trainingStorage,
+        ),
+      ),
+    );
+  }
+
+  void _startCandidateFill(BuildContext context, CandidateFillMode mode) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CandidateFillScreen(
           mode: mode,
           settings: widget.settings,
           trainingStorage: widget.trainingStorage,
