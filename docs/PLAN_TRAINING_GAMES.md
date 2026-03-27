@@ -670,6 +670,14 @@ Given a board state where a specific chain-based strategy applies (X-Chain, XY-C
 
 A full 9×9 board is shown with several deliberate rule violations (duplicate digits in rows, columns, or boxes). The player must tap every cell that breaks a rule within a time limit. Trains the verification and proofreading skill — the ability to quickly scan a completed or near-completed board and catch errors. Useful for players who often finish puzzles only to realize they made a mistake 20 moves ago. Modes could vary by number of violations (3, 5, 8) and time pressure.
 
+### Minesweeper Mini-Puzzles
+
+Small grid (5×5 or 6×6) with number clues indicating how many mines surround each revealed cell. The player must flag all mines and reveal all safe cells using pure elimination logic — the same constraint-based reasoning that drives Sudoku. Unlike full Minesweeper, puzzles are pre-generated to be solvable without guessing (no 50/50 coin flips). Modes could vary by grid size and mine density. Trains the skill of reading numeric constraints and deducing what must be true — directly applicable to candidate elimination in Sudoku.
+
+### Nonograms (Picross)
+
+Small grid (5×5 to 10×10) with number clues per row and column indicating the lengths of consecutive filled runs. The player fills or marks cells using elimination — if a run of 4 must fit in 5 cells, the middle 3 are guaranteed filled. Puzzles are always logically solvable. Trains the same "what _must_ be true given these constraints?" thinking that underpins every Sudoku strategy. Modes could vary by grid size (5×5, 8×8, 10×10) and time pressure.
+
 ---
 
 ## Architecture Notes
