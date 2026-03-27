@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/settings_service.dart';
 import '../../services/training_storage_service.dart';
+import 'bulls_and_cows_screen.dart';
 import 'candidate_fill_screen.dart';
 import 'number_rush_screen.dart';
 import 'where_does_n_go_screen.dart';
@@ -92,6 +93,7 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
         'numberRush': _numberRushModes(),
         'whereDoesNGo': _whereDoesNGoModes(),
         'candidateFill': _candidateFillModes(),
+        'bullsAndCows': _bullsAndCowsModes(),
       };
 
   // ── Game definitions ──────────────────────────────────────────────
@@ -141,6 +143,21 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
           ),
       ];
 
+  List<_GameMode> _bullsAndCowsModes() => [
+        for (final mode in BullsAndCowsMode.values)
+          _GameMode(
+            label: mode.label,
+            storageKey: TrainingStorageService.bullsAndCowsKey(mode),
+            onStart: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => BullsAndCowsScreen(
+                mode: mode,
+                settings: widget.settings,
+                trainingStorage: widget.trainingStorage,
+              ),
+            )),
+          ),
+      ];
+
   // ── Build ─────────────────────────────────────────────────────────
 
   @override
@@ -179,6 +196,16 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
               modes: _candidateFillModes(),
             ),
             const SizedBox(height: 12),
+            _gameCard(
+              context,
+              gameKey: 'bullsAndCows',
+              icon: Icons.vpn_key_outlined,
+              name: 'Bulls & Cows',
+              description: 'Crack a secret code with logic and elimination.',
+              modes: _bullsAndCowsModes(),
+              scoreLabel: 'guesses',
+            ),
+            const SizedBox(height: 12),
             _lockedGameCard(
               context,
               name: 'Strategy Snap',
@@ -205,6 +232,7 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     required String name,
     required String description,
     required List<_GameMode> modes,
+    String scoreLabel = 'streak',
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final hasAnyScores = modes.any(
@@ -270,6 +298,7 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
                   gameKey: gameKey,
                   modes: modes,
                   selectedIdx: selectedIdx,
+                  scoreLabel: scoreLabel,
                 ),
                 crossFadeState: expanded
                     ? CrossFadeState.showSecond
@@ -362,6 +391,7 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
     required String gameKey,
     required List<_GameMode> modes,
     required int selectedIdx,
+    String scoreLabel = 'streak',
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final scores = widget.trainingStorage
@@ -411,14 +441,16 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
                 height: 1,
                 color: colorScheme.outlineVariant.withValues(alpha: 0.5),
               ),
-            _leaderboardRow(context, i + 1, scores[i]),
+            _leaderboardRow(context, i + 1, scores[i],
+                scoreLabel: scoreLabel),
           ],
       ],
     );
   }
 
   Widget _leaderboardRow(
-      BuildContext context, int rank, TrainingScore score) {
+      BuildContext context, int rank, TrainingScore score,
+      {String scoreLabel = 'streak'}) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
@@ -449,7 +481,7 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
           ),
           const SizedBox(width: 4),
           Text(
-            'streak',
+            scoreLabel,
             style: TextStyle(
               fontSize: 12,
               color: colorScheme.onSurfaceVariant,

@@ -37,6 +37,13 @@ class TrainingScore {
     if (streakCmp != 0) return streakCmp;
     return a.totalTimeMs.compareTo(b.totalTimeMs);
   }
+
+  /// Compare for ranking: lower streak (fewer guesses) wins, then shorter time.
+  static int compareLowerBetter(TrainingScore a, TrainingScore b) {
+    final streakCmp = a.streak.compareTo(b.streak);
+    if (streakCmp != 0) return streakCmp;
+    return a.totalTimeMs.compareTo(b.totalTimeMs);
+  }
 }
 
 /// Difficulty modes for Number Rush.
@@ -109,6 +116,29 @@ enum CandidateFillMode {
   }
 }
 
+/// Difficulty modes for Bulls & Cows.
+enum BullsAndCowsMode {
+  chill('Chill', 0, false, 10),
+  quick('Quick', 30000, false, 10),
+  sprint('Sprint', 20000, true, 12);
+
+  final String label;
+
+  /// Time per guess in ms (0 = no timer).
+  final int timerMs;
+
+  /// Whether repeated digits are allowed in the secret.
+  final bool allowRepeats;
+
+  /// Maximum number of guesses before game over.
+  final int maxGuesses;
+
+  const BullsAndCowsMode(this.label, this.timerMs, this.allowRepeats,
+      this.maxGuesses);
+
+  bool get hasTimer => timerMs > 0;
+}
+
 /// Type of house shown in Number Rush.
 enum HouseType { box, row, column }
 
@@ -152,11 +182,16 @@ class TrainingStorageService extends ChangeNotifier {
   }
 
   /// Add a score. Returns the 1-based rank if it made the board, or null.
-  /// Always persists (including any pending [setLastPlayedMode] change).
-  Future<int?> addScore(String key, TrainingScore score) async {
+  /// Uses [compareFn] for sorting (defaults to higher-streak-wins).
+  Future<int?> addScore(
+    String key,
+    TrainingScore score, {
+    int Function(TrainingScore, TrainingScore)? compareFn,
+  }) async {
+    final cmp = compareFn ?? TrainingScore.compare;
     final board = _leaderboards.putIfAbsent(key, () => []);
     board.add(score);
-    board.sort(TrainingScore.compare);
+    board.sort(cmp);
     if (board.length > _maxEntries) {
       board.removeRange(_maxEntries, board.length);
     }
@@ -177,6 +212,19 @@ class TrainingStorageService extends ChangeNotifier {
   /// Storage key for Candidate Fill leaderboard.
   static String candidateFillKey(CandidateFillMode mode) =>
       'candidateFill_${mode.name}';
+
+  /// Storage key for Bulls & Cows leaderboard.
+  static String bullsAndCowsKey(BullsAndCowsMode mode) =>
+      'bullsAndCows_${mode.name}';
+
+  /// Returns the correct comparator for a given storage key.
+  static int Function(TrainingScore, TrainingScore) _comparatorForKey(
+      String key) {
+    if (key.startsWith('bullsAndCows_')) {
+      return TrainingScore.compareLowerBetter;
+    }
+    return TrainingScore.compare;
+  }
 
   Future<void> _load() async {
     final file = File(_filePath);
@@ -203,7 +251,7 @@ class TrainingStorageService extends ChangeNotifier {
         final list = (entry.value as List)
             .map((e) => TrainingScore.fromJson(e as Map<String, dynamic>))
             .toList()
-          ..sort(TrainingScore.compare);
+          ..sort(_comparatorForKey(entry.key));
         _leaderboards[entry.key] = list;
       }
     } catch (_) {
