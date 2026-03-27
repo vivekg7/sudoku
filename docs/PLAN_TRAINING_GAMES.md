@@ -493,6 +493,155 @@ Same minimal chrome approach as the other training games:
 
 ---
 
+## Game 4: Bulls & Cows
+
+**One-line pitch:** Crack a secret 4-digit code using logic and elimination — in as few guesses as possible.
+
+### Concept
+
+The app generates a secret 4-digit number. The player guesses a 4-digit number, and the app responds with how many **bulls** (correct digit in correct position) and **cows** (correct digit in wrong position). The player uses these hints to narrow down possibilities and guess again. The game ends when the player gets 4 bulls (all correct).
+
+This trains the core Sudoku skill of **elimination thinking** — using partial information to systematically rule out possibilities. Every bull/cow response is a constraint, just like every filled cell on a Sudoku board constrains what can go elsewhere.
+
+### Game Flow
+
+1. App generates a secret 4-digit number (digits 0–9).
+2. Player enters a 4-digit guess.
+3. App shows the result: X bulls, Y cows.
+4. Player guesses again, informed by all previous results.
+5. When the player gets 4 bulls — puzzle solved. Show results.
+6. If max guesses reached without solving — game over, secret revealed.
+
+```
+┌─────────────────────────────────────┐
+│  ←  Bulls & Cows                    │
+│                                     │
+│  Guess the 4-digit number           │
+│                                     │
+│  ┌──────────────────────────────┐   │
+│  │  #1   1 2 3 4    1B 1C      │   │
+│  │  #2   5 6 7 8    0B 2C      │   │
+│  │  #3   1 6 3 9    2B 1C      │   │
+│  │  #4   _  _  _  _            │   │
+│  └──────────────────────────────┘   │
+│                                     │
+│  ████████████░░░░░ 18.2s            │
+│                                     │
+│  ┌───┬───┬───┬───┬───┐             │
+│  │ 1 │ 2 │ 3 │ 4 │ 5 │             │
+│  ├───┼───┼───┼───┼───┤             │
+│  │ 6 │ 7 │ 8 │ 9 │ 0 │             │
+│  └───┴───┴───┴───┴───┘             │
+│       ┌────┐  ┌────┐                │
+│       │ ⌫  │  │ ✓  │                │
+│       └────┘  └────┘                │
+│                                     │
+│  ── guess 4 of 10 ──               │
+└─────────────────────────────────────┘
+```
+
+### Input
+
+- **0–9 number pad** — two rows (1–5, 6–9 + 0). Includes 0 unlike the Sudoku numpad.
+- **Backspace button** — deletes the last entered digit.
+- **Submit button** (checkmark) — submits the guess when all 4 digits are entered. Disabled until 4 digits are filled.
+- Player taps digits to fill left-to-right into 4 slots. Each slot shows the digit or an underscore placeholder.
+- **No cell selection** — always fills the next empty slot. Simple, linear input.
+- In Chill/Quick modes (no repeats): if a digit is already in the current guess, the button is disabled — prevents invalid guesses. In Sprint (repeats allowed): all buttons always active.
+
+### Difficulty Modes
+
+| Mode   | Repeats allowed | Timer per guess | Max guesses |
+| ------ | --------------- | --------------- | ----------- |
+| Chill  | No              | None            | 10          |
+| Quick  | No              | 30s             | 10          |
+| Sprint | Yes             | 20s             | 12          |
+
+- **Chill** — No repeating digits, no timer. Pure logic, no pressure. Max 10 guesses gives a generous ceiling — most games with no-repeat codes are solvable in 6–7 guesses.
+- **Quick** — Same no-repeat constraint, but 30 seconds per guess adds time pressure. Forces faster deduction.
+- **Sprint** — Repeats allowed makes the possibility space much larger (10,000 vs 5,040 combinations). 20s per guess and 12 max guesses. This is where mastery shows.
+
+**Timer behavior:** The timer resets on each guess submission (not cumulative). If it runs out, the current guess is forfeited — counts as a wasted guess with no hint (an empty row marked "—"). Timer bar uses the same accent → yellow → red transition. No timer in Chill mode — the bar is hidden.
+
+**Max guesses:** If the player reaches the limit without solving, game over — the secret number is revealed.
+
+### Generation
+
+- **No repeats (Chill, Quick):** Pick 4 distinct digits from 0–9 in random order. 5,040 possible codes.
+- **Repeats allowed (Sprint):** Pick 4 digits independently from 0–9. 10,000 possible codes.
+- No solver needed — pure random generation, instant.
+- No dependencies on `sudoku_core`.
+
+### Bull/Cow Calculation
+
+For a guess `G` and secret `S`, both length 4:
+1. **Bulls:** Count positions where `G[i] == S[i]`.
+2. **Cows:** For each digit 0–9, count `min(occurrences in G, occurrences in S)` — then subtract bulls. This handles repeated digits correctly in Sprint mode.
+
+### Scoring & Leaderboard
+
+**Per-puzzle scoring** — different from the streak-based model of the other training games.
+
+- **Score** = number of guesses taken to solve (lower is better).
+- **Top 10 leaderboard per mode**, stored in `TrainingStorageService`.
+- **Ranking:** fewer guesses wins. Tiebreaker = shorter total time (from first guess shown to solve).
+- Each entry: `guesses` (int), `totalTimeMs` (int), `playedAt` (DateTime).
+- If the player didn't solve (ran out of guesses), no score is recorded — only solved puzzles make the leaderboard.
+
+**Storage note:** The existing `TrainingScore` uses `streak` (higher is better). Bulls & Cows needs `guesses` (lower is better). Options:
+- Add a `BullsAndCowsScore` class with reversed comparison (cleanest).
+- Or reuse `TrainingScore` with a `lowerIsBetter` flag on the storage key.
+
+The leaderboard display shows "X guesses" instead of "X streak" for this game.
+
+### Results Screen (Solved)
+
+- **Header:** "Cracked it!" with a celebration icon.
+- **Guess count** displayed large — "3 guesses" (primary metric).
+- **Total time** and **average time per guess**.
+- **Leaderboard position** (if made top 10, with celebration for new record).
+- **Full guess history** shown as a compact scrollable list for review.
+- **Play Again** (same mode) and **Back to Training** buttons.
+
+### Results Screen (Failed)
+
+- **Header:** "Not this time" with the secret number revealed large.
+- **Full guess history** shown so the player can review their logic.
+- **No leaderboard entry** — only solved puzzles qualify.
+- **Play Again** and **Back to Training** buttons.
+
+### Guess History Display
+
+- Scrollable list showing all previous guesses with their bull/cow results.
+- Each row: guess number, the 4 digits (spaced), and the result (e.g., "1B 2C").
+- Bulls count shown in **green**, cows count shown in **amber** — gives visual feedback at a glance.
+- The current guess row sits at the bottom with underscore placeholders.
+- Timed-out guesses show "—" with no bull/cow result.
+- On correct guess (4B 0C): the row flashes green, then transitions to results screen.
+
+### UI & Visual Design
+
+Same minimal chrome approach as the other training games:
+
+- **Top bar:** Game title, close button.
+- **Prompt:** "Guess the 4-digit number" (always visible).
+- **Guess history:** Scrollable list, most recent at bottom. Each row styled as a card-like strip.
+- **Current guess:** 4 large digit slots at the bottom of the history, filling left-to-right with each tap.
+- **Timer bar:** Below the guess area. Hidden in Chill mode. Same accent → yellow → red style as other games.
+- **Number pad:** Two rows (1–5, 6–9 + 0) + backspace and submit buttons below.
+- **Guess counter:** "guess 4 of 10" below the timer bar.
+- All animations respect the global animation toggle.
+
+### Navigation
+
+- Training Hub → "Bulls & Cows" card with Chill / Quick / Sprint mode buttons inline.
+- Card sits below Candidate Fill, above the locked games.
+- Card description: "Crack a secret code with logic and elimination."
+- Tapping a mode goes straight into gameplay.
+- The leaderboard shows "X guesses" instead of "X streak" for this game.
+
+---
+
 ## Future Game Ideas
 
 > Not designed yet — listed here as candidates for future planning. Each will get its own section when we decide to build it.
