@@ -320,6 +320,179 @@ Same layout as Number Rush results:
 
 ---
 
+## Game 3: Candidate Fill
+
+**One-line pitch:** Fill in every candidate for a region — get it perfect or go home.
+
+### Concept
+
+A full 9×9 board is shown with a highlighted target region (box, row, or column). The player must correctly mark all candidates for every empty cell in that region. Notes mode is always on — the interaction mirrors the main game exactly. When the player is confident, they tap Submit. If every candidate in every cell is correct (no missed, no extras), the streak increments, the timer resets, and a new region loads. Any mistake = game over.
+
+This trains the foundational skill that unlocks all advanced strategies: building accurate candidate lists by cross-referencing rows, columns, and boxes. A player who can do this quickly and flawlessly will spot naked pairs, hidden triples, and X-Wings naturally — because they'll actually _see_ the candidates.
+
+### Game Flow
+
+1. Generate a partially solved board and select a target region with 3–6 empty cells.
+2. Display the full board with the target region highlighted. Non-target cells are visible but not selectable.
+3. Player fills candidates using the familiar numpad interaction (numpad-first or cell-first).
+4. Player taps Submit when done.
+5. All correct → streak increments, timer resets, new board + region loaded.
+6. Any error → game over → results screen showing exactly what went wrong.
+
+```
+┌─────────────────────────────────────┐
+│  Score: 4            Best: 11       │
+│                                     │
+│  "Fill candidates for Box 5"       │
+│                                     │
+│  ┌───┬───┬───┬───┬───┬───┬───┬───┬───┐
+│  │ . │ 3 │ . │ . │ 7 │ . │ . │ 1 │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ . │ 8 │ . │ . │ . │ 3 │ . │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ 5 │ . │ . │ . │ . │ 3 │ . │ . │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ . │ 5 │▒▒▒│▒▒▒│▒▒▒│ . │ . │ 9 │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ . │ . │▒▒▒│▒▒▒│▒▒▒│ . │ . │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ 8 │ . │▒▒▒│▒▒▒│▒▒▒│ 5 │ . │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ . │ . │ . │ . │ 5 │ . │ . │ . │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ 5 │ . │ . │ . │ . │ . │ . │ 7 │
+│  ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
+│  │ . │ . │ . │ . │ . │ . │ . │ 5 │ . │
+│  └───┴───┴───┴───┴───┴───┴───┴───┴───┘
+│                                     │
+│  ████████████░░░░░ 22.5s            │
+│                                     │
+│  ┌───┬───┬───┬───┬───┐             │
+│  │ 1 │ 2 │ 3 │ 4 │ 5 │             │
+│  ├───┼───┼───┼───┼───┤             │
+│  │ 6 │ 7 │ 8 │ 9 │ ✓ │   ← Submit │
+│  └───┴───┴───┴───┴───┘             │
+│                                     │
+│  ── streak: 4 ──                    │
+└─────────────────────────────────────┘
+```
+
+### Input
+
+Mirrors the main game's Notes mode — always on, no toggle needed.
+
+- **Numpad-first mode** (default): tap a number on the pad, then tap empty cells in the target region to toggle that candidate in/out. Great for "let me place all the 3s" sweeps.
+- **Cell-first mode**: tap an empty cell in the target region, then tap numbers on the pad to toggle candidates. Great for "let me figure out this one cell" thinking.
+- Tapping a non-target cell does nothing (no selection, no highlight).
+- **Submit button** sits where the erase button normally would (bottom-right of the numpad grid). Tapping Submit locks in the answer and triggers validation.
+- **No undo/redo, no erase button, no hints, no pencil toggle.** Just the numpad and Submit. Clean.
+
+### Difficulty Modes
+
+| Mode   | Region type            | Empty cells | Board fill   | Starting time | Decay          | Floor |
+| ------ | ---------------------- | ----------- | ------------ | ------------- | -------------- | ----- |
+| Chill  | Boxes only             | 3–4         | ~55% filled  | 45s           | −1.0s / round  | 30s   |
+| Quick  | Boxes, rows, columns   | 4–5         | ~45% filled  | 35s           | −0.8s / round  | 20s   |
+| Sprint | Boxes, rows, columns   | 5–6         | ~35% filled  | 25s           | −0.5s / round  | 15s   |
+
+- **Chill** — Boxes only, fewer empty cells, generous time. The player learns the mechanic and builds confidence. A filled board means fewer candidates per cell, so the mental load is lighter.
+- **Quick** — Any region type, more empty cells. Rows and columns are harder than boxes because the player must scan more of the board. Standard competitive mode.
+- **Sprint** — Sparser board means more candidates per cell, more cells per region, and less time. This is where high scores come from.
+
+Timer behavior identical to the other games: countdown bar, accent → yellow → red color transition, resets on correct submission.
+
+**Timer tuning rationale:** Candidate Fill needs significantly more time per round than Number Rush (one digit) or Where Does N Go? (one tap). A region with 5 empty cells averaging 3–4 candidates each means ~15–20 individual taps. The 45s/35s/25s starting times account for this while still creating pressure at higher streaks.
+
+### Generation
+
+1. Use the puzzle generator to create a Beginner/Easy puzzle (same as Where Does N Go?).
+2. Run the solver partway to get a partially solved board state — the amount of solving controls board fill level:
+   - **Chill (~55% filled)**: solve more steps before freezing.
+   - **Quick (~45% filled)**: solve fewer steps.
+   - **Sprint (~35% filled)**: freeze early, close to the initial puzzle state.
+3. Pick a random target region (based on mode — box only or any house type).
+4. Count empty cells in that region. If outside the mode's range (e.g., only 2 empty cells for Chill which needs 3–4), pick a different region. If no region qualifies, generate a new puzzle.
+5. Compute the correct candidate set for each empty cell in the target region — this is the answer key. For each empty cell, valid candidates = digits 1–9 minus digits already present in the cell's row, column, and box.
+6. **Validation:** Ensure every empty cell in the target region has at least 2 candidates. A cell with only 1 candidate is a naked single — too trivial and feels like a freebie. If any cell has only 1 candidate, pick a different region or regenerate.
+
+**Avoiding repetition:**
+
+- Don't reuse the same region type (box/row/column) on consecutive rounds.
+- Don't reuse the same region index (e.g., Box 5 twice in a row).
+- Generate a fresh puzzle each round — generation is fast for Beginner/Easy.
+
+**Performance note:** Same as Where Does N Go? — if per-round generation causes lag, pre-generate a small buffer (2–3 boards ahead) while the player is solving.
+
+### Scoring & Leaderboard
+
+Identical structure to Number Rush and Where Does N Go?:
+
+- **Score** = streak count (consecutive perfect regions).
+- **Top 10 leaderboard per mode**, stored in `TrainingStorageService`.
+- **Ranking:** higher streak wins, tiebreaker = lower total time.
+- Each entry: `streak`, `totalTimeMs`, `playedAt`.
+- Best score shown during gameplay so the player has a target.
+
+### Results Screen (Game Over)
+
+Shown when the player submits with any error, or the timer runs out (unsubmitted work counts as all wrong).
+
+**Standard results (same as other games):**
+
+- Final streak and total time.
+- Leaderboard position (celebration if top 3 / new record).
+- Average time per region.
+- **Play Again** (same mode) and **Back to Training** buttons.
+
+### Game-Over Feedback
+
+When the game ends on an incorrect submission, the results screen shows the target region with a detailed error breakdown:
+
+**Visual overlay on the region:**
+
+- **Correct candidates** the player entered — shown in the default text color. No highlight needed, these are fine.
+- **Missed candidates** (player didn't enter, but should have) — shown in **green** with a subtle "+" indicator. These are candidates the player forgot.
+- **Phantom candidates** (player entered, but shouldn't have) — shown in **red** with a strikethrough. These are candidates the player added incorrectly.
+
+**Per-error explanations:**
+
+Below the region, a scrollable list of short explanations for each error:
+
+- For a **phantom** candidate: _"5 can't go in R4C5 — 5 is already in column 5."_
+- For a **missed** candidate: _"You missed 2 in R5C4 — no 2 in row 5, column 4, or box 5."_
+
+Explanations reference the specific row, column, or box that blocks or allows the candidate. This teaches the player _why_ they were wrong, not just _that_ they were wrong.
+
+**Summary line:** _"4 missed, 1 phantom — 17 of 22 candidates correct (77%)."_ Gives the player a sense of how close they were.
+
+If the timer ran out (no submission): show the correct candidates for all cells with a message _"Time's up — here's what the candidates should be."_ No error highlighting since nothing was submitted.
+
+### UI & Visual Design
+
+Same minimal chrome approach as the other training games:
+
+- **Top bar:** Score (current streak) and best score for the mode.
+- **Prompt:** Large, clear text — "Fill candidates for Box 5" or "Fill candidates for Row 3".
+- **Board:** Full 9×9 using the existing `BoardWidget`. Target region has a subtle accent background tint (~10% opacity). Non-target cells are visible but dimmed slightly and not selectable. Given cells styled as givens, solver-placed cells styled as filled values.
+- **Numpad:** Two-row layout (1–5, 6–9 + Submit). Submit button uses a checkmark icon with accent color. No undo, redo, erase, or pencil toggle.
+- **Timer bar:** Below the board, same horizontal countdown bar as other games.
+- **Streak counter:** Below the timer.
+- **Candidate display:** Same small-number rendering as the main game's pencil marks. Players see their work building up in real time — familiar and satisfying.
+- On correct submission: brief green flash on the region, then board crossfades to the next challenge (200ms).
+- On wrong submission: brief red flash on cells with errors, then results screen with the full error breakdown.
+- On timeout: timer bar pulses red, then results screen.
+- All animations respect the global animation toggle.
+
+### Navigation
+
+- Training Hub → "Candidate Fill" card with Chill / Quick / Sprint mode buttons inline.
+- Card sits below "Where Does N Go?", above the coming-soon games.
+- Card description: "Mark every candidate in a region — perfectly."
+- Tapping a mode goes straight into gameplay (no intermediate screen).
+- The leaderboard mode selector gains the new game's modes.
+
+---
+
 ## Future Game Ideas
 
 > Not designed yet — listed here as candidates for future planning. Each will get its own section when we decide to build it.
@@ -338,9 +511,7 @@ Given a board with full pencil marks, identify which candidates can be eliminate
 
 Show a board state, ask "which strategy applies here?" as a multiple-choice question. Pure pattern recognition, no solving required. Good for learning to identify strategy shapes (X-Wing, Pointing Pair, etc.).
 
-### Candidate Fill
-
-Given a partially filled board region (a box, row, or column), correctly mark all candidates for the empty cells. The player taps cells and enters candidates — the game scores based on accuracy (missed candidates and phantom candidates both count as errors). This trains the foundational skill of building candidate lists mentally, which is the prerequisite for every strategy beyond naked and hidden singles. Could have a timed mode (fill candidates before the clock runs out) and a precision mode (no timer, scored purely on correctness).
+### ~~Candidate Fill~~ → Moved to full design (Game 3 above)
 
 ### Chain Tracer
 
