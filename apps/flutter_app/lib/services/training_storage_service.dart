@@ -139,6 +139,27 @@ enum BullsAndCowsMode {
   bool get hasTimer => timerMs > 0;
 }
 
+/// Difficulty modes for Spot the Pattern.
+enum SpotThePatternMode {
+  chill('Chill', 20000, 15000, 300),
+  quick('Quick', 17000, 12000, 200),
+  sprint('Sprint', 15000, 10000, 200);
+
+  final String label;
+  final int startingTimeMs;
+  final int minTimeMs;
+  final int decayPerRoundMs;
+
+  const SpotThePatternMode(
+      this.label, this.startingTimeMs, this.minTimeMs, this.decayPerRoundMs);
+
+  /// Time allowed for a given round (in ms).
+  int timeForRound(int round) {
+    final decayed = startingTimeMs - (round * decayPerRoundMs);
+    return decayed < minTimeMs ? minTimeMs : decayed;
+  }
+}
+
 /// Type of house shown in Number Rush.
 enum HouseType { box, row, column }
 
@@ -216,6 +237,10 @@ class TrainingStorageService extends ChangeNotifier {
   /// Storage key for Bulls & Cows leaderboard.
   static String bullsAndCowsKey(BullsAndCowsMode mode) =>
       'bullsAndCows_${mode.name}';
+
+  /// Storage key for Spot the Pattern leaderboard.
+  static String spotThePatternKey(SpotThePatternMode mode) =>
+      'spotThePattern_${mode.name}';
 
   /// Returns the correct comparator for a given storage key.
   static int Function(TrainingScore, TrainingScore) _comparatorForKey(

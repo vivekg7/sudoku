@@ -5,6 +5,7 @@ import '../../services/training_storage_service.dart';
 import 'bulls_and_cows_screen.dart';
 import 'candidate_fill_screen.dart';
 import 'number_rush_screen.dart';
+import 'spot_the_pattern_screen.dart';
 import 'where_does_n_go_screen.dart';
 
 /// A single mode entry for a training game card.
@@ -94,6 +95,7 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
         'whereDoesNGo': _whereDoesNGoModes(),
         'candidateFill': _candidateFillModes(),
         'bullsAndCows': _bullsAndCowsModes(),
+        'spotThePattern': _spotThePatternModes(),
       };
 
   // ── Game definitions ──────────────────────────────────────────────
@@ -158,6 +160,21 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
           ),
       ];
 
+  List<_GameMode> _spotThePatternModes() => [
+        for (final mode in SpotThePatternMode.values)
+          _GameMode(
+            label: mode.label,
+            storageKey: TrainingStorageService.spotThePatternKey(mode),
+            onStart: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => SpotThePatternScreen(
+                mode: mode,
+                settings: widget.settings,
+                trainingStorage: widget.trainingStorage,
+              ),
+            )),
+          ),
+      ];
+
   // ── Build ─────────────────────────────────────────────────────────
 
   @override
@@ -206,10 +223,13 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
               scoreLabel: 'guesses',
             ),
             const SizedBox(height: 12),
-            _lockedGameCard(
+            _gameCard(
               context,
-              name: 'Strategy Snap',
-              description: 'Apply the right strategy to fill one cell.',
+              gameKey: 'spotThePattern',
+              icon: Icons.visibility,
+              name: 'Spot the Pattern',
+              description: 'Name the strategy \u2014 can you see it?',
+              modes: _spotThePatternModes(),
             ),
             const SizedBox(height: 12),
             _lockedGameCard(

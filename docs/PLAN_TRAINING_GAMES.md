@@ -656,9 +656,7 @@ Given a board with full pencil marks, identify which candidates can be eliminate
 
 ### ~~Where Does N Go?~~ → Moved to full design (Game 2 above)
 
-### Spot the Pattern
-
-Show a board state, ask "which strategy applies here?" as a multiple-choice question. Pure pattern recognition, no solving required. Good for learning to identify strategy shapes (X-Wing, Pointing Pair, etc.).
+### ~~Spot the Pattern~~ → Moved to full design: [PLAN_SPOT_THE_PATTERN.md](PLAN_SPOT_THE_PATTERN.md) (Game 5)
 
 ### ~~Candidate Fill~~ → Moved to full design (Game 3 above)
 
