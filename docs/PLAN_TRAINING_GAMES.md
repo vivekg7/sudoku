@@ -650,9 +650,7 @@ Same minimal chrome approach as the other training games:
 
 Given a real puzzle board state, apply strategy X to fill exactly one cell. Tests whether the player can recognize and execute a specific strategy on demand. Wrong strategy usage gets feedback explaining what they should have done instead.
 
-### Candidate Killer
-
-Given a board with full pencil marks, identify which candidates can be eliminated and by which strategy. Trains the "spotting" skill — the hardest part of advanced solving.
+### ~~Candidate Killer~~ → Moved to full design: [PLAN_CANDIDATE_KILLER.md](PLAN_CANDIDATE_KILLER.md) (Game 6)
 
 ### ~~Where Does N Go?~~ → Moved to full design (Game 2 above)
 

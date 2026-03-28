@@ -4,6 +4,7 @@ import '../../services/settings_service.dart';
 import '../../services/training_storage_service.dart';
 import 'bulls_and_cows_screen.dart';
 import 'candidate_fill_screen.dart';
+import 'candidate_killer_screen.dart';
 import 'number_rush_screen.dart';
 import 'spot_the_pattern_screen.dart';
 import 'where_does_n_go_screen.dart';
@@ -96,6 +97,7 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
         'candidateFill': _candidateFillModes(),
         'bullsAndCows': _bullsAndCowsModes(),
         'spotThePattern': _spotThePatternModes(),
+        'candidateKiller': _candidateKillerModes(),
       };
 
   // ── Game definitions ──────────────────────────────────────────────
@@ -175,6 +177,21 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
           ),
       ];
 
+  List<_GameMode> _candidateKillerModes() => [
+        for (final mode in CandidateKillerMode.values)
+          _GameMode(
+            label: mode.label,
+            storageKey: TrainingStorageService.candidateKillerKey(mode),
+            onStart: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => CandidateKillerScreen(
+                mode: mode,
+                settings: widget.settings,
+                trainingStorage: widget.trainingStorage,
+              ),
+            )),
+          ),
+      ];
+
   // ── Build ─────────────────────────────────────────────────────────
 
   @override
@@ -232,10 +249,13 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
               modes: _spotThePatternModes(),
             ),
             const SizedBox(height: 12),
-            _lockedGameCard(
+            _gameCard(
               context,
+              gameKey: 'candidateKiller',
+              icon: Icons.content_cut,
               name: 'Candidate Killer',
-              description: 'Spot which candidates can be eliminated.',
+              description: 'Find every elimination \u2014 no mistakes allowed.',
+              modes: _candidateKillerModes(),
             ),
           ],
         ),
@@ -524,69 +544,6 @@ class _TrainingHubScreenState extends State<TrainingHubScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ── Locked card ───────────────────────────────────────────────────
-
-  Widget _lockedGameCard(
-    BuildContext context, {
-    required String name,
-    required String description,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(Icons.lock_outline,
-                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color:
-                          colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'Soon',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

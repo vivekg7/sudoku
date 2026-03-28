@@ -160,6 +160,27 @@ enum SpotThePatternMode {
   }
 }
 
+/// Difficulty modes for Candidate Killer.
+enum CandidateKillerMode {
+  chill('Chill', 25000, 18000, 500),
+  quick('Quick', 20000, 13000, 400),
+  sprint('Sprint', 18000, 10000, 300);
+
+  final String label;
+  final int startingTimeMs;
+  final int minTimeMs;
+  final int decayPerRoundMs;
+
+  const CandidateKillerMode(
+      this.label, this.startingTimeMs, this.minTimeMs, this.decayPerRoundMs);
+
+  /// Time allowed for a given round (in ms).
+  int timeForRound(int round) {
+    final decayed = startingTimeMs - (round * decayPerRoundMs);
+    return decayed < minTimeMs ? minTimeMs : decayed;
+  }
+}
+
 /// Type of house shown in Number Rush.
 enum HouseType { box, row, column }
 
@@ -241,6 +262,10 @@ class TrainingStorageService extends ChangeNotifier {
   /// Storage key for Spot the Pattern leaderboard.
   static String spotThePatternKey(SpotThePatternMode mode) =>
       'spotThePattern_${mode.name}';
+
+  /// Storage key for Candidate Killer leaderboard.
+  static String candidateKillerKey(CandidateKillerMode mode) =>
+      'candidateKiller_${mode.name}';
 
   /// Returns the correct comparator for a given storage key.
   static int Function(TrainingScore, TrainingScore) _comparatorForKey(
