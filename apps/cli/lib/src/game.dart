@@ -353,8 +353,23 @@ class Game {
   void _handleHint() {
     if (_currentHint == null || _hintLayer >= 3) {
       // Generate a new hint.
-      _currentHint = _hintGen.generate(puzzle.board);
+      final result = _hintGen.generateHint(puzzle.board);
       _hintLayer = 0;
+
+      switch (result) {
+        case HintFound(:final hint):
+          _currentHint = hint;
+        case HintNeedsCandidates(:final placementHint):
+          // Auto-fill candidates in CLI mode for better hints.
+          computeCandidates(puzzle.board);
+          final retry = _hintGen.generateHint(puzzle.board);
+          _currentHint = switch (retry) {
+            HintFound(:final hint) => hint,
+            _ => placementHint,
+          };
+        case HintNotAvailable():
+          _currentHint = null;
+      }
 
       if (_currentHint == null) {
         print('No hint available - the board may be in an invalid state.');

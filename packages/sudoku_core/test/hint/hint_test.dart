@@ -1,6 +1,21 @@
 import 'package:sudoku_core/sudoku_core.dart';
 import 'package:test/test.dart';
 
+/// Helper: extracts a [Hint] from a [HintResult], or returns null.
+Hint? _extractHint(HintResult result) => switch (result) {
+      HintFound(:final hint) => hint,
+      HintNeedsCandidates(:final placementHint) => placementHint,
+      HintNotAvailable() => null,
+    };
+
+/// Creates a board with candidates already filled so the hint generator
+/// goes through the candidate-aware path.
+Board _boardWithCandidates(String flat) {
+  final board = Board.fromString(flat);
+  computeCandidates(board);
+  return board;
+}
+
 void main() {
   group('Hint', () {
     test('textForLevel returns correct text for each level', () {
@@ -24,8 +39,8 @@ void main() {
       hintGen = HintGenerator();
     });
 
-    test('returns null for a solved board', () {
-      final board = Board.fromString(
+    test('returns HintNotAvailable for a solved board', () {
+      final board = _boardWithCandidates(
         '534678912'
         '672195348'
         '198342567'
@@ -37,10 +52,11 @@ void main() {
         '345286179',
       );
 
-      expect(hintGen.generate(board), isNull);
+      final result = hintGen.generateHint(board);
+      expect(result, isA<HintNotAvailable>());
     });
 
-    test('generates a hint for an unsolved board', () {
+    test('returns HintNeedsCandidates for board without candidates', () {
       final board = Board.fromString(
         '530070000'
         '600195000'
@@ -53,7 +69,29 @@ void main() {
         '000080079',
       );
 
-      final hint = hintGen.generate(board);
+      final result = hintGen.generateHint(board);
+      expect(result, isA<HintNeedsCandidates>());
+
+      final hint = (result as HintNeedsCandidates).placementHint;
+      expect(hint, isNotNull);
+      expect(hint!.nudge, isNotEmpty);
+    });
+
+    test('generates a hint for board with candidates', () {
+      final board = _boardWithCandidates(
+        '530070000'
+        '600195000'
+        '098000060'
+        '800060003'
+        '400803001'
+        '700020006'
+        '060000280'
+        '000419005'
+        '000080079',
+      );
+
+      final result = hintGen.generateHint(board);
+      final hint = _extractHint(result);
 
       expect(hint, isNotNull);
       expect(hint!.nudge, isNotEmpty);
@@ -62,7 +100,7 @@ void main() {
     });
 
     test('nudge layer mentions a region but not the exact cell', () {
-      final board = Board.fromString(
+      final board = _boardWithCandidates(
         '530070000'
         '600195000'
         '098000060'
@@ -74,15 +112,14 @@ void main() {
         '000080079',
       );
 
-      final hint = hintGen.generate(board)!;
+      final hint = _extractHint(hintGen.generateHint(board))!;
 
-      // Nudge should mention "box" but not "R_C_" notation.
       expect(hint.nudge, contains('box'));
       expect(hint.nudge, isNot(contains('R')));
     });
 
     test('strategy layer mentions the strategy name', () {
-      final board = Board.fromString(
+      final board = _boardWithCandidates(
         '530070000'
         '600195000'
         '098000060'
@@ -94,14 +131,12 @@ void main() {
         '000080079',
       );
 
-      final hint = hintGen.generate(board)!;
-
-      // Strategy hint should mention the strategy label.
+      final hint = _extractHint(hintGen.generateHint(board))!;
       expect(hint.strategyHint, contains(hint.step.strategy.label));
     });
 
     test('answer layer contains exact cell coordinates', () {
-      final board = Board.fromString(
+      final board = _boardWithCandidates(
         '530070000'
         '600195000'
         '098000060'
@@ -113,14 +148,12 @@ void main() {
         '000080079',
       );
 
-      final hint = hintGen.generate(board)!;
-
-      // Answer should contain R_C_ notation.
+      final hint = _extractHint(hintGen.generateHint(board))!;
       expect(hint.answer, matches(RegExp(r'R\dC\d')));
     });
 
     test('each layer reveals progressively more information', () {
-      final board = Board.fromString(
+      final board = _boardWithCandidates(
         '530070000'
         '600195000'
         '098000060'
@@ -132,18 +165,15 @@ void main() {
         '000080079',
       );
 
-      final hint = hintGen.generate(board)!;
+      final hint = _extractHint(hintGen.generateHint(board))!;
 
-      // Nudge should be shorter/vaguer than strategy hint.
-      // Strategy hint should be shorter than the answer (or at least different).
-      // All three should be different strings.
       expect(hint.nudge, isNot(equals(hint.strategyHint)));
       expect(hint.strategyHint, isNot(equals(hint.answer)));
       expect(hint.nudge, isNot(equals(hint.answer)));
     });
 
-    test('hint step matches what Solver.nextStep would return', () {
-      final board = Board.fromString(
+    test('hint fast-forwards past already-applied eliminations', () {
+      final board = _boardWithCandidates(
         '530070000'
         '600195000'
         '098000060'
@@ -155,18 +185,26 @@ void main() {
         '000080079',
       );
 
-      final hint = hintGen.generate(board)!;
+      // Get the first hint.
+      final result1 = hintGen.generateHint(board);
+      final hint1 = _extractHint(result1)!;
 
-      // Verify the underlying step has the same strategy as a direct solve.
-      final clone = board.clone();
-      computeCandidates(clone);
-      final directStep = Solver().nextStep(clone);
+      // Apply its effects to the board.
+      final solver = Solver();
+      solver.applyStep(board, hint1.step);
 
-      expect(hint.step.strategy, equals(directStep!.strategy));
+      // Request a second hint — should be different.
+      final result2 = hintGen.generateHint(board);
+      final hint2 = _extractHint(result2)!;
+
+      // At least one of strategy or description should differ.
+      final sameStrategy = hint2.step.strategy == hint1.step.strategy;
+      final sameDescription = hint2.step.description == hint1.step.description;
+      expect(sameStrategy && sameDescription, isFalse);
     });
 
     test('nudge for placement step mentions the digit', () {
-      final board = Board.fromString(
+      final board = _boardWithCandidates(
         '530070000'
         '600195000'
         '098000060'
@@ -178,7 +216,7 @@ void main() {
         '000080079',
       );
 
-      final hint = hintGen.generate(board)!;
+      final hint = _extractHint(hintGen.generateHint(board))!;
 
       if (hint.step.placements.isNotEmpty) {
         final digit = hint.step.placements.first.value.toString();
@@ -187,7 +225,7 @@ void main() {
     });
 
     test('answer for placement step says Place', () {
-      final board = Board.fromString(
+      final board = _boardWithCandidates(
         '530070000'
         '600195000'
         '098000060'
@@ -199,7 +237,7 @@ void main() {
         '000080079',
       );
 
-      final hint = hintGen.generate(board)!;
+      final hint = _extractHint(hintGen.generateHint(board))!;
 
       if (hint.step.placements.isNotEmpty) {
         expect(hint.answer, contains('Place'));

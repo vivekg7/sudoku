@@ -20,6 +20,10 @@ class HintPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (gameState.showCandidatePrompt) {
+      return _buildCandidatePrompt(context);
+    }
+
     final text = gameState.hintText;
     if (text == null) return const SizedBox.shrink();
 
@@ -155,6 +159,83 @@ class HintPanel extends StatelessWidget {
     }
 
     return Text(text, style: const TextStyle(fontSize: 13, height: 1.3));
+  }
+
+  Widget _buildCandidatePrompt(BuildContext context) {
+    final sc = Theme.of(context).extension<SudokuColors>()!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: sc.nudgeBg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: sc.nudgeBorder, width: 0.5),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.edit_note, size: 18, color: sc.nudgeAccent),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'HINT',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: sc.nudgeAccent,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                const Text(
+                  'Fill in all pencil marks for better hints.',
+                  style: TextStyle(fontSize: 13, height: 1.3),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    OutlinedButton(
+                      onPressed: gameState.declineCandidatePrompt,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        minimumSize: const Size(0, 32),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child:
+                          const Text('Skip', style: TextStyle(fontSize: 12)),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton(
+                      onPressed: gameState.acceptCandidatePrompt,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        minimumSize: const Size(0, 32),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text('Auto-fill notes',
+                          style: TextStyle(fontSize: 12)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 16),
+            onPressed: gameState.dismissCandidatePrompt,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            splashRadius: 16,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _moreButton(BuildContext context) {

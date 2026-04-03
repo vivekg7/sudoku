@@ -9,49 +9,145 @@ import 'hint.dart';
 ///
 /// Uses the [Solver] to find the next logical step, then extracts
 /// three progressively detailed hint layers from it.
+///
+/// Handles two scenarios:
+/// - **Candidates incomplete**: prompts the user to fill candidates, with
+///   a fallback hint pointing to the next placement.
+/// - **Candidates complete**: fast-forwards past steps the user has already
+///   applied and returns the next unapplied step.
 class HintGenerator {
   final Solver _solver;
 
+  /// Cached solve result to avoid re-solving on every hint request.
+  String? _cachedBoardKey;
+  List<SolveStep>? _cachedSteps;
+
   HintGenerator({Solver? solver}) : _solver = solver ?? Solver();
 
-  /// Generates a [Hint] for the current board state, or `null` if
-  /// the board is already solved or no strategy applies.
+  /// Generates a [HintResult] for the current board state.
   ///
   /// If [solution] and [initialBoard] are provided, checks for wrong
-  /// values first (user-filled cells that don't match the solution).
-  /// When found, returns a staged hint guiding the player to the mistake
-  /// instead of a normal strategy hint.
-  ///
-  /// The board must have candidates computed. If [computeCandidatesFirst]
-  /// is true (default), candidates are computed on a clone before solving.
-  Hint? generate(
+  /// values first. When found, returns a staged hint guiding the player
+  /// to the mistake instead of a normal strategy hint.
+  HintResult generateHint(
     Board board, {
-    bool computeCandidatesFirst = true,
     Board? solution,
     Board? initialBoard,
   }) {
     // Check for wrong values before normal hint generation.
     if (solution != null && initialBoard != null) {
       final wrongHint = _checkWrongValues(board, solution, initialBoard);
-      if (wrongHint != null) return wrongHint;
+      if (wrongHint != null) return HintFound(wrongHint);
     }
 
-    final work = computeCandidatesFirst ? board.clone() : board;
-    if (computeCandidatesFirst) computeCandidates(work);
+    if (areCandidatesComplete(board)) {
+      return _generateWithCandidates(board);
+    }
+    return _generateWithoutCandidates(board);
+  }
 
+  // ---------------------------------------------------------------------------
+  // Case 1: Candidates are incomplete
+  // ---------------------------------------------------------------------------
+
+  /// Returns [HintNeedsCandidates] with a fallback placement hint (if any).
+  HintResult _generateWithoutCandidates(Board board) {
+    final steps = _solveAndCache(board);
+
+    // Find the first step that places a value.
+    for (final step in steps) {
+      if (step.placements.isNotEmpty) {
+        final hint = Hint(
+          step: step,
+          nudge: _buildNudge(step),
+          strategyHint: _buildStrategyHint(step),
+          answer: _buildAnswer(step),
+        );
+        return HintNeedsCandidates(placementHint: hint);
+      }
+    }
+
+    // No placement reachable — still prompt for candidates.
+    return HintNeedsCandidates();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Case 2: Candidates are complete — fast-forward past applied steps
+  // ---------------------------------------------------------------------------
+
+  /// Solves the puzzle, skips steps already reflected in the user's board,
+  /// and returns the first unapplied step.
+  HintResult _generateWithCandidates(Board board) {
+    final steps = _solveAndCache(board);
+
+    for (final step in steps) {
+      if (_isStepAlreadyApplied(board, step)) continue;
+
+      // This step has unapplied effects — build a hint for it.
+      return HintFound(Hint(
+        step: step,
+        nudge: _buildNudge(step),
+        strategyHint: _buildStrategyHint(step),
+        answer: _buildAnswer(step, userBoard: board),
+      ));
+    }
+
+    // All cached steps applied — try a fresh single-step lookup in case
+    // the board has progressed beyond the cached solve path.
+    final work = board.clone();
+    computeCandidates(work);
     final step = _solver.nextStep(work);
-    if (step == null) return null;
+    if (step == null) return HintNotAvailable();
 
-    return Hint(
+    return HintFound(Hint(
       step: step,
       nudge: _buildNudge(step),
       strategyHint: _buildStrategyHint(step),
       answer: _buildAnswer(step),
-    );
+    ));
   }
 
-  /// Checks for user-filled cells whose values don't match the solution.
-  /// Returns a wrong-value hint if any are found, or `null` if all correct.
+  /// Returns `true` if all effects of [step] are already reflected on [board].
+  bool _isStepAlreadyApplied(Board board, SolveStep step) {
+    for (final p in step.placements) {
+      final cell = board.getCell(p.row, p.col);
+      if (cell.value != p.value) return false;
+    }
+
+    for (final e in step.eliminations) {
+      final cell = board.getCell(e.row, e.col);
+      if (cell.isFilled) continue; // cell was filled — elimination is moot
+      if (cell.candidates.contains(e.value)) return false;
+    }
+
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Solve result caching
+  // ---------------------------------------------------------------------------
+
+  /// Solves the puzzle and caches the result keyed by the board's value state.
+  List<SolveStep> _solveAndCache(Board board) {
+    final key = board.toFlatString();
+    if (key == _cachedBoardKey && _cachedSteps != null) {
+      return _cachedSteps!;
+    }
+
+    var result = _solver.solve(board, useBacktracking: false);
+    if (!result.isSolved) {
+      result = _solver.solve(board, useBacktracking: true);
+    }
+
+    _cachedBoardKey = key;
+    _cachedSteps = result.steps;
+    return result.steps;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Wrong-value detection (unchanged)
+  // ---------------------------------------------------------------------------
+
   Hint? _checkWrongValues(Board board, Board solution, Board initialBoard) {
     final wrongCells = <({int row, int col, int value})>[];
 
@@ -107,13 +203,12 @@ class HintGenerator {
     return '${parts.join(' and ')} ${wrongCells.length == 1 ? 'is' : 'are'} wrong';
   }
 
+  // ---------------------------------------------------------------------------
+  // Hint text builders
+  // ---------------------------------------------------------------------------
+
   /// Layer 1: A vague directional nudge.
-  ///
-  /// Points the player to a region and digit without revealing the
-  /// technique or exact cell. Picks the most specific single region
-  /// (box > row > column) that contains the action.
   String _buildNudge(SolveStep step) {
-    // Determine the target cell and value.
     if (step.placements.isNotEmpty) {
       final p = step.placements.first;
       final region = _mostSpecificRegion(p.row, p.col);
@@ -121,7 +216,6 @@ class HintGenerator {
     }
 
     if (step.eliminations.isNotEmpty) {
-      // For eliminations, nudge toward the area where the pattern is.
       final cell = step.involvedCells.isNotEmpty
           ? step.involvedCells.first
           : (row: step.eliminations.first.row, col: step.eliminations.first.col);
@@ -145,14 +239,26 @@ class HintGenerator {
   }
 
   /// Layer 3: The exact action to take.
-  String _buildAnswer(SolveStep step) {
+  ///
+  /// When [userBoard] is provided, already-applied placements and
+  /// eliminations are filtered out so the answer only shows what
+  /// the user still needs to do.
+  String _buildAnswer(SolveStep step, {Board? userBoard}) {
     final parts = <String>[];
 
     for (final p in step.placements) {
+      if (userBoard != null &&
+          userBoard.getCell(p.row, p.col).value == p.value) {
+        continue;
+      }
       parts.add('Place ${p.value} at R${p.row + 1}C${p.col + 1}');
     }
 
     for (final e in step.eliminations) {
+      if (userBoard != null) {
+        final cell = userBoard.getCell(e.row, e.col);
+        if (cell.isFilled || !cell.candidates.contains(e.value)) continue;
+      }
       parts.add('Eliminate ${e.value} from R${e.row + 1}C${e.col + 1}');
     }
 
@@ -161,7 +267,6 @@ class HintGenerator {
   }
 
   /// Returns the most specific single region name for a cell.
-  /// Prefers box (smaller area = better nudge) over row/column.
   String _mostSpecificRegion(int row, int col) {
     final box = (row ~/ 3) * 3 + col ~/ 3;
     return 'box ${box + 1}';
@@ -176,24 +281,20 @@ class HintGenerator {
     final cols = cells.map((c) => c.col).toSet();
     final boxes = cells.map((c) => (c.row ~/ 3) * 3 + c.col ~/ 3).toSet();
 
-    // If all in one box, say that.
     if (boxes.length == 1) {
       return 'in box ${boxes.first + 1}';
     }
 
-    // If spanning specific rows, mention those.
     if (rows.length <= 3 && rows.length < cols.length) {
       final rowLabels = (rows.toList()..sort()).map((r) => '${r + 1}');
       return 'on row${rows.length > 1 ? 's' : ''} ${rowLabels.join(' and ')}';
     }
 
-    // If spanning specific columns, mention those.
     if (cols.length <= 3) {
       final colLabels = (cols.toList()..sort()).map((c) => '${c + 1}');
       return 'on column${cols.length > 1 ? 's' : ''} ${colLabels.join(' and ')}';
     }
 
-    // Fallback: mention the boxes involved.
     final boxLabels = (boxes.toList()..sort()).map((b) => '${b + 1}');
     return 'in boxes ${boxLabels.join(' and ')}';
   }

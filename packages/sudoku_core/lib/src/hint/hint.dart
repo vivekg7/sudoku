@@ -1,5 +1,25 @@
 import '../solver/solve_step.dart';
 
+/// Result of hint generation.
+sealed class HintResult {}
+
+/// A normal hint was found.
+class HintFound extends HintResult {
+  final Hint hint;
+  HintFound(this.hint);
+}
+
+/// No hint available (puzzle solved or solver stuck).
+class HintNotAvailable extends HintResult {}
+
+/// Candidates are incomplete — the user should fill them first for
+/// strategy-aware hints. Contains an optional fallback hint that points
+/// to the next placement (skipping elimination-only steps).
+class HintNeedsCandidates extends HintResult {
+  final Hint? placementHint;
+  HintNeedsCandidates({this.placementHint});
+}
+
 /// The level of detail a hint reveals.
 enum HintLevel {
   /// A vague nudge - region and digit only.

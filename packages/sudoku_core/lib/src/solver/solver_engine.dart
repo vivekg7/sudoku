@@ -87,7 +87,7 @@ class Solver {
 
       if (step != null) {
         steps.add(step);
-        _applyStep(work, step);
+        applyStep(work, step);
         continue;
       }
 
@@ -96,7 +96,7 @@ class Solver {
         final btStep = _backtracking.apply(work);
         if (btStep != null) {
           steps.add(btStep);
-          _applyStep(work, btStep);
+          applyStep(work, btStep);
           continue;
         }
       }
@@ -136,7 +136,7 @@ class Solver {
   }
 
   /// Applies a solve step to the board: places values and eliminates candidates.
-  void _applyStep(Board board, SolveStep step) {
+  void applyStep(Board board, SolveStep step) {
     for (final placement in step.placements) {
       final cell = board.getCell(placement.row, placement.col);
       cell.setValue(placement.value);

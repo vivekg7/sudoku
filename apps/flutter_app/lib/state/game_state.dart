@@ -28,6 +28,8 @@ class GameState extends ChangeNotifier {
   final Map<HintLevel, int> _hintCounts = {};
   final Map<StrategyType, int> _hintStrategyCounts = {};
   int _mistakeCount = 0;
+  bool _showCandidatePrompt = false;
+  Hint? _pendingPlacementHint;
 
   /// Cooldown seconds: nudge -> strategy.
   static const int _cooldownNudge = 10;
@@ -85,6 +87,9 @@ class GameState extends ChangeNotifier {
 
   /// Whether the next hint layer would be the answer (layer 3).
   bool get nextHintIsAnswer => _hintLayer == 2 && maxHintLayer >= 3;
+
+  /// Whether the "fill candidates?" prompt is showing.
+  bool get showCandidatePrompt => _showCandidatePrompt;
 
   /// Whether the solved state has been shown to the user.
   bool get isSolvedNotified => _isSolvedNotified;
@@ -593,14 +598,24 @@ class GameState extends ChangeNotifier {
 
     // If we've shown all allowed layers, generate a new hint on next press.
     if (_currentHint == null || _hintLayer >= maxHintLayer) {
-      _currentHint = _hintGen.generate(
+      final result = _hintGen.generateHint(
         _puzzle!.board,
         solution: _puzzle!.solution,
         initialBoard: _puzzle!.initialBoard,
       );
-      _hintLayer = 0;
 
-      if (_currentHint == null) return; // no hint available
+      switch (result) {
+        case HintFound(:final hint):
+          _currentHint = hint;
+          _hintLayer = 0;
+        case HintNotAvailable():
+          return;
+        case HintNeedsCandidates(:final placementHint):
+          _showCandidatePrompt = true;
+          _pendingPlacementHint = placementHint;
+          notifyListeners();
+          return;
+      }
     }
 
     _hintLayer++;
@@ -613,8 +628,42 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// User chose to auto-fill candidates and get a proper hint.
+  void acceptCandidatePrompt() {
+    _showCandidatePrompt = false;
+    _pendingPlacementHint = null;
+    autoFillAllNotes();
+    requestHint();
+  }
+
+  /// User declined to fill candidates — show the placement-only hint.
+  void declineCandidatePrompt() {
+    _showCandidatePrompt = false;
+    if (_pendingPlacementHint != null) {
+      _currentHint = _pendingPlacementHint;
+      _pendingPlacementHint = null;
+      _hintLayer = 1;
+      _hintShownAt = DateTime.now();
+      _hintCounts[HintLevel.nudge] =
+          (_hintCounts[HintLevel.nudge] ?? 0) + 1;
+      final strategy = _currentHint!.step.strategy;
+      _hintStrategyCounts[strategy] =
+          (_hintStrategyCounts[strategy] ?? 0) + 1;
+    } else {
+      _pendingPlacementHint = null;
+    }
+    notifyListeners();
+  }
+
+  /// User dismissed the candidate prompt without choosing.
+  void dismissCandidatePrompt() {
+    _showCandidatePrompt = false;
+    _pendingPlacementHint = null;
+    notifyListeners();
+  }
+
   void dismissHint() {
-    if (_currentHint == null) return;
+    if (_currentHint == null && !_showCandidatePrompt) return;
     _clearHint();
     notifyListeners();
   }
@@ -623,6 +672,8 @@ class GameState extends ChangeNotifier {
     _currentHint = null;
     _hintLayer = 0;
     _hintShownAt = null;
+    _showCandidatePrompt = false;
+    _pendingPlacementHint = null;
   }
 
   /// Cells involved in the current hint pattern (for board highlighting).
