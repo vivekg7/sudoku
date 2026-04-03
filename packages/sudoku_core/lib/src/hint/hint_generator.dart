@@ -211,7 +211,10 @@ class HintGenerator {
   String _buildNudge(SolveStep step) {
     if (step.placements.isNotEmpty) {
       final p = step.placements.first;
-      final region = _mostSpecificRegion(p.row, p.col);
+      // Use the house from the strategy description when available
+      // (e.g., hidden single reports "in row 1" or "in column 3").
+      final region = _extractHouse(step.description) ??
+          _mostSpecificRegion(p.row, p.col);
       return 'Look for ${p.value} in $region';
     }
 
@@ -264,6 +267,19 @@ class HintGenerator {
 
     if (parts.isEmpty) return step.description;
     return parts.join('; ');
+  }
+
+  /// Extracts a house name ("row N", "column N", "box N") from a strategy
+  /// description string, or returns `null` if none is found.
+  ///
+  /// Strategy descriptions use patterns like "... in row 1" or "... in box 5",
+  /// so this reliably picks up the house the strategy identified.
+  static final _housePattern = RegExp(r'(row|column|box) (\d)');
+
+  String? _extractHouse(String description) {
+    final match = _housePattern.firstMatch(description);
+    if (match == null) return null;
+    return '${match.group(1)} ${match.group(2)}';
   }
 
   /// Returns the most specific single region name for a cell.

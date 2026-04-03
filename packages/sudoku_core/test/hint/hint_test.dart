@@ -114,7 +114,9 @@ void main() {
 
       final hint = _extractHint(hintGen.generateHint(board))!;
 
-      expect(hint.nudge, contains('box'));
+      // Nudge should mention a region (box, row, or column) but not "R_C_".
+      expect(hint.nudge,
+          anyOf(contains('box'), contains('row'), contains('column')));
       expect(hint.nudge, isNot(contains('R')));
     });
 
