@@ -1,7 +1,9 @@
+import '../hint/hint.dart';
 import '../models/board.dart';
 import '../models/candidate_set.dart';
 import '../models/difficulty.dart';
 import '../models/puzzle.dart';
+import '../solver/strategy_type.dart';
 
 /// An entry in the puzzle store - a saved or bookmarked puzzle.
 class PuzzleEntry {
@@ -20,11 +22,23 @@ class PuzzleEntry {
   /// Elapsed play time in seconds when the game was saved.
   final int elapsedSeconds;
 
+  /// Hints taken, broken down by layer.
+  final Map<HintLevel, int> hintsByLevel;
+
+  /// Hints taken, broken down by strategy type.
+  final Map<StrategyType, int> hintsByStrategy;
+
+  /// Number of mistakes made.
+  final int mistakeCount;
+
   PuzzleEntry({
     required this.id,
     required this.puzzle,
     this.bookmarked = false,
     this.elapsedSeconds = 0,
+    this.hintsByLevel = const {},
+    this.hintsByStrategy = const {},
+    this.mistakeCount = 0,
     DateTime? savedAt,
   }) : savedAt = savedAt ?? DateTime.now();
 
@@ -33,6 +47,9 @@ class PuzzleEntry {
         puzzle: puzzle,
         bookmarked: bookmarked ?? this.bookmarked,
         elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
+        hintsByLevel: hintsByLevel,
+        hintsByStrategy: hintsByStrategy,
+        mistakeCount: mistakeCount,
         savedAt: savedAt,
       );
 
@@ -48,6 +65,13 @@ class PuzzleEntry {
         'createdAt': puzzle.createdAt.toIso8601String(),
         if (puzzle.quoteId != null) 'quoteId': puzzle.quoteId,
         'elapsedSeconds': elapsedSeconds,
+        'hintsByLevel': {
+          for (final e in hintsByLevel.entries) e.key.name: e.value,
+        },
+        'hintsByStrategy': {
+          for (final e in hintsByStrategy.entries) e.key.name: e.value,
+        },
+        'mistakeCount': mistakeCount,
       };
 
   factory PuzzleEntry.fromJson(Map<String, dynamic> json) {
@@ -73,11 +97,30 @@ class PuzzleEntry {
       quoteId: json['quoteId'] as int?,
     );
 
+    final hintsByLevel = <HintLevel, int>{};
+    final rawHintsByLevel = json['hintsByLevel'] as Map<String, dynamic>?;
+    if (rawHintsByLevel != null) {
+      for (final e in rawHintsByLevel.entries) {
+        hintsByLevel[HintLevel.values.byName(e.key)] = e.value as int;
+      }
+    }
+
+    final hintsByStrategy = <StrategyType, int>{};
+    final rawHintsByStrategy = json['hintsByStrategy'] as Map<String, dynamic>?;
+    if (rawHintsByStrategy != null) {
+      for (final e in rawHintsByStrategy.entries) {
+        hintsByStrategy[StrategyType.values.byName(e.key)] = e.value as int;
+      }
+    }
+
     return PuzzleEntry(
       id: json['id'] as String,
       puzzle: puzzle,
       bookmarked: json['bookmarked'] as bool? ?? false,
       elapsedSeconds: json['elapsedSeconds'] as int? ?? 0,
+      hintsByLevel: hintsByLevel,
+      hintsByStrategy: hintsByStrategy,
+      mistakeCount: json['mistakeCount'] as int? ?? 0,
       savedAt: DateTime.parse(json['savedAt'] as String),
     );
   }

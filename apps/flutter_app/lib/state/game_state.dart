@@ -142,7 +142,13 @@ class GameState extends ChangeNotifier {
   }
 
   /// Resume from a saved puzzle (no generation needed).
-  void resumePuzzle(Puzzle puzzle, {int elapsedSeconds = 0}) {
+  void resumePuzzle(
+    Puzzle puzzle, {
+    int elapsedSeconds = 0,
+    Map<HintLevel, int> hintsByLevel = const {},
+    Map<StrategyType, int> hintsByStrategy = const {},
+    int mistakeCount = 0,
+  }) {
     _timer?.cancel();
     _puzzle = puzzle;
     _selectedRow = null;
@@ -158,9 +164,13 @@ class GameState extends ChangeNotifier {
     _currentHint = null;
     _hintLayer = 0;
     _hintShownAt = null;
-    _hintCounts.clear();
-    _hintStrategyCounts.clear();
-    _mistakeCount = 0;
+    _hintCounts
+      ..clear()
+      ..addAll(hintsByLevel);
+    _hintStrategyCounts
+      ..clear()
+      ..addAll(hintsByStrategy);
+    _mistakeCount = mistakeCount;
     _stopwatch.start();
     _startTimer();
     notifyListeners();

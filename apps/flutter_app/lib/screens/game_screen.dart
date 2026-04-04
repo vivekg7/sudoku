@@ -52,6 +52,9 @@ class _GameScreenState extends State<GameScreen>
       _gameState.resumePuzzle(
         widget.resumeEntry!.puzzle,
         elapsedSeconds: widget.resumeEntry!.elapsedSeconds,
+        hintsByLevel: widget.resumeEntry!.hintsByLevel,
+        hintsByStrategy: widget.resumeEntry!.hintsByStrategy,
+        mistakeCount: widget.resumeEntry!.mistakeCount,
       );
     } else {
       _gameState.newGame(widget.difficulty);
@@ -91,6 +94,9 @@ class _GameScreenState extends State<GameScreen>
       id: _puzzleEntryId!,
       puzzle: puzzle,
       elapsedSeconds: _gameState.elapsedSeconds,
+      hintsByLevel: _gameState.hintCounts,
+      hintsByStrategy: _gameState.hintStrategyCounts,
+      mistakeCount: _gameState.mistakeCount,
     ));
   }
 
