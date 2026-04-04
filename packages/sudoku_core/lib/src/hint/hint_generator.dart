@@ -219,10 +219,7 @@ class HintGenerator {
     }
 
     if (step.eliminations.isNotEmpty) {
-      final cell = step.involvedCells.isNotEmpty
-          ? step.involvedCells.first
-          : (row: step.eliminations.first.row, col: step.eliminations.first.col);
-      final region = _mostSpecificRegion(cell.row, cell.col);
+      final region = _describeNudgeRegion(step);
       return 'Take a closer look at $region';
     }
 
@@ -280,6 +277,27 @@ class HintGenerator {
     final match = _housePattern.firstMatch(description);
     if (match == null) return null;
     return '${match.group(1)} ${match.group(2)}';
+  }
+
+  /// Returns the best single region name for an elimination-only step,
+  /// based on the involved cells. Prefers a shared row/column/box when
+  /// cells span multiple boxes (e.g., hidden pair in a column).
+  String _describeNudgeRegion(SolveStep step) {
+    final cells = step.involvedCells.isNotEmpty
+        ? step.involvedCells
+        : [(row: step.eliminations.first.row, col: step.eliminations.first.col)];
+
+    final rows = cells.map((c) => c.row).toSet();
+    final cols = cells.map((c) => c.col).toSet();
+    final boxes = cells.map((c) => (c.row ~/ 3) * 3 + c.col ~/ 3).toSet();
+
+    if (boxes.length == 1) return 'box ${boxes.first + 1}';
+    if (rows.length == 1) return 'row ${rows.first + 1}';
+    if (cols.length == 1) return 'column ${cols.first + 1}';
+
+    // Fallback: use the box of the first cell.
+    final box = (cells.first.row ~/ 3) * 3 + cells.first.col ~/ 3;
+    return 'box ${box + 1}';
   }
 
   /// Returns the most specific single region name for a cell.
