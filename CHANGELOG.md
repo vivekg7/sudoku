@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.6.0 — 2026-04-04
+
+- 4 new training games: Candidate Fill, Bulls & Cows, Spot the Pattern, Candidate Killer
+- Share puzzle feature with QR code
+- 79 new inspirational quotes from diverse origins
+- Persist hint counts and mistake count across saved games
+- Fix hint system: wrong house for nudges, repeating hints for candidate removals
+- Improved saved games tile layout for small screens
+
+---
+
 ## v1.5.0 — 2026-03-27
 
 - "Where Does N Go?" training game — find the only cell for a digit on a full board

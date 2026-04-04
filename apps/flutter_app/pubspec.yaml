@@ -1,7 +1,7 @@
 name: sudoku
 description: "Offline Sudoku app with full solving engine and multi-layer hints."
 publish_to: "none"
-version: 1.5.0+7
+version: 1.6.0+8
 
 environment:
   sdk: ^3.11.1
