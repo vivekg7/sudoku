@@ -86,55 +86,90 @@ class SavedGamesScreen extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        title: Text(
-          puzzle.difficulty.label,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          '$filled / $total cells filled  \u2022  ${_formatDate(entry.savedAt)}',
-          style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
-        ),
-        leading: SizedBox(
-          width: 40,
-          height: 40,
-          child: CircularProgressIndicator(
-            value: progress,
-            strokeWidth: 3,
-            backgroundColor: colorScheme.outlineVariant,
-            color: colorScheme.primary,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _resumeGame(context, entry),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: CircularProgressIndicator(
+                      value: progress,
+                      strokeWidth: 3,
+                      backgroundColor: colorScheme.outlineVariant,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          puzzle.difficulty.label,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '$filled / $total cells filled  \u2022  ${_formatDate(entry.savedAt)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.share_outlined,
+                      size: 20,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    onPressed: () => showSharePuzzleSheet(
+                      context: context,
+                      puzzle: entry.puzzle,
+                    ),
+                    tooltip: 'Share',
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      entry.bookmarked
+                          ? Icons.bookmark
+                          : Icons.bookmark_border,
+                      size: 20,
+                      color: entry.bookmarked
+                          ? sudokuColors.bookmark
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                    onPressed: () => storage.toggleBookmark(entry.id),
+                    tooltip:
+                        entry.bookmarked ? 'Remove bookmark' : 'Bookmark',
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 20,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    onPressed: () => _confirmDelete(context, entry),
+                    tooltip: 'Delete',
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(Icons.share_outlined, color: colorScheme.onSurfaceVariant),
-              onPressed: () => showSharePuzzleSheet(
-                context: context,
-                puzzle: entry.puzzle,
-              ),
-              tooltip: 'Share',
-            ),
-            IconButton(
-              icon: Icon(
-                entry.bookmarked ? Icons.bookmark : Icons.bookmark_border,
-                color: entry.bookmarked
-                    ? sudokuColors.bookmark
-                    : colorScheme.onSurfaceVariant,
-              ),
-              onPressed: () => storage.toggleBookmark(entry.id),
-              tooltip: entry.bookmarked ? 'Remove bookmark' : 'Bookmark',
-            ),
-            IconButton(
-              icon: Icon(Icons.delete_outline, color: colorScheme.onSurfaceVariant),
-              onPressed: () => _confirmDelete(context, entry),
-              tooltip: 'Delete',
-            ),
-          ],
-        ),
-        onTap: () => _resumeGame(context, entry),
       ),
     );
   }
