@@ -9,12 +9,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  barcode: ^2.2.9
   cupertino_icons: ^1.0.9
   path_provider: ^2.1.5
   file_picker: ^10.3.10
   pdf: ^3.12.0
   printing: ^5.14.3
   mobile_scanner: ^7.2.0
+  share_plus: ^12.0.2
   sudoku_core:
     path: ../../packages/sudoku_core
 

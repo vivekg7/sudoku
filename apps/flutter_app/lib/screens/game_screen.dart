@@ -9,6 +9,7 @@ import '../widgets/board_widget.dart';
 import '../widgets/hint_panel.dart';
 import '../widgets/number_pad.dart';
 import '../widgets/quote_banner.dart';
+import '../widgets/share_puzzle_sheet.dart';
 import '../widgets/solved_dialog.dart';
 import 'analysis_screen.dart';
 
@@ -355,6 +356,19 @@ class _GameScreenState extends State<GameScreen>
           onPressed: _gameState.togglePause,
           icon: const Icon(Icons.play_arrow),
           label: const Text('Resume'),
+        ),
+        const SizedBox(height: 12),
+        TextButton.icon(
+          onPressed: () {
+            if (_gameState.puzzle != null) {
+              showSharePuzzleSheet(
+                context: context,
+                puzzle: _gameState.puzzle!,
+              );
+            }
+          },
+          icon: const Icon(Icons.share_outlined, size: 18),
+          label: const Text('Share'),
         ),
       ],
     );

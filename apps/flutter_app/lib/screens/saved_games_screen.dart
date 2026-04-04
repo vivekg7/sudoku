@@ -4,6 +4,7 @@ import 'package:sudoku_core/sudoku_core.dart';
 import '../services/settings_service.dart';
 import '../services/storage_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/share_puzzle_sheet.dart';
 import 'game_screen.dart';
 
 class SavedGamesScreen extends StatelessWidget {
@@ -108,6 +109,14 @@ class SavedGamesScreen extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            IconButton(
+              icon: Icon(Icons.share_outlined, color: colorScheme.onSurfaceVariant),
+              onPressed: () => showSharePuzzleSheet(
+                context: context,
+                puzzle: entry.puzzle,
+              ),
+              tooltip: 'Share',
+            ),
             IconButton(
               icon: Icon(
                 entry.bookmarked ? Icons.bookmark : Icons.bookmark_border,
